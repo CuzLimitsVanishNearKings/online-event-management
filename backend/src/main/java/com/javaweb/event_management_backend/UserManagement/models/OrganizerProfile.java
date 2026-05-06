@@ -15,7 +15,7 @@ public class OrganizerProfile
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "id")
+    @Column(name = "organizer_profile_id")
     private Long id;
 
     @OneToOne(fetch = FetchType.LAZY)
