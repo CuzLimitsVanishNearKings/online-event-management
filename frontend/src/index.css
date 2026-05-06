@@ -1,3 +1,103 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+@import './styles/animations.css';
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-background text-text-primary;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    line-height: 1.6;
+  }
+
+  h1 {
+    @apply text-3xl font-semibold text-text-primary;
+  }
+
+  h2 {
+    @apply text-2xl font-semibold text-text-primary;
+  }
+
+  h3 {
+    @apply text-xl font-medium text-text-primary;
+  }
+
+  h4 {
+    @apply text-lg font-medium text-text-primary;
+  }
+
+  p {
+    @apply text-text-primary leading-relaxed;
+  }
+
+  label {
+    @apply text-sm font-medium text-text-primary;
+  }
+
+  input, textarea, select {
+    @apply bg-background border border-border rounded-lg px-4 py-2 text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all duration-200;
+  }
+}
+
+@layer components {
+  .btn-primary {
+    @apply bg-primary text-white px-6 py-2.5 rounded-lg font-medium hover:bg-primary-dark focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-secondary {
+    @apply bg-primary-light text-primary px-6 py-2.5 rounded-lg font-medium hover:bg-primary hover:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-outline {
+    @apply border border-primary text-primary px-6 py-2.5 rounded-lg font-medium hover:bg-primary hover:text-white focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2 transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .input-group {
+    @apply flex flex-col space-y-2;
+  }
+
+  .card {
+    @apply bg-surface border border-border rounded-xl p-6 shadow-sm;
+  }
+
+  .text-muted {
+    @apply text-text-muted;
+  }
+
+  .text-primary {
+    @apply text-text-primary;
+  }
+
+  .truncate-text {
+    @apply line-clamp-3;
+  }
+
+  .custom-list {
+    @apply list-none pl-6;
+  }
+
+  .custom-list li:before {
+    content: "•";
+    @apply text-primary absolute -ml-4;
+  }
+}
+
+@layer utilities {
+  .transition-colors {
+    transition: color 200ms ease-in-out, background-color 200ms ease-in-out, border-color 200ms ease-in-out;
+  }
+
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2;
+  }
+
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+}
