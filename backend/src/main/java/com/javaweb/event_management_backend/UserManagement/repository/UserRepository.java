@@ -12,7 +12,7 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface UserRespository extends JpaRepository<User, Long >
+public interface UserRepository extends JpaRepository<User, Long >
 {
 
     List<User> findByFirstName(String firstName);
@@ -23,7 +23,7 @@ public interface UserRespository extends JpaRepository<User, Long >
 
     List<User> findByStatus(UserStatus status);
 
-    List<User> findByCreatedAt(LocalDateTime createdAt);
+    List<User> findByCreatedAtBetween(LocalDateTime start, LocalDateTime end);
 
     List<User> findByCreatedAtAfter(LocalDateTime date);
 

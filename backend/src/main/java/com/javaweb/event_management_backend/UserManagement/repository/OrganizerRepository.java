@@ -4,12 +4,13 @@ import com.javaweb.event_management_backend.UserManagement.models.OrganizerProfi
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.List;
 import java.util.Optional;
 
 
 @Repository
 public interface OrganizerRepository extends JpaRepository<OrganizerProfile, Long >
 {
-    Optional<OrganizerProfile> findByOrganizationName(String name);
-    
+    List<OrganizerProfile> findByOrganizationName(String name);
+
 }

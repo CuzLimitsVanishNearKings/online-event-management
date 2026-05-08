@@ -4,16 +4,14 @@ package com.javaweb.event_management_backend.UserManagement.models;
 import com.javaweb.event_management_backend.UserManagement.enums.UserRole;
 import com.javaweb.event_management_backend.UserManagement.enums.UserStatus;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
 @Getter
+@Builder
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
