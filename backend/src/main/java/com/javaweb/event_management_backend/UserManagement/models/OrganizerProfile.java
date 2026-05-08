@@ -1,8 +1,9 @@
 package com.javaweb.event_management_backend.UserManagement.models;
 
-
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "organizer_profiles")
@@ -36,4 +37,16 @@ public class OrganizerProfile
 
     @Column(name = "logo_url")
     private String logoUrl;
+
+    @Column(name = "verified", nullable = false)
+    private Boolean verified = false;
+
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private LocalDateTime createdAt;
+
+    @PrePersist
+    protected void onCreate()
+    {
+        this.createdAt = LocalDateTime.now();
+    }
 }
