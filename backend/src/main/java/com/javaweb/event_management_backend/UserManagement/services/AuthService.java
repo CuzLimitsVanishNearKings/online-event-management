@@ -9,6 +9,8 @@ import com.javaweb.event_management_backend.UserManagement.models.OrganizerProfi
 import com.javaweb.event_management_backend.UserManagement.models.User;
 import com.javaweb.event_management_backend.UserManagement.repository.OrganizerRepository;
 import com.javaweb.event_management_backend.UserManagement.repository.UserRepository;
+import com.javaweb.event_management_backend.UserManagement.exceptions.EmailAlreadyExistsException;
+import com.javaweb.event_management_backend.UserManagement.exceptions.UserNotFoundException;
 import com.javaweb.event_management_backend.UserManagement.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,7 +36,7 @@ public class AuthService
     {
         if (userRepository.findByEmail(dto.getEmail()).isPresent())
         {
-            throw new RuntimeException("Email already in use: " + dto.getEmail());
+            throw new EmailAlreadyExistsException("Email already in use: " + dto.getEmail());
         }
 
         User user = userMappers.toEntity(dto);
@@ -53,7 +55,7 @@ public class AuthService
     {
         if (userRepository.findByEmail(dto.getEmail()).isPresent())
         {
-            throw new RuntimeException("Email already in use: " + dto.getEmail());
+            throw new EmailAlreadyExistsException("Email already in use: " + dto.getEmail());
         }
 
         User user = userMappers.toEntity(dto);

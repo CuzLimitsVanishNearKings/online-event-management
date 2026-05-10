@@ -42,6 +42,11 @@ public class SecurityConfig
                         .requestMatchers("/api/events/create").hasRole("ORGANIZER")
                         .requestMatchers("/api/events/update/**").hasRole("ORGANIZER")
                         .requestMatchers("/api/events/delete/**").hasRole("ORGANIZER")
+                        .requestMatchers(
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/api-docs/**"
+                        ).permitAll()
 
                         // Any authenticated user
                         .anyRequest().authenticated()
