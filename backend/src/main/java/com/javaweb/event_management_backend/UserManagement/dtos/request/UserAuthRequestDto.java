@@ -52,7 +52,7 @@ public class UserAuthRequestDto
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
-    public static class OrganizationSignup extends UserSignup
+    public static class OrganizerSignup extends UserSignup
     {
         @NotBlank
         private String organizationName;
