@@ -12,6 +12,7 @@ public class UserResponseDto
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
+    @Builder
     public static class UserSummary
     {
         private String firstName;
@@ -26,6 +27,7 @@ public class UserResponseDto
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
+    @Builder
     public static class UserDetail
     {
         private String firstName;
