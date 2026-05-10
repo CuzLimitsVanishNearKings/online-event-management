@@ -1,5 +1,6 @@
 import { format, parseISO } from 'date-fns'
-import { formatCurrency } from '@/utils/format'
+import { Calendar, MapPin, User, DollarSign, Users, CheckCircle, Share2, Heart, Clock } from '../icons'
+import { cn } from '../../utils/cn'
 
 interface EventHeroProps {
   event: {
@@ -20,133 +21,118 @@ interface EventHeroProps {
 
 const EventHero = ({ event }: EventHeroProps) => {
   const formattedDate = format(parseISO(event.date), 'EEEE, MMMM dd, yyyy')
-  const imageUrl = event.image || `https://picsum.photos/seed/${event.id}/1200/400.jpg`
+  const imageUrl = event.image || `https://picsum.photos/seed/${event.id}/1200/600.jpg`
 
   return (
-    <div className="space-y-6">
-      {/* Hero Image */}
-      <div className="relative aspect-[3/1] overflow-hidden rounded-xl">
+    <div className="space-y-10">
+      {/* Hero Image Container */}
+      <div className="relative aspect-[21/9] overflow-hidden rounded-xl shadow-card">
         <img
           src={imageUrl}
           alt={event.title}
-          className="w-full h-full object-cover"
+          className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
         />
         
-        {/* Category Badge */}
-        <div className="absolute top-4 left-4">
-          <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-sm font-medium text-text-primary rounded-full border border-secondary">
+        {/* Overlays */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
+        
+        {/* Floating Category Badge */}
+        <div className="absolute top-6 left-6">
+          <span className="px-4 py-2 bg-white/90 backdrop-blur-md text-xs font-bold uppercase tracking-widest text-primary rounded-full border border-primary/20 shadow-lg">
             {event.category}
           </span>
         </div>
-      </div>
 
-      {/* Event Title and Basic Info */}
-      <div className="space-y-4">
-        <h1 className="text-3xl md:text-4xl font-bold text-text-primary">
-          {event.title}
-        </h1>
+        {/* Floating Actions */}
+        <div className="absolute top-6 right-6 flex gap-3">
+           <button className="p-3 bg-white/90 backdrop-blur-md rounded-2xl shadow-lg hover:bg-white transition-all group">
+              <Heart className="w-5 h-5 text-text-secondary group-hover:text-red-500 transition-colors" />
+           </button>
+           <button className="p-3 bg-white/90 backdrop-blur-md rounded-2xl shadow-lg hover:bg-white transition-all group">
+              <Share2 className="w-5 h-5 text-text-secondary group-hover:text-primary transition-colors" />
+           </button>
+        </div>
 
-        {/* Key Details Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div className="space-y-3">
-            {/* Date & Time */}
-            <div className="flex items-start space-x-3">
-              <div className="w-5 h-5 text-primary flex-shrink-0 mt-0.5">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <div>
-                <p className="font-medium text-text-primary">{formattedDate}</p>
-                <p className="text-text-muted">{event.time}</p>
-              </div>
-            </div>
-
-            {/* Location */}
-            <div className="flex items-start space-x-3">
-              <div className="w-5 h-5 text-primary flex-shrink-0 mt-0.5">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                </svg>
-              </div>
-              <div>
-                <p className="font-medium text-text-primary">{event.location}</p>
-              </div>
-            </div>
-
-            {/* Organizer */}
-            <div className="flex items-start space-x-3">
-              <div className="w-5 h-5 text-primary flex-shrink-0 mt-0.5">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                </svg>
-              </div>
-              <div>
-                <p className="font-medium text-text-primary">{event.organizer}</p>
-                <p className="text-text-muted">Event Organizer</p>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            {/* Price */}
-            <div className="flex items-start space-x-3">
-              <div className="w-5 h-5 text-primary flex-shrink-0 mt-0.5">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div>
-                <p className="font-medium text-text-primary">
-                  {event.price === 0 ? 'Free' : formatCurrency(event.price)}
-                </p>
-                <p className="text-text-muted">per ticket</p>
-              </div>
-            </div>
-
-            {/* Capacity */}
-            <div className="flex items-start space-x-3">
-              <div className="w-5 h-5 text-primary flex-shrink-0 mt-0.5">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-              </div>
-              <div>
-                <p className="font-medium text-text-primary">
-                  {event.currentAttendees} / {event.capacity}
-                </p>
-                <p className="text-text-muted">attending</p>
-              </div>
-            </div>
-
-            {/* Availability */}
-            <div className="flex items-start space-x-3">
-              <div className="w-5 h-5 text-primary flex-shrink-0 mt-0.5">
-                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div>
-                <p className="font-medium text-text-primary">
-                  {event.capacity - event.currentAttendees} spots left
-                </p>
-                <p className="text-text-muted">available</p>
-              </div>
-            </div>
-          </div>
+        {/* Event Title Over Image (Mobile Only/Contextual) */}
+        <div className="absolute bottom-8 left-8 right-8 md:hidden">
+           <h1 className="text-2xl font-display font-bold text-white tracking-tight">{event.title}</h1>
         </div>
       </div>
 
-      {/* Description */}
-      <div className="prose prose-lg max-w-none">
-        <h2 className="text-xl font-semibold text-text-primary mb-4">About this event</h2>
-        <p className="text-text-muted leading-relaxed whitespace-pre-wrap">
-          {event.description}
-        </p>
+      {/* Main Info Section */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 pt-4">
+        <div className="space-y-6">
+          <h1 className="hidden md:block text-4xl lg:text-5xl font-display font-bold text-text-primary tracking-tight leading-tight">
+            {event.title}
+          </h1>
+
+          <div className="flex flex-wrap gap-x-10 gap-y-4 pt-4 border-t border-border/50">
+             <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-primary/5 flex items-center justify-center">
+                   <Calendar className="w-5 h-5 text-primary" />
+                </div>
+                <div>
+                   <p className="text-xs font-bold text-text-muted uppercase tracking-wider">Date</p>
+                   <p className="text-sm font-bold text-text-primary">{formattedDate}</p>
+                </div>
+             </div>
+             <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-accent/5 flex items-center justify-center">
+                   <Clock className="w-5 h-5 text-accent" />
+                </div>
+                <div>
+                   <p className="text-xs font-bold text-text-muted uppercase tracking-wider">Time</p>
+                   <p className="text-sm font-bold text-text-primary">{event.time || '19:00 PM'}</p>
+                </div>
+             </div>
+             <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center">
+                   <MapPin className="w-5 h-5 text-text-secondary" />
+                </div>
+                <div>
+                   <p className="text-xs font-bold text-text-muted uppercase tracking-wider">Location</p>
+                   <p className="text-sm font-bold text-text-primary">{event.location}</p>
+                </div>
+             </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col justify-end space-y-6">
+           <div className="flex items-center gap-4 p-6 bg-gray-50 rounded-xl border border-border/50">
+              <div className="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center overflow-hidden">
+                 <img src={`https://i.pravatar.cc/100?u=${event.organizer}`} alt={event.organizer} />
+              </div>
+              <div>
+                 <p className="text-xs font-bold text-text-muted uppercase tracking-wider">Hosted by</p>
+                 <p className="text-lg font-display font-bold text-text-primary">{event.organizer}</p>
+              </div>
+           </div>
+           
+           <div className="flex items-center gap-6 px-4">
+              <div className="flex items-center gap-2">
+                 <Users className="w-5 h-5 text-text-muted" />
+                 <span className="text-sm font-bold text-text-primary">{event.currentAttendees} / {event.capacity} attending</span>
+              </div>
+              <div className="flex items-center gap-2">
+                 <CheckCircle className="w-5 h-5 text-green-500" />
+                 <span className="text-sm font-bold text-text-primary">{event.capacity - event.currentAttendees} spots left</span>
+              </div>
+           </div>
+        </div>
+      </div>
+
+      {/* About Section */}
+      <div className="pt-10 border-t border-border/50">
+        <h2 className="text-2xl font-display font-bold text-text-primary mb-6">About this event</h2>
+        <div className="prose prose-lg max-w-none prose-p:text-text-muted prose-headings:text-text-primary">
+          <p className="text-lg leading-relaxed whitespace-pre-wrap">
+            {event.description}
+          </p>
+        </div>
       </div>
     </div>
   )
 }
 
 export default EventHero
+

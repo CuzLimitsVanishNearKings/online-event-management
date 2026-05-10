@@ -1,5 +1,4 @@
 export { default as Button } from './Button'
 export { Card, CardHeader, CardContent, CardFooter } from './Card'
 export { default as Input } from './Input'
-export { default as CurrencySelector } from './CurrencySelector'
 export { default as LocationFilter } from './LocationFilter'

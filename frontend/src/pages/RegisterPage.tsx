@@ -1,75 +1,55 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Link, Navigate } from 'react-router-dom'
-import { useAuthStore } from '@/store/authStore'
-import { Button } from '@/components/ui'
-import { Input } from '@/components/ui'
+import { motion } from 'framer-motion'
+import { useAuthStore } from '../store/authStore'
+import { Button, Input } from '../components/ui'
+import { Eye, EyeOff, Github, Globe, AlertCircle } from '../components/icons'
+import AuthLayout from '../components/layout/AuthLayout'
 
-const RegisterPage = () => {
-  const [name, setName] = useState('')
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.3
+    }
+  }
+}
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 15 },
+  visible: { 
+    opacity: 1, 
+    y: 0,
+    transition: { type: 'spring', stiffness: 300, damping: 24 }
+  }
+}
+
+const RegisterPage = ({ isOrganizer = false }: { isOrganizer?: boolean }) => {
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
-  const [confirmPassword, setConfirmPassword] = useState('')
+  const [organizationName, setOrganizationName] = useState('')
   const [showPassword, setShowPassword] = useState(false)
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [errors, setErrors] = useState<string[]>([])
 
-  const { login, isAuthenticated } = useAuthStore()
+  const { registerAsync, registerOrganizerAsync, isAuthenticated, isLoading, error, clearError } = useAuthStore()
 
-  const validateForm = () => {
-    const newErrors: string[] = []
-
-    if (!name.trim()) {
-      newErrors.push('Name is required')
-    }
-
-    if (!email.trim()) {
-      newErrors.push('Email is required')
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      newErrors.push('Please enter a valid email')
-    }
-
-    if (!password) {
-      newErrors.push('Password is required')
-    } else if (password.length < 6) {
-      newErrors.push('Password must be at least 6 characters')
-    }
-
-    if (password !== confirmPassword) {
-      newErrors.push('Passwords do not match')
-    }
-
-    setErrors(newErrors)
-    return newErrors.length === 0
-  }
+  useEffect(() => {
+    clearError()
+  }, [clearError])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
-
-    if (!validateForm()) {
-      return
-    }
-
-    setIsLoading(true)
-
     try {
-      // Simulate API call - replace with actual API call
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      
-      // Mock registration - in real app, this would be an API call
-      const mockUser = {
-        id: '1',
-        name,
-        email,
-        role: 'user' as const
+      if (isOrganizer) {
+        await registerOrganizerAsync({ firstName, lastName, email, password, organizationName })
+      } else {
+        await registerAsync({ firstName, lastName, email, password })
       }
-      
-      login(mockUser, 'mock-token')
     } catch (err) {
-      console.error('Registration failed:', err)
-      setErrors(['Registration failed. Please try again.'])
-    } finally {
-      setIsLoading(false)
+      // Error is handled in the store
     }
   }
 
@@ -78,134 +58,151 @@ const RegisterPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
-      <div className="w-full max-w-md">
-        <div className="bg-white border border-secondary rounded-xl p-8">
-          {/* Header */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-text-primary mb-2">Create Account</h1>
-            <p className="text-text-muted">Join EventFlow to discover amazing events</p>
-          </div>
-
-          {/* Form */}
-          <form onSubmit={handleSubmit} className="space-y-6">
-            {/* Name */}
+    <AuthLayout 
+      title={isOrganizer ? "Become an Organizer" : "Create Account"}
+      subtitle={
+        isOrganizer 
+          ? "Host events, sell tickets, and manage your community on a premium platform."
+          : "Join a community of thousands. Whether you're here to discover experiences or host your own, your journey starts here."
+      }
+    >
+      <motion.form 
+        variants={containerVariants}
+        initial="hidden"
+        animate="visible"
+        onSubmit={handleSubmit} 
+        className="space-y-5"
+      >
+         <motion.div variants={itemVariants} className="grid grid-cols-2 gap-4">
             <Input
-              label="Full Name"
+              label="First Name"
               type="text"
-              placeholder="Enter your full name"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
+              placeholder="John"
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
               required
+              className="rounded-2xl bg-surface/50 border-border focus:bg-white transition-colors"
             />
-
-            {/* Email */}
             <Input
-              label="Email"
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              label="Last Name"
+              type="text"
+              placeholder="Doe"
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
               required
+              className="rounded-2xl bg-surface/50 border-border focus:bg-white transition-colors"
             />
+         </motion.div>
 
-            {/* Password */}
-            <div className="relative">
-              <Input
-                label="Password"
-                type={showPassword ? 'text' : 'password'}
-                placeholder="Create a password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                helperText="Must be at least 6 characters"
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3 top-9 text-text-muted hover:text-text-primary"
-              >
-                {showPassword ? (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                ) : (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                  </svg>
-                )}
-              </button>
-            </div>
+         {isOrganizer && (
+           <motion.div variants={itemVariants}>
+             <Input
+               label="Organization Name"
+               type="text"
+               placeholder="Acme Events Ltd."
+               value={organizationName}
+               onChange={(e) => setOrganizationName(e.target.value)}
+               required
+               className="rounded-2xl bg-surface/50 border-border focus:bg-white transition-colors"
+             />
+           </motion.div>
+         )}
 
-            {/* Confirm Password */}
-            <div className="relative">
-              <Input
-                label="Confirm Password"
-                type={showConfirmPassword ? 'text' : 'password'}
-                placeholder="Confirm your password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="absolute right-3 top-9 text-text-muted hover:text-text-primary"
-              >
-                {showConfirmPassword ? (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                  </svg>
-                ) : (
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
-                  </svg>
-                )}
-              </button>
-            </div>
+         <motion.div variants={itemVariants}>
+           <Input
+             label="Email Address"
+             type="email"
+             placeholder="name@example.com"
+             value={email}
+             onChange={(e) => setEmail(e.target.value)}
+             required
+             className="rounded-2xl bg-surface/50 border-border focus:bg-white transition-colors"
+           />
+         </motion.div>
 
-            {/* Error Messages */}
-            {errors.length > 0 && (
-              <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg text-sm">
-                {errors.map((error, index) => (
-                  <div key={index}>• {error}</div>
-                ))}
-              </div>
-            )}
-
-            {/* Submit Button */}
-            <Button
-              type="submit"
-              variant="primary"
-              size="lg"
-              loading={isLoading}
-              className="w-full"
+         <motion.div variants={itemVariants} className="relative">
+            <Input
+              label="Password"
+              type={showPassword ? 'text' : 'password'}
+              placeholder="••••••••"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="rounded-2xl bg-surface/50 border-border focus:bg-white transition-colors"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-4 top-[38px] text-text-muted hover:text-text-primary transition-colors p-1"
             >
-              {isLoading ? 'Creating Account...' : 'Create Account'}
-            </Button>
-          </form>
+              {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+            </button>
+         </motion.div>
 
-          {/* Sign In Link */}
-          <div className="mt-6 text-center">
-            <p className="text-text-muted">
-              Already have an account?{' '}
-              <Link to="/login" className="text-primary hover:text-primarydark font-medium">
-                Sign in
-              </Link>
+         <motion.p variants={itemVariants} className="text-[10px] text-text-muted font-bold uppercase tracking-widest leading-relaxed pt-2">
+            By signing up, you agree to our <a href="#" className="text-primary hover:underline">Terms of Service</a> and <a href="#" className="text-primary hover:underline">Privacy Policy</a>.
+         </motion.p>
+
+         {error && (
+            <motion.div 
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600"
+            >
+               <AlertCircle className="w-5 h-5 flex-shrink-0" />
+               <p className="text-sm font-bold">{error}</p>
+            </motion.div>
+         )}
+
+         <motion.div variants={itemVariants} className="pt-4">
+           <Button
+             type="submit"
+             variant="primary"
+             size="lg"
+             className="w-full rounded-2xl py-7 text-lg font-bold shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-shadow"
+             loading={isLoading}
+           >
+             {isLoading ? 'Creating account...' : 'Create Account'}
+           </Button>
+         </motion.div>
+
+         <motion.div variants={itemVariants} className="relative pt-6">
+            <div className="absolute inset-0 flex items-center pt-6">
+               <div className="w-full border-t border-border/60" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase font-bold tracking-widest">
+               <span className="bg-white px-4 text-text-muted">Or join with</span>
+            </div>
+         </motion.div>
+
+         <motion.div variants={itemVariants} className="grid grid-cols-2 gap-4">
+            <button type="button" className="flex items-center justify-center gap-3 px-6 py-4 border-2 border-border/60 rounded-2xl hover:bg-surface hover:border-border transition-all font-bold text-sm text-text-primary">
+               <Github className="w-5 h-5" />
+               GitHub
+            </button>
+            <button type="button" className="flex items-center justify-center gap-3 px-6 py-4 border-2 border-border/60 rounded-2xl hover:bg-surface hover:border-border transition-all font-bold text-sm text-text-primary">
+               <Globe className="w-5 h-5" />
+               Google
+            </button>
+         </motion.div>
+
+         <motion.div variants={itemVariants} className="flex flex-col gap-2 pt-4">
+            <p className="text-center text-text-muted font-medium">
+               Already have an account?{' '}
+               <Link to={isOrganizer ? "/organizer/login" : "/login"} className="text-primary font-bold hover:underline underline-offset-4">
+                  Sign In
+               </Link>
             </p>
-          </div>
-
-          {/* Back to Home */}
-          <div className="mt-4 text-center">
-            <Link to="/" className="text-text-muted hover:text-primary text-sm">
-              ← Back to home
-            </Link>
-          </div>
-        </div>
-      </div>
-    </div>
+            <div className="border-t border-border/60 my-2" />
+            <p className="text-center text-text-muted font-medium">
+               {isOrganizer ? "Just looking to attend?" : "Want to host events?"}{' '}
+               <Link to={isOrganizer ? "/register" : "/organizer/register"} className="text-text-primary font-bold hover:underline underline-offset-4">
+                  {isOrganizer ? "Sign up as Attendee" : "Sign up as Organizer"}
+               </Link>
+            </p>
+         </motion.div>
+      </motion.form>
+    </AuthLayout>
   )
 }
 

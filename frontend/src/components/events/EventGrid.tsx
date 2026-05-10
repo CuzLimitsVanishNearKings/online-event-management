@@ -1,103 +1,116 @@
+import { useState } from 'react'
 import EventCard from './EventCard'
 import { EventFilters } from './EventFilters'
+import { Search, Filter, ArrowUpDown, LayoutGrid, List } from '../icons'
+import { Button } from '../ui'
+import { cn } from '../../utils/cn'
 
 interface EventGridProps {
-  events: Event[]
+  events: any[]
   loading: boolean
   filters: EventFilters
+  onFiltersChange?: (filters: EventFilters) => void
 }
 
-interface Event {
-  id: string
-  title: string
-  date: string
-  location: string
-  category: string
-  price: number
-  image?: string
-}
-
-// Loading Skeleton Component
 const EventCardSkeleton = () => (
-  <div className="bg-white border border-secondary rounded-xl overflow-hidden">
-    {/* Image Skeleton */}
-    <div className="aspect-video bg-gray-200 animate-pulse" />
-    
-    {/* Content Skeleton */}
+  <div className="bg-white border border-border rounded-xl overflow-hidden animate-pulse">
+    <div className="aspect-[16/10] bg-gray-100" />
     <div className="p-4 space-y-3">
-      <div className="h-6 bg-gray-200 rounded animate-pulse" />
-      <div className="space-y-2">
-        <div className="h-4 bg-gray-200 rounded animate-pulse w-3/4" />
-        <div className="h-4 bg-gray-200 rounded animate-pulse w-2/3" />
+      <div className="h-4 bg-gray-100 rounded w-1/3" />
+      <div className="h-5 bg-gray-100 rounded w-3/4" />
+      <div className="h-4 bg-gray-100 rounded w-1/2" />
+      <div className="pt-3 border-t border-border/50">
+        <div className="h-4 bg-gray-100 rounded w-1/4" />
       </div>
-      <div className="h-6 bg-gray-200 rounded animate-pulse w-1/3" />
     </div>
   </div>
 )
 
-// Empty State Component
-const EmptyState = () => (
-  <div className="text-center py-16">
-    <div className="mx-auto w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-      <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-      </svg>
+const EmptyState = ({ onClear }: { onClear: () => void }) => (
+  <div className="flex flex-col items-center justify-center py-16 px-4 text-center bg-gray-50 rounded-xl border border-dashed border-border">
+    <div className="w-14 h-14 bg-white border border-border rounded-xl flex items-center justify-center mb-4">
+      <Search className="w-6 h-6 text-text-muted" />
     </div>
-    <h3 className="text-lg font-medium text-text-primary mb-2">No events found</h3>
-    <p className="text-text-muted max-w-md mx-auto">
-      Try adjusting your filters or search terms to find events that match your interests.
+    <h3 className="font-display font-bold text-lg text-text-primary mb-1">No events found</h3>
+    <p className="text-sm text-text-muted max-w-sm mb-6">
+      Try adjusting your filters or search to find what you're looking for.
     </p>
+    <Button variant="primary" size="sm" onClick={onClear}>
+      Clear Filters
+    </Button>
   </div>
 )
 
-const EventGrid = ({ events, loading, filters }: EventGridProps) => {
-  const renderContent = () => {
-    if (loading) {
-      return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.from({ length: 6 }).map((_, index) => (
-            <EventCardSkeleton key={index} />
-          ))}
-        </div>
-      )
-    }
+const EventGrid = ({ events, loading, filters, onFiltersChange }: EventGridProps) => {
+  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
+  const [sortBy, setSortBy] = useState<'relevance' | 'date' | 'price' | 'popularity'>('relevance')
 
-    if (events.length === 0) {
-      return <EmptyState />
+  const sortedEvents = [...events].sort((a, b) => {
+    switch (sortBy) {
+      case 'date': return new Date(a.date).getTime() - new Date(b.date).getTime()
+      case 'price': return a.price - b.price
+      case 'popularity': return (b.attendees || 0) - (a.attendees || 0)
+      default: return 0
     }
-
-    return (
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {events.map((event) => (
-          <EventCard key={event.id} event={event} />
-        ))}
-      </div>
-    )
-  }
+  })
 
   return (
     <div className="space-y-6">
-      {/* Results Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h2 className="text-2xl font-bold text-text-primary">Events</h2>
-          {!loading && events.length > 0 && (
-            <p className="text-text-muted mt-1">
-              {events.length} event{events.length !== 1 ? 's' : ''} found
-            </p>
-          )}
-        </div>
-        
-        {/* Active Filters Display */}
-        {(filters.search || filters.category || filters.city || filters.minPrice > 0 || filters.maxPrice < 500) && (
-          <div className="flex items-center text-sm text-text-muted">
-            <span>Filters applied</span>
+      {/* Controls Bar */}
+      <div className="flex items-center justify-between gap-4">
+        <p className="text-sm text-text-muted">
+          {loading ? 'Loading...' : `${events.length} events`}
+        </p>
+
+        <div className="flex items-center gap-2">
+          {/* View Toggle */}
+          <div className="hidden sm:flex items-center border border-border rounded-lg overflow-hidden">
+            <button
+              onClick={() => setViewMode('grid')}
+              className={cn("p-2 transition-colors", viewMode === 'grid' ? "bg-gray-100 text-text-primary" : "text-text-muted hover:text-text-primary")}
+            >
+              <LayoutGrid className="w-4 h-4" />
+            </button>
+            <button
+              onClick={() => setViewMode('list')}
+              className={cn("p-2 transition-colors", viewMode === 'list' ? "bg-gray-100 text-text-primary" : "text-text-muted hover:text-text-primary")}
+            >
+              <List className="w-4 h-4" />
+            </button>
           </div>
-        )}
+
+          {/* Sort */}
+          <div className="flex items-center gap-1.5 px-3 py-2 border border-border rounded-lg text-sm">
+            <ArrowUpDown className="w-3.5 h-3.5 text-text-muted" />
+            <select
+              value={sortBy}
+              onChange={(e) => setSortBy(e.target.value as any)}
+              className="bg-transparent border-none p-0 text-sm font-medium text-text-primary focus:ring-0 cursor-pointer"
+            >
+              <option value="relevance">Relevance</option>
+              <option value="date">Date</option>
+              <option value="price">Price</option>
+              <option value="popularity">Popular</option>
+            </select>
+          </div>
+        </div>
       </div>
 
-      {/* Events Grid */}
-      {renderContent()}
+      {/* Grid */}
+      {loading ? (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {Array.from({ length: 6 }).map((_, i) => <EventCardSkeleton key={i} />)}
+        </div>
+      ) : events.length === 0 ? (
+        <EmptyState onClear={() => onFiltersChange?.({ ...filters, search: '', category: '', city: '', minPrice: 0, maxPrice: 500 })} />
+      ) : (
+        <div className={cn(
+          "grid gap-6",
+          viewMode === 'grid' ? "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3" : "grid-cols-1"
+        )}>
+          {sortedEvents.map((event) => <EventCard key={event.id} event={event} />)}
+        </div>
+      )}
     </div>
   )
 }

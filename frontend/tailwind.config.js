@@ -3,7 +3,11 @@ export default {
    content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
    theme: {
       extend: {
-         colors:{
+         fontFamily: {
+            sans: ['"DM Sans"', 'system-ui', 'sans-serif'],
+            display: ['"Figtree"', '"DM Sans"', 'system-ui', 'sans-serif'],
+         },
+         colors: {
             // Matcha Cream & Milk Honey palette with beautiful blending colors
             'background': '#FDFBF7', // Warm off-white
             'surface': '#F1E8C7', // Milk Honey
@@ -26,7 +30,12 @@ export default {
             'success': '#87A96B', // Sage for success
             'warning': '#D4A574', // Honey for warnings
             'error': '#E2725B', // Terracotta for errors
-         }
+         },
+         boxShadow: {
+            'card': '0 2px 8px rgba(0, 0, 0, 0.08)',
+            'card-hover': '0 4px 16px rgba(0, 0, 0, 0.12)',
+            'nav': '0 1px 3px rgba(0, 0, 0, 0.06)',
+         },
       },
    },
    plugins: [],

@@ -1,119 +1,11 @@
 import { useState, useEffect } from 'react'
-import { useSearchParams } from 'react-router-dom'
-import EventFilters, { EventFilters as EventFiltersType } from '@/components/events/EventFilters'
-import EventGrid from '@/components/events/EventGrid'
-
-// Mock data
-const mockEvents = [
-  {
-    id: '1',
-    title: 'Summer Music Festival 2024',
-    date: '2024-07-15',
-    location: 'Central Park, New York',
-    category: 'Music',
-    price: 45,
-    image: 'https://picsum.photos/seed/music-fest/400/225.jpg'
-  },
-  {
-    id: '2',
-    title: 'Tech Startup Conference',
-    date: '2024-08-22',
-    location: 'Convention Center, San Francisco',
-    category: 'Technology',
-    price: 125,
-    image: 'https://picsum.photos/seed/tech-conf/400/225.jpg'
-  },
-  {
-    id: '3',
-    title: 'Food & Wine Tasting Evening',
-    date: '2024-06-30',
-    location: 'Downtown Winery, Chicago',
-    category: 'Food & Drink',
-    price: 75,
-    image: 'https://picsum.photos/seed/food-wine/400/225.jpg'
-  },
-  {
-    id: '4',
-    title: 'Art Gallery Opening',
-    date: '2024-07-08',
-    location: 'Modern Art Museum, Los Angeles',
-    category: 'Arts',
-    price: 25,
-    image: 'https://picsum.photos/seed/art-gallery/400/225.jpg'
-  },
-  {
-    id: '5',
-    title: 'Business Networking Summit',
-    date: '2024-09-12',
-    location: 'Business Plaza, Miami',
-    category: 'Business',
-    price: 95,
-    image: 'https://picsum.photos/seed/business-summit/400/225.jpg'
-  },
-  {
-    id: '6',
-    title: 'Wellness & Yoga Retreat',
-    date: '2024-08-05',
-    location: 'Peaceful Gardens, Boulder',
-    category: 'Health & Wellness',
-    price: 55,
-    image: 'https://picsum.photos/seed/yoga-retreat/400/225.jpg'
-  },
-  {
-    id: '7',
-    title: 'Comedy Night Special',
-    date: '2024-07-20',
-    location: 'Laugh Factory, New York',
-    category: 'Entertainment',
-    price: 35,
-    image: 'https://picsum.photos/seed/comedy-night/400/225.jpg'
-  },
-  {
-    id: '8',
-    title: 'Marathon Training Workshop',
-    date: '2024-08-10',
-    location: 'Sports Complex, Boston',
-    category: 'Sports',
-    price: 0,
-    image: 'https://picsum.photos/seed/marathon/400/225.jpg'
-  },
-  {
-    id: '9',
-    title: 'Coding Bootcamp Info Session',
-    date: '2024-07-25',
-    location: 'Tech Hub, Seattle',
-    category: 'Education',
-    price: 0,
-    image: 'https://picsum.photos/seed/coding-bootcamp/400/225.jpg'
-  },
-  {
-    id: '10',
-    title: 'Community BBQ Festival',
-    date: '2024-08-15',
-    location: 'City Park, Austin',
-    category: 'Social',
-    price: 15,
-    image: 'https://picsum.photos/seed/bbq-fest/400/225.jpg'
-  },
-  {
-    id: '11',
-    title: 'Jazz Evening Concert',
-    date: '2024-09-05',
-    location: 'Blue Note, New York',
-    category: 'Music',
-    price: 65,
-    image: 'https://picsum.photos/seed/jazz-concert/400/225.jpg'
-  },
-  {
-    id: '12',
-    title: 'Startup Pitch Night',
-    date: '2024-07-18',
-    location: 'Innovation Center, San Francisco',
-    category: 'Business',
-    price: 20,
-    image: 'https://picsum.photos/seed/pitch-night/400/225.jpg'
-  }
-]
+import { useSearchParams, Link } from 'react-router-dom'
+import EventFilters, { EventFilters as EventFiltersType } from '../components/events/EventFilters'
+import EventGrid from '../components/events/EventGrid'
+import { useEvents } from '../hooks/useEvents'
+import { Search, MapPin, Calendar, Filter, SlidersHorizontal, Grid, List, ChevronLeft, ChevronRight, X, Sparkles } from '../components/icons'
+import { Button } from '../components/ui'
+import { cn } from '../utils/cn'
 
 // Pagination Component
 const Pagination = ({ currentPage, totalPages, onPageChange }: {
@@ -124,126 +16,239 @@ const Pagination = ({ currentPage, totalPages, onPageChange }: {
   const pages = Array.from({ length: totalPages }, (_, i) => i + 1)
   
   return (
-    <div className="flex items-center justify-center space-x-2 mt-8">
-      <button
+    <div className="flex items-center justify-center gap-3 mt-20 pb-20">
+      <Button
+        variant="outline"
+        size="sm"
         onClick={() => onPageChange(currentPage - 1)}
         disabled={currentPage === 1}
-        className="px-3 py-2 text-sm border border-secondary rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="rounded-2xl w-12 h-12 p-0 border-border hover:border-primary transition-all"
       >
-        Previous
-      </button>
+        <ChevronLeft className="w-5 h-5" />
+      </Button>
       
-      {pages.map((page) => (
-        <button
-          key={page}
-          onClick={() => onPageChange(page)}
-          className={`px-3 py-2 text-sm border rounded-lg ${
-            currentPage === page
-              ? 'bg-primary text-white border-primary'
-              : 'border-secondary hover:bg-gray-50'
-          }`}
-        >
-          {page}
-        </button>
-      ))}
+      <div className="flex items-center gap-3">
+        {pages.map((page) => (
+          <button
+            key={page}
+            onClick={() => onPageChange(page)}
+            className={cn(
+              "w-12 h-12 rounded-2xl text-sm font-bold transition-all",
+              currentPage === page
+                ? "bg-primary text-white shadow-xl shadow-primary/20 scale-110"
+                : "bg-white border border-border text-text-secondary hover:border-primary hover:text-primary"
+            )}
+          >
+            {page}
+          </button>
+        ))}
+      </div>
       
-      <button
+      <Button
+        variant="outline"
+        size="sm"
         onClick={() => onPageChange(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="px-3 py-2 text-sm border border-secondary rounded-lg hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+        className="rounded-2xl w-12 h-12 p-0 border-border hover:border-primary transition-all"
       >
-        Next
-      </button>
+        <ChevronRight className="w-5 h-5" />
+      </Button>
     </div>
   )
 }
 
 const EventsListPage = () => {
-  const [searchParams] = useSearchParams()
+  const { events: dynamicEvents, loading: eventsLoading } = useEvents()
+  const [searchParams, setSearchParams] = useSearchParams()
   const [filters, setFilters] = useState<EventFiltersType>({
     search: '',
     category: '',
     city: '',
     minPrice: 0,
     maxPrice: 500,
+    tags: []
   })
   const [currentPage, setCurrentPage] = useState(1)
-  const [loading, setLoading] = useState(false)
   
   const itemsPerPage = 9
 
-  // Set initial filters from URL params
   useEffect(() => {
     const category = searchParams.get('category')
-    if (category) {
-      setFilters(prev => ({ ...prev, category }))
-    }
+    const city = searchParams.get('city')
+    const search = searchParams.get('search')
+    
+    setFilters((prev: EventFiltersType) => ({ 
+      ...prev, 
+      category: category || '',
+      city: city || '',
+      search: search || ''
+    }))
+    window.scrollTo(0, 0)
   }, [searchParams])
 
-  // Filter events based on current filters
-  const filteredEvents = mockEvents.filter((event) => {
+  const filteredEvents = (dynamicEvents || []).filter((event: any) => {
     const matchesSearch = !filters.search || 
       event.title.toLowerCase().includes(filters.search.toLowerCase()) ||
       event.location.toLowerCase().includes(filters.search.toLowerCase())
     
-    const matchesCategory = !filters.category || event.category === filters.category
-    
-    const matchesCity = !filters.city || 
-      event.location.toLowerCase().includes(filters.city.toLowerCase())
-    
-    const matchesPrice = event.price >= filters.minPrice && event.price <= filters.maxPrice
+    const matchesCategory = !filters.category || event.categoryName === filters.category
+    const matchesCity = !filters.city || event.location.toLowerCase().includes(filters.city.toLowerCase())
+    const matchesPrice = !event.price || (event.price >= filters.minPrice && event.price <= filters.maxPrice)
     
     return matchesSearch && matchesCategory && matchesCity && matchesPrice
   })
 
-  // Pagination
   const totalPages = Math.ceil(filteredEvents.length / itemsPerPage)
   const startIndex = (currentPage - 1) * itemsPerPage
   const paginatedEvents = filteredEvents.slice(startIndex, startIndex + itemsPerPage)
 
-  // Reset page when filters change
   const handleFiltersChange = (newFilters: EventFiltersType) => {
     setFilters(newFilters)
     setCurrentPage(1)
+    
+    // Update URL params
+    const params = new URLSearchParams()
+    if (newFilters.category) params.set('category', newFilters.category)
+    if (newFilters.city) params.set('city', newFilters.city)
+    if (newFilters.search) params.set('search', newFilters.search)
+    setSearchParams(params)
   }
 
-  const handlePageChange = (page: number) => {
-    setLoading(true)
-    // Simulate API loading
-    setTimeout(() => {
-      setCurrentPage(page)
-      setLoading(false)
-    }, 300)
+  const clearFilters = () => {
+    handleFiltersChange({
+      search: '',
+      category: '',
+      city: '',
+      minPrice: 0,
+      maxPrice: 500,
+      tags: []
+    })
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex flex-col lg:flex-row gap-8">
-          {/* Sidebar Filters */}
-          <div className="lg:w-80 flex-shrink-0">
-            <div className="lg:sticky lg:top-8">
-              <EventFilters onFiltersChange={handleFiltersChange} />
+    <div className="min-h-screen bg-[#FDFBF7]">
+      
+      
+      {/* Page Header */}
+      <div className="bg-white pt-40 pb-16 border-b border-border shadow-sm">
+        <div className="container-custom">
+          <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-8">
+            <div className="space-y-4 max-w-2xl">
+               <div className="flex items-center gap-2 text-primary">
+                  <Sparkles className="w-5 h-5" />
+                  <span className="text-xs font-bold uppercase tracking-[0.2em]">Explore the collection</span>
+               </div>
+               <h1 className="text-4xl md:text-6xl font-display font-bold text-text-primary tracking-tight">
+                  Discover <span className="text-gradient">Experiences</span>
+               </h1>
+               <p className="text-text-muted text-xl leading-relaxed">
+                  Join thousands of events happening around you. From music festivals to workshops, find your next memory.
+               </p>
             </div>
-          </div>
-
-          {/* Main Content */}
-          <div className="flex-1">
-            <EventGrid events={paginatedEvents} loading={loading} filters={filters} />
             
-            {/* Pagination */}
-            {!loading && filteredEvents.length > 0 && totalPages > 1 && (
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
-              />
-            )}
+            <div className="flex flex-wrap gap-3">
+               {filters.category && (
+                  <button 
+                    onClick={() => handleFiltersChange({...filters, category: ''})}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-primary/10 text-primary border border-primary/20 rounded-2xl text-xs font-bold uppercase tracking-wider hover:bg-primary/20 transition-all"
+                  >
+                     Category: {filters.category}
+                     <X className="w-3.5 h-3.5" />
+                  </button>
+               )}
+               {filters.city && (
+                  <button 
+                    onClick={() => handleFiltersChange({...filters, city: ''})}
+                    className="flex items-center gap-2 px-5 py-2.5 bg-accent/10 text-accent border border-accent/20 rounded-2xl text-xs font-bold uppercase tracking-wider hover:bg-accent/20 transition-all"
+                  >
+                     Location: {filters.city}
+                     <X className="w-3.5 h-3.5" />
+                  </button>
+               )}
+               {(filters.category || filters.city || filters.search) && (
+                  <button 
+                    onClick={clearFilters}
+                    className="flex items-center gap-2 px-5 py-2.5 text-text-muted hover:text-text-primary text-xs font-bold uppercase tracking-wider transition-all"
+                  >
+                    Clear All
+                  </button>
+               )}
+            </div>
           </div>
         </div>
       </div>
+      
+      <div className="container-custom py-20">
+        <div className="flex flex-col lg:flex-row gap-16">
+          {/* Sidebar Filters */}
+          <aside className="lg:w-80 flex-shrink-0">
+            <div className="sticky top-28">
+              <EventFilters 
+                filters={filters}
+                onFiltersChange={handleFiltersChange}
+              />
+            </div>
+          </aside>
+
+          {/* Main Content Area */}
+          <main className="flex-1 min-w-0">
+            <div className="mb-10 flex items-center justify-between">
+               <p className="text-text-muted font-bold text-sm uppercase tracking-widest">
+                  Showing <span className="text-text-primary">{filteredEvents.length}</span> results
+               </p>
+               <div className="flex items-center gap-4">
+                  <span className="text-xs font-bold text-text-muted uppercase tracking-wider">Sort by:</span>
+                  <select className="bg-transparent text-sm font-bold text-text-primary border-none focus:ring-0 cursor-pointer">
+                     <option>Newest First</option>
+                     <option>Price: Low to High</option>
+                     <option>Price: High to Low</option>
+                     <option>Most Popular</option>
+                  </select>
+               </div>
+            </div>
+
+            {filteredEvents.length === 0 && !eventsLoading ? (
+               <div className="flex flex-col items-center justify-center py-32 text-center bg-white border border-border rounded-xl shadow-card px-8">
+                  <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-8">
+                     <Search className="w-10 h-10 text-text-muted" />
+                  </div>
+                  <h2 className="text-3xl font-display font-bold text-text-primary mb-4">No experiences found</h2>
+                  <p className="text-text-muted max-w-md mx-auto mb-10 text-lg">
+                     We couldn't find any events matching your current filters. Try broadening your search or exploring other categories.
+                  </p>
+                  <Button variant="primary" size="lg" className="rounded-2xl px-10 shadow-xl shadow-primary/20" onClick={clearFilters}>
+                     Clear all filters
+                  </Button>
+               </div>
+            ) : (
+               <EventGrid 
+                 events={paginatedEvents} 
+                 loading={eventsLoading} 
+                 filters={filters} 
+                 onFiltersChange={handleFiltersChange}
+               />
+            )}
+            
+            {/* Pagination */}
+            {!eventsLoading && filteredEvents.length > 0 && totalPages > 1 && (
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={(page) => {
+                   setCurrentPage(page)
+                   window.scrollTo({ top: 0, behavior: 'smooth' })
+                }}
+              />
+            )}
+          </main>
+        </div>
+      </div>
+
+      
     </div>
   )
 }
 
 export default EventsListPage
+
+

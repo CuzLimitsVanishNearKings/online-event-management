@@ -1,17 +1,15 @@
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
-import { Currency, Country, City, CURRENCIES } from '../types'
+import { Country, City } from '../types'
 
 interface LocationState {
   // Location preferences
   selectedCountry: Country | null
   selectedCity: City | null
-  preferredCurrency: Currency
   
   // Actions
   setSelectedCountry: (country: Country | null) => void
   setSelectedCity: (city: City | null) => void
-  setPreferredCurrency: (currency: Currency) => void
   updateLocation: (country: Country, city: City) => void
   clearLocation: () => void
 }
@@ -22,7 +20,6 @@ export const useLocationStore = create<LocationState>()(
       // Initial state
       selectedCountry: null,
       selectedCity: null,
-      preferredCurrency: CURRENCIES[0], // Default to USD
 
       // Actions
       setSelectedCountry: (country) => {
@@ -36,9 +33,7 @@ export const useLocationStore = create<LocationState>()(
         set({ selectedCity: city })
       },
 
-      setPreferredCurrency: (currency) => {
-        set({ preferredCurrency: currency })
-      },
+
 
       updateLocation: (country, city) => {
         set({ 
@@ -59,7 +54,6 @@ export const useLocationStore = create<LocationState>()(
       partialize: (state) => ({
         selectedCountry: state.selectedCountry,
         selectedCity: state.selectedCity,
-        preferredCurrency: state.preferredCurrency,
       }),
     }
   )

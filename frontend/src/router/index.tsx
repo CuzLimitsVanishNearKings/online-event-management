@@ -6,43 +6,58 @@ import EventsListPage from '../pages/EventsListPage'
 import EventDetailPage from '../pages/EventDetailPage'
 import LoginPage from '../pages/LoginPage'
 import RegisterPage from '../pages/RegisterPage'
+import DashboardPage from '../pages/DashboardPage'
 
 const router = createBrowserRouter([
   {
-    path: '/',
     element: <PublicLayout />,
     children: [
       {
-        index: true,
+        path: '/',
         element: <HomePage />,
       },
       {
-        path: 'events',
+        path: '/events',
         element: <EventsListPage />,
       },
       {
-        path: 'how-it-works',
+        path: '/how-it-works',
         element: <HomePage />, // Will be replaced with HowItWorksPage
-      },
-      {
-        path: 'login',
-        element: <LoginPage />,
-      },
-      {
-        path: 'register',
-        element: <RegisterPage />,
       },
     ],
   },
   {
-    path: '/',
+    path: '/login',
+    element: <LoginPage isOrganizer={false} />,
+  },
+  {
+    path: '/register',
+    element: <RegisterPage isOrganizer={false} />,
+  },
+  {
+    path: '/organizer/login',
+    element: <LoginPage isOrganizer={true} />,
+  },
+  {
+    path: '/organizer/register',
+    element: <RegisterPage isOrganizer={true} />,
+  },
+  {
     element: <Layout />,
     children: [
       {
-        path: 'event/:id',
+        path: '/event/:id',
         element: <EventDetailPage />,
       },
     ],
+  },
+  {
+    path: 'dashboard',
+    element: <DashboardPage />,
+  },
+  {
+    path: 'organizer/dashboard',
+    element: <DashboardPage />,
   },
 ])
 

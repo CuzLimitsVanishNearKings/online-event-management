@@ -1,7 +1,9 @@
 import { useState } from 'react'
-import { Button } from '@/components/ui'
-import { formatCurrency } from '@/utils/format'
-import { useCartStore } from '@/store/cartStore'
+import { Button } from '../ui'
+import { formatCurrency } from '../../utils/format'
+import { useCartStore } from '../../store/cartStore'
+import { Minus, Plus, AlertCircle, ShieldCheck, Zap, Ticket } from '../icons'
+import { cn } from '../../utils/cn'
 
 interface TicketSelectorProps {
   event: {
@@ -47,119 +49,106 @@ const TicketSelector = ({ event, fullEvent }: TicketSelectorProps) => {
 
   if (isSoldOut) {
     return (
-      <div className="bg-white border border-secondary rounded-xl p-6 text-center">
-        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+      <div className="bg-gray-50 border border-border rounded-xl p-8 text-center space-y-4">
+        <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto">
+          <AlertCircle className="w-8 h-8 text-text-muted" />
         </div>
-        <h3 className="text-lg font-semibold text-text-primary mb-2">Sold Out</h3>
-        <p className="text-text-muted">
-          This event is fully booked. Check back later for cancellations.
+        <h3 className="text-2xl font-display font-bold text-text-primary">Sold Out</h3>
+        <p className="text-text-muted leading-relaxed">
+          This experience is fully booked. Join the waitlist or browse similar events.
         </p>
+        <Button variant="outline" className="w-full rounded-2xl">Browse Similar</Button>
       </div>
     )
   }
 
   return (
-    <div className="bg-white border border-secondary rounded-xl p-6 space-y-6">
+    <div className="bg-white border border-border rounded-xl p-8 shadow-card space-y-8">
       {/* Header */}
-      <div>
-        <h3 className="text-lg font-semibold text-text-primary mb-2">
-          Get Your Tickets
-        </h3>
-        <p className="text-text-muted text-sm">
-          {maxTickets} ticket{maxTickets !== 1 ? 's' : ''} remaining
-        </p>
-      </div>
-
-      {/* Price Display */}
-      <div className="space-y-2">
-        <div className="flex items-baseline justify-between">
-          <span className="text-text-muted">Price per ticket</span>
-          <span className="text-xl font-bold text-text-primary">
-            {event.price === 0 ? 'Free' : formatCurrency(event.price)}
-          </span>
+      <div className="space-y-1">
+        <h3 className="text-2xl font-display font-bold text-text-primary">Book Tickets</h3>
+        <div className="flex items-center gap-2 text-text-muted">
+           <Zap className="w-4 h-4 text-primary" />
+           <p className="text-sm font-bold uppercase tracking-wider">{maxTickets} spots remaining</p>
         </div>
       </div>
 
-      {/* Quantity Selector */}
-      <div className="space-y-3">
-        <label className="block text-sm font-medium text-text-primary">
-          Quantity
-        </label>
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={() => handleQuantityChange(quantity - 1)}
-            disabled={quantity <= 1}
-            className="w-10 h-10 rounded-lg border border-secondary flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 12H4" />
-            </svg>
-          </button>
-          
-          <div className="w-16 text-center">
-            <span className="text-lg font-semibold text-text-primary">{quantity}</span>
-          </div>
-          
-          <button
-            onClick={() => handleQuantityChange(quantity + 1)}
-            disabled={quantity >= maxTickets}
-            className="w-10 h-10 rounded-lg border border-secondary flex items-center justify-center hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition-colors duration-200"
-          >
-            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-            </svg>
-          </button>
+      {/* Price & Quantity */}
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+           <div>
+              <p className="text-xs font-bold text-text-muted uppercase tracking-widest mb-1">Price per guest</p>
+              <p className="text-3xl font-display font-bold text-text-primary">
+                 {event.price === 0 ? 'Free' : formatCurrency(event.price)}
+              </p>
+           </div>
+           
+           <div className="flex items-center gap-4 bg-gray-100 p-2 rounded-2xl border border-border/50">
+              <button
+                onClick={() => handleQuantityChange(quantity - 1)}
+                disabled={quantity <= 1}
+                className="w-10 h-10 rounded-xl bg-white border border-border flex items-center justify-center hover:bg-primary/5 hover:text-primary hover:border-primary/20 disabled:opacity-50 transition-all shadow-sm"
+              >
+                <Minus className="w-4 h-4" />
+              </button>
+              
+              <span className="w-6 text-center font-bold text-lg text-text-primary">{quantity}</span>
+              
+              <button
+                onClick={() => handleQuantityChange(quantity + 1)}
+                disabled={quantity >= maxTickets}
+                className="w-10 h-10 rounded-xl bg-white border border-border flex items-center justify-center hover:bg-primary/5 hover:text-primary hover:border-primary/20 disabled:opacity-50 transition-all shadow-sm"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+           </div>
         </div>
-        
-        {maxTickets < 10 && (
-          <p className="text-xs text-text-muted">
-            Maximum {maxTickets} ticket{maxTickets !== 1 ? 's' : ''} per order
-          </p>
-        )}
       </div>
 
-      {/* Total Price */}
-      <div className="border-t border-secondary pt-4">
+      {/* Summary */}
+      <div className="pt-6 border-t border-border/50 space-y-4">
         <div className="flex items-baseline justify-between">
-          <span className="text-lg font-semibold text-text-primary">Total</span>
-          <span className="text-2xl font-bold text-primary">
+          <span className="text-text-muted font-bold">Total Price</span>
+          <span className="text-3xl font-display font-bold text-primary">
             {event.price === 0 ? 'Free' : formatCurrency(totalPrice)}
           </span>
         </div>
+        
+        <div className="space-y-3">
+           <Button
+             variant="primary"
+             size="lg"
+             onClick={handleAddToCart}
+             className="w-full rounded-2xl py-7 text-lg font-bold shadow-xl shadow-primary/10"
+             disabled={isInCart}
+           >
+             {isInCart 
+               ? 'Already in Cart' 
+               : event.price === 0 
+                 ? 'Register Now' 
+                 : 'Reserve My Spot'
+             }
+           </Button>
+           <p className="text-center text-xs text-text-muted font-medium">
+              Free cancellation up to 48 hours before
+           </p>
+        </div>
       </div>
 
-      {/* Add to Cart Button */}
-      <Button
-        variant="primary"
-        size="lg"
-        onClick={handleAddToCart}
-        className="w-full"
-        disabled={isInCart}
-      >
-        {isInCart 
-          ? 'Already in Cart' 
-          : event.price === 0 
-            ? 'Register for Free' 
-            : 'Add to Cart'
-        }
-      </Button>
-
-      {/* Event Info */}
-      <div className="border-t border-secondary pt-4">
-        <div className="space-y-2 text-sm text-text-muted">
-          <p>
-            <strong>Event:</strong> {event.title}
-          </p>
-          <p>
-            <strong>Availability:</strong> {maxTickets} spot{maxTickets !== 1 ? 's' : ''} left
-          </p>
-        </div>
+      {/* Trust Badges */}
+      <div className="pt-6 border-t border-border/50 grid grid-cols-2 gap-4">
+         <div className="flex items-center gap-2">
+            <ShieldCheck className="w-4 h-4 text-green-500" />
+            <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Secure Payment</span>
+         </div>
+         <div className="flex items-center gap-2">
+            <Ticket className="w-4 h-4 text-blue-500" />
+            <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Instant Access</span>
+         </div>
       </div>
     </div>
   )
 }
 
 export default TicketSelector
+
