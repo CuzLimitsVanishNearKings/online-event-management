@@ -119,11 +119,8 @@ export default function AuthLayout({ children, title, subtitle }: { children: Re
          >
             {/* Logo */}
             <div className="flex flex-col gap-6 mb-8">
-               <Link to="/" className="flex items-center gap-2 group w-max">
-                  <div className="w-12 h-12 bg-primary rounded-xl flex items-center justify-center rotate-3 group-hover:rotate-0 transition-transform shadow-lg shadow-primary/20">
-                     <Zap className="w-6 h-6 text-white" />
-                  </div>
-                  <span className="text-3xl font-display font-bold text-text-primary">Evento</span>
+               <Link to="/" className="flex items-center gap-2 group w-max mb-2">
+                  <img src="/05_evento-horizontal.svg" alt="Evento" className="h-10 w-auto" />
                </Link>
                <div>
                  <h1 className="text-4xl font-display font-bold text-text-primary tracking-tight">{title}</h1>

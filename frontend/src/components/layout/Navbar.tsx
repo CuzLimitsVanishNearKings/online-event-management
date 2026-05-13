@@ -58,10 +58,7 @@ const Navbar = () => {
           {/* Logo */}
           <div className="flex items-center gap-10">
             <Link to="/" className="flex items-center gap-2">
-              <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-white font-display font-bold text-lg">E</span>
-              </div>
-              <span className="text-2xl font-display font-bold text-text-primary tracking-tight">Evento</span>
+              <img src="/05_evento-horizontal.svg" alt="Evento" className="h-8 w-auto" />
             </Link>
 
             {/* Desktop Nav Links */}
@@ -122,14 +119,13 @@ const Navbar = () => {
                       <p className="text-xs text-text-muted font-medium truncate mt-0.5">{user?.email}</p>
                     </div>
                     <div className="p-2">
-                      <Link to="/dashboard?tab=organizing" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-text-secondary hover:bg-primary/5 hover:text-primary rounded-xl transition-all">
-                        <LayoutDashboard className="w-4 h-4" /> My Dashboard
-                      </Link>
-                      <Link to="/dashboard?tab=attending" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-text-secondary hover:bg-primary/5 hover:text-primary rounded-xl transition-all">
-                        <Ticket className="w-4 h-4" /> My Tickets
-                      </Link>
-                      <Link to="/organizer/events" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-text-secondary hover:bg-primary/5 hover:text-primary rounded-xl transition-all">
-                        <Calendar className="w-4 h-4" /> Manage Events
+                      {(user?.role === 'ORGANIZER' || user?.role === 'organizer' || user?.role === 'ROLE_ORGANIZER' || user?.role === 'admin') && (
+                        <Link to="/organizer/dashboard" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-text-secondary hover:bg-primary/5 hover:text-primary rounded-xl transition-all">
+                          <LayoutDashboard className="w-4 h-4" /> Organizer Dashboard
+                        </Link>
+                      )}
+                      <Link to="/events" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-text-secondary hover:bg-primary/5 hover:text-primary rounded-xl transition-all">
+                        <Calendar className="w-4 h-4" /> Discover Events
                       </Link>
                       <div className="border-t border-border my-2 mx-2" />
                       <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 rounded-xl transition-all">

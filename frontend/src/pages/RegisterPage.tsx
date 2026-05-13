@@ -34,7 +34,7 @@ const RegisterPage = ({ isOrganizer = false }: { isOrganizer?: boolean }) => {
   const [organizationName, setOrganizationName] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
-  const { registerAsync, registerOrganizerAsync, isAuthenticated, isLoading, error, clearError } = useAuthStore()
+  const { registerAsync, registerOrganizerAsync, isAuthenticated, isLoading, error, clearError, user } = useAuthStore()
 
   useEffect(() => {
     clearError()
@@ -54,6 +54,9 @@ const RegisterPage = ({ isOrganizer = false }: { isOrganizer?: boolean }) => {
   }
 
   if (isAuthenticated) {
+    if (user?.role === 'ORGANIZER' || user?.role === 'organizer' || user?.role === 'ROLE_ORGANIZER' || user?.role === 'admin' || isOrganizer) {
+      return <Navigate to="/organizer/dashboard" replace />
+    }
     return <Navigate to="/" replace />
   }
 

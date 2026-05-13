@@ -1,5 +1,6 @@
 import { useAuthStore } from '@/store/authStore'
 import { useMutation, useQuery } from '@tanstack/react-query'
+import { useEffect } from 'react'
 import axiosClient from '@/api/axiosClient'
 import { LoginCredentials, RegisterData, User, ApiResponse } from '@/types'
 
@@ -75,16 +76,18 @@ export const useAuth = () => {
     enabled: !!token && isAuthenticated,
   })
 
-  // Handle profile data updates
-  if (profileQuery.data?.success && profileQuery.data.data) {
-    setUser(profileQuery.data.data)
-  }
+  // Handle profile data updates safely using useEffect
+  useEffect(() => {
+    if (profileQuery.data?.success && profileQuery.data.data) {
+      setUser(profileQuery.data.data)
+    }
+  }, [profileQuery.data?.success, profileQuery.data?.data, setUser])
 
   return {
     user,
     token,
     isAuthenticated,
-    isLoading: isLoading || profileQuery.isLoading,
+    isLoading, // Only use Zustand's isLoading for auth blocking
     loginMutation,
     registerMutation,
     logoutMutation,

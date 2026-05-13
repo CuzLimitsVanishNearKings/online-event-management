@@ -31,7 +31,7 @@ const LoginPage = ({ isOrganizer = false }: { isOrganizer?: boolean }) => {
   const [password, setPassword] = useState('')
   const [showPassword, setShowPassword] = useState(false)
 
-  const { loginAsync, isAuthenticated, isLoading, error, clearError } = useAuthStore()
+  const { loginAsync, isAuthenticated, isLoading, error, clearError, user } = useAuthStore()
 
   useEffect(() => {
     clearError()
@@ -47,6 +47,9 @@ const LoginPage = ({ isOrganizer = false }: { isOrganizer?: boolean }) => {
   }
 
   if (isAuthenticated) {
+    if (user?.role === 'ORGANIZER' || user?.role === 'organizer' || user?.role === 'ROLE_ORGANIZER' || user?.role === 'admin' || isOrganizer) {
+      return <Navigate to="/organizer/dashboard" replace />
+    }
     return <Navigate to="/" replace />
   }
 
