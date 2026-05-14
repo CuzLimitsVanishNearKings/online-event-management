@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Plus, Search, Filter, CalendarDays, MapPin, Users, Ticket, MoreVertical } from 'lucide-react'
+import { Plus, Search, Filter, CalendarDays, MapPin, Users, Ticket, MoreVertical, Edit2, PauseCircle, Ban } from 'lucide-react'
 import { Button } from '@/components/ui'
 import { useEventStore, EventItem } from '@/store/eventStore'
 import { format } from 'date-fns'
@@ -11,6 +11,7 @@ export default function EventsManageView() {
   const { events } = useEventStore()
   const [searchQuery, setSearchQuery] = useState('')
   const [activeTab, setActiveTab] = useState<'all' | 'published' | 'draft' | 'past'>('all')
+  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null)
 
   // Filter events dynamically
   const filteredEvents = events.filter((event) => {
@@ -101,23 +102,44 @@ export default function EventsManageView() {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 self-end md:self-auto">
+                <div className="flex items-center gap-3 self-end md:self-auto relative">
                   <Button variant="outline" className="rounded-xl px-4 py-2 border-border text-sm font-bold text-text-secondary">
                     Manage
                   </Button>
-                  <button className="p-2 text-text-muted hover:text-text-primary rounded-xl hover:bg-surface transition-colors">
+                  <button 
+                    onClick={() => setOpenDropdownId(openDropdownId === event.id ? null : event.id)}
+                    className="p-2 text-text-muted hover:text-text-primary rounded-xl hover:bg-surface transition-colors"
+                  >
                     <MoreVertical className="w-5 h-5" />
                   </button>
+                  
+                  {openDropdownId === event.id && (
+                    <>
+                      <div className="fixed inset-0 z-10" onClick={() => setOpenDropdownId(null)} />
+                      <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-border rounded-xl shadow-lg z-20 py-2 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                        <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-text-secondary hover:bg-primary/5 hover:text-primary transition-colors">
+                           <Edit2 className="w-4 h-4" /> Edit Event
+                        </button>
+                        <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-text-secondary hover:bg-amber-50 hover:text-amber-600 transition-colors">
+                           <PauseCircle className="w-4 h-4" /> Pause Sales
+                        </button>
+                        <div className="border-t border-border my-1" />
+                        <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50 transition-colors">
+                           <Ban className="w-4 h-4" /> Cancel Event
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             ))}
           </div>
         ) : (
-          <div className="flex-1 min-h-[400px] flex flex-col items-center justify-center p-8 text-center bg-gray-50/10">
-            <div className="w-16 h-16 bg-surface rounded-2xl flex items-center justify-center mb-4">
-              <CalendarDays className="w-8 h-8 text-text-muted" />
+          <div className="flex-1 min-h-[400px] flex flex-col items-center justify-center p-12 text-center m-6 border-2 border-dashed border-border rounded-2xl bg-surface/30">
+            <div className="w-16 h-16 bg-white border border-border shadow-sm rounded-2xl flex items-center justify-center mb-4">
+              <CalendarDays className="w-8 h-8 text-text-muted/50" />
             </div>
-            <h3 className="text-lg font-bold text-text-primary">No events found</h3>
+            <h3 className="text-xl font-display font-bold text-text-primary">No events found</h3>
             <p className="text-text-muted mt-2 max-w-md">
               {searchQuery 
                 ? `We couldn't find any events matching "${searchQuery}". Try adjusting your filters.` 

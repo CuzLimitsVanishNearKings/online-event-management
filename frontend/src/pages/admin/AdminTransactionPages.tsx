@@ -60,9 +60,9 @@ export function Bookings() {
             <Button variant="outline" className="rounded-xl px-3 py-2 border-border text-text-secondary"><Filter className="w-4 h-4" /></Button>
           </div>
         </div>
-        <div className="flex-1 min-h-[400px] flex flex-col items-center justify-center p-8 text-center bg-gray-50/10">
-          <div className="w-16 h-16 bg-surface rounded-2xl flex items-center justify-center mb-4">
-            <Receipt className="w-8 h-8 text-text-muted" />
+        <div className="flex-1 min-h-[400px] flex flex-col items-center justify-center p-12 text-center m-6 border-2 border-dashed border-border rounded-2xl bg-surface/30">
+          <div className="w-16 h-16 bg-white border border-border shadow-sm rounded-2xl flex items-center justify-center mb-4">
+            <Receipt className="w-8 h-8 text-text-muted/50" />
           </div>
           <h3 className="text-lg font-bold text-text-primary">No bookings found</h3>
           <p className="text-text-muted mt-2 max-w-md">
@@ -120,9 +120,9 @@ export function Tickets() {
             <Button variant="outline" className="rounded-xl px-3 py-2 border-border text-text-secondary"><Filter className="w-4 h-4" /></Button>
           </div>
         </div>
-        <div className="flex-1 min-h-[400px] flex flex-col items-center justify-center p-8 text-center bg-gray-50/10">
-          <div className="w-16 h-16 bg-surface rounded-2xl flex items-center justify-center mb-4">
-            <Ticket className="w-8 h-8 text-text-muted" />
+        <div className="flex-1 min-h-[400px] flex flex-col items-center justify-center p-12 text-center m-6 border-2 border-dashed border-border rounded-2xl bg-surface/30">
+          <div className="w-16 h-16 bg-white border border-border shadow-sm rounded-2xl flex items-center justify-center mb-4">
+            <Ticket className="w-8 h-8 text-text-muted/50" />
           </div>
           <h3 className="text-lg font-bold text-text-primary">No tickets found</h3>
           <p className="text-text-muted mt-2 max-w-md">
@@ -183,9 +183,9 @@ export function Payments() {
             <Button variant="outline" className="rounded-xl px-3 py-2 border-border text-text-secondary"><Filter className="w-4 h-4" /></Button>
           </div>
         </div>
-        <div className="flex-1 min-h-[400px] flex flex-col items-center justify-center p-8 text-center bg-gray-50/10">
-          <div className="w-16 h-16 bg-surface rounded-2xl flex items-center justify-center mb-4">
-            <CreditCard className="w-8 h-8 text-text-muted" />
+        <div className="flex-1 min-h-[400px] flex flex-col items-center justify-center p-12 text-center m-6 border-2 border-dashed border-border rounded-2xl bg-surface/30">
+          <div className="w-16 h-16 bg-white border border-border shadow-sm rounded-2xl flex items-center justify-center mb-4">
+            <CreditCard className="w-8 h-8 text-text-muted/50" />
           </div>
           <h3 className="text-lg font-bold text-text-primary">No transactions yet</h3>
           <p className="text-text-muted mt-2 max-w-md">

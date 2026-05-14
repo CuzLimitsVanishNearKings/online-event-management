@@ -108,11 +108,11 @@ export default function EventManagement() {
             ))}
           </div>
         ) : (
-          <div className="flex-1 min-h-[400px] flex flex-col items-center justify-center p-8 text-center bg-gray-50/10">
-            <div className="w-16 h-16 bg-surface rounded-2xl flex items-center justify-center mb-4">
-              <CalendarDays className="w-8 h-8 text-text-muted" />
+          <div className="flex-1 min-h-[400px] flex flex-col items-center justify-center p-12 text-center m-6 border-2 border-dashed border-border rounded-2xl bg-surface/30">
+            <div className="w-16 h-16 bg-white border border-border shadow-sm rounded-2xl flex items-center justify-center mb-4">
+              <CalendarDays className="w-8 h-8 text-text-muted/50" />
             </div>
-            <h3 className="text-lg font-bold text-text-primary">No events found</h3>
+            <h3 className="text-xl font-display font-bold text-text-primary">No events found</h3>
             <p className="text-text-muted mt-2 max-w-md">
               {searchQuery
                 ? `We couldn't find any events matching "${searchQuery}". Try adjusting your filters.`
