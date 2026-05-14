@@ -25,6 +25,23 @@ import AttendeeProfileView from '../pages/attendee/ProfileView'
 import AttendeeSettingsView from '../pages/attendee/SettingsView'
 import AttendeeCalendarView from '../pages/attendee/CalendarView'
 
+import AdminDashboardLayout from '../components/layout/AdminDashboardLayout'
+import AdminLoginPage from '../pages/admin/AdminLoginPage'
+import AdminDashboardHome from '../pages/admin/DashboardHome'
+import AdminUserManagement from '../pages/admin/UserManagement'
+import AdminOrganizerRequests from '../pages/admin/OrganizerRequests'
+import AdminEventManagement from '../pages/admin/EventManagement'
+import { 
+  Bookings as AdminBookings, 
+  Tickets as AdminTickets, 
+  Payments as AdminPayments, 
+  Reporting as AdminReporting, 
+  Notifications as AdminNotifications, 
+  Categories as AdminCategories, 
+  Settings as AdminSettings, 
+  Profile as AdminProfile 
+} from '../pages/admin/AdminPages'
+
 const router = createBrowserRouter([
   {
     element: <PublicLayout />,
@@ -50,6 +67,10 @@ const router = createBrowserRouter([
   {
     path: '/register',
     element: <RegisterPage isOrganizer={false} />,
+  },
+  {
+    path: '/admin/login',
+    element: <AdminLoginPage />,
   },
   {
     path: '/organizer/login',
@@ -134,6 +155,60 @@ const router = createBrowserRouter([
       {
         path: 'settings',
         element: <AttendeeSettingsView />,
+      },
+    ],
+  },
+  {
+    path: '/admin',
+    element: <AdminDashboardLayout />,
+    children: [
+      {
+        path: 'dashboard',
+        element: <AdminDashboardHome />,
+      },
+      {
+        path: 'users',
+        element: <AdminUserManagement />,
+      },
+      {
+        path: 'organizers/requests',
+        element: <AdminOrganizerRequests />,
+      },
+      {
+        path: 'events',
+        element: <AdminEventManagement />,
+      },
+      {
+        path: 'categories',
+        element: <AdminCategories />,
+      },
+      {
+        path: 'bookings',
+        element: <AdminBookings />,
+      },
+      {
+        path: 'tickets',
+        element: <AdminTickets />,
+      },
+      {
+        path: 'payments',
+        element: <AdminPayments />,
+      },
+      {
+        path: 'reports',
+        element: <AdminReporting />,
+      },
+      {
+        path: 'notifications',
+        element: <AdminNotifications />,
+      },
+      {
+        path: 'settings',
+        element: <AdminSettings />,
+      },
+      {
+        path: 'profile',
+        element: <AdminProfile />,
       },
     ],
   },

@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu } from 'lucide-react'
 import AttendeeSidebar from './AttendeeSidebar'
+import { AdminSecretListener } from '../auth/AdminSecretListener'
 import { useAuthStore } from '@/store/authStore'
 import { useAuth } from '@/hooks/useAuth'
 
@@ -40,6 +41,7 @@ export default function AttendeeDashboardLayout() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
+      <AdminSecretListener />
       <div className="hidden md:flex h-screen sticky top-0">
         <AttendeeSidebar />
       </div>
