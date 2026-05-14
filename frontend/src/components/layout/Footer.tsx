@@ -41,10 +41,7 @@ const Footer = () => {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1 space-y-6">
             <Link to="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
-                <span className="text-white font-display font-bold text-base">E</span>
-              </div>
-              <span className="text-xl font-display font-bold">Evento</span>
+              <img src="/02_evento-white.svg" alt="Evento" className="h-8 w-auto" />
             </Link>
             <p className="text-sm text-white/50 leading-relaxed">
               Discover and host unforgettable experiences. The world's most trusted event marketplace for individuals and organizations.

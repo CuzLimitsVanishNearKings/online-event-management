@@ -116,7 +116,7 @@ export const useAuthStore = create<AuthState>()(
       loginAsync: async (credentials) => {
         set({ isLoading: true, error: null })
         try {
-          const response = await axiosClient.post('/api/auth/login', credentials)
+          const response = await axiosClient.post('/auth/login', credentials)
           const { token } = response.data
           const decodedUser = parseJwt(token)
           
@@ -141,7 +141,7 @@ export const useAuthStore = create<AuthState>()(
       registerAsync: async (data) => {
         set({ isLoading: true, error: null })
         try {
-          const response = await axiosClient.post('/api/auth/signup', data)
+          const response = await axiosClient.post('/auth/signup', data)
           const { token } = response.data
           const decodedUser = parseJwt(token)
           
@@ -166,7 +166,7 @@ export const useAuthStore = create<AuthState>()(
       registerOrganizerAsync: async (data) => {
         set({ isLoading: true, error: null })
         try {
-          const response = await axiosClient.post('/api/auth/organizer/signup', data)
+          const response = await axiosClient.post('/auth/organizer/signup', data)
           const { token } = response.data
           const decodedUser = parseJwt(token)
           

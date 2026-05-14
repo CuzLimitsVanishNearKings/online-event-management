@@ -9,6 +9,9 @@ export interface User {
   updatedAt?: string
   country?: string
   city?: string
+  phoneNumber?: string
+  status?: string
+  registrationDate?: string
 }
 
 export interface LoginCredentials {
