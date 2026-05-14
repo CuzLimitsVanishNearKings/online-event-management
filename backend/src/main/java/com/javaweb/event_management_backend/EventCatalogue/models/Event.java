@@ -1,6 +1,7 @@
 package com.javaweb.event_management_backend.EventCatalogue.models;
 
 import com.javaweb.event_management_backend.EventCatalogue.enums.EventStatus;
+import com.javaweb.event_management_backend.UserManagement.models.OrganizerProfile;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -52,6 +53,10 @@ public class Event
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "category_id" , nullable = false)
     private Category category;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "organizer_id", nullable = false)
+    private OrganizerProfile organizer;
 
     @PrePersist
     protected void FillCreatedTimeOnCreate()
