@@ -17,6 +17,14 @@ import AttendeesView from '../pages/organizer/AttendeesView'
 import AnalyticsView from '../pages/organizer/AnalyticsView'
 import SettingsView from '../pages/organizer/SettingsView'
 
+import AttendeeDashboardLayout from '../components/layout/AttendeeDashboardLayout'
+import AttendeeDashboardHome from '../pages/attendee/DashboardHome'
+import AttendeeTicketsView from '../pages/attendee/TicketsView'
+import AttendeeFavoritesView from '../pages/attendee/FavoritesView'
+import AttendeeProfileView from '../pages/attendee/ProfileView'
+import AttendeeSettingsView from '../pages/attendee/SettingsView'
+import AttendeeCalendarView from '../pages/attendee/CalendarView'
+
 const router = createBrowserRouter([
   {
     element: <PublicLayout />,
@@ -96,6 +104,36 @@ const router = createBrowserRouter([
       {
         path: 'settings',
         element: <SettingsView />,
+      },
+    ],
+  },
+  {
+    path: '/attendee',
+    element: <AttendeeDashboardLayout />,
+    children: [
+      {
+        path: 'dashboard',
+        element: <AttendeeDashboardHome />,
+      },
+      {
+        path: 'tickets',
+        element: <AttendeeTicketsView />,
+      },
+      {
+        path: 'calendar',
+        element: <AttendeeCalendarView />,
+      },
+      {
+        path: 'favorites',
+        element: <AttendeeFavoritesView />,
+      },
+      {
+        path: 'profile',
+        element: <AttendeeProfileView />,
+      },
+      {
+        path: 'settings',
+        element: <AttendeeSettingsView />,
       },
     ],
   },

@@ -1,11 +1,11 @@
 import { Outlet, Navigate } from 'react-router-dom'
 import { useState } from 'react'
 import { Menu, X } from 'lucide-react'
-import OrganizerSidebar from './OrganizerSidebar'
+import AttendeeSidebar from './AttendeeSidebar'
 import { useAuthStore } from '@/store/authStore'
 import { useAuth } from '@/hooks/useAuth'
 
-export default function OrganizerDashboardLayout() {
+export default function AttendeeDashboardLayout() {
   const { user, isAuthenticated } = useAuthStore()
   const { isLoading } = useAuth()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -29,14 +29,18 @@ export default function OrganizerDashboardLayout() {
   }
   const role = roleStr.toLowerCase();
   
-  if (!isAuthenticated || (role !== 'organizer' && role !== 'role_organizer' && role !== 'admin' && role !== 'role_admin')) {
+  if (!isAuthenticated) {
     return <Navigate to="/login" replace />
+  }
+
+  if (role === 'organizer' || role === 'role_organizer') {
+    return <Navigate to="/organizer/dashboard" replace />
   }
 
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <div className="hidden md:flex h-screen sticky top-0">
-        <OrganizerSidebar />
+        <AttendeeSidebar />
       </div>
 
       {/* Mobile Sidebar Overlay */}
@@ -57,7 +61,7 @@ export default function OrganizerDashboardLayout() {
             </div>
             {/* Mobile sidebar container */}
             <div className="flex-1 h-0 overflow-y-auto bg-white flex w-full">
-              <OrganizerSidebar />
+              <AttendeeSidebar />
             </div>
           </div>
         </div>
@@ -66,7 +70,7 @@ export default function OrganizerDashboardLayout() {
       <main className="flex-1 flex flex-col min-w-0">
         {/* Mobile Header */}
         <header className="md:hidden bg-white border-b border-gray-200 h-16 flex items-center justify-between px-4">
-          <span className="font-bold text-gray-900">Organizer Portal</span>
+          <span className="font-bold text-gray-900">Attendee Portal</span>
           <button 
             className="p-2 -mr-2 text-gray-600 hover:text-gray-900"
             onClick={() => setIsMobileMenuOpen(true)}

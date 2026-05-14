@@ -57,7 +57,7 @@ const RegisterPage = ({ isOrganizer = false }: { isOrganizer?: boolean }) => {
     if (user?.role === 'ORGANIZER' || user?.role === 'organizer' || user?.role === 'ROLE_ORGANIZER' || user?.role === 'admin' || isOrganizer) {
       return <Navigate to="/organizer/dashboard" replace />
     }
-    return <Navigate to="/" replace />
+    return <Navigate to="/attendee/dashboard" replace />
   }
 
   return (

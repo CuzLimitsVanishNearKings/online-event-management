@@ -119,9 +119,13 @@ const Navbar = () => {
                       <p className="text-xs text-text-muted font-medium truncate mt-0.5">{user?.email}</p>
                     </div>
                     <div className="p-2">
-                      {(user?.role === 'ORGANIZER' || user?.role === 'organizer' || user?.role === 'ROLE_ORGANIZER' || user?.role === 'admin') && (
+                      {(user?.role === 'ORGANIZER' || user?.role === 'organizer' || user?.role === 'ROLE_ORGANIZER' || user?.role === 'admin') ? (
                         <Link to="/organizer/dashboard" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-text-secondary hover:bg-primary/5 hover:text-primary rounded-xl transition-all">
                           <LayoutDashboard className="w-4 h-4" /> Organizer Dashboard
+                        </Link>
+                      ) : (
+                        <Link to="/attendee/dashboard" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-text-secondary hover:bg-primary/5 hover:text-primary rounded-xl transition-all">
+                          <LayoutDashboard className="w-4 h-4" /> Attendee Dashboard
                         </Link>
                       )}
                       <Link to="/events" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-text-secondary hover:bg-primary/5 hover:text-primary rounded-xl transition-all">
