@@ -1,6 +1,7 @@
 import { Outlet, Navigate } from 'react-router-dom'
 import { useState } from 'react'
-import { Menu, X } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Menu } from 'lucide-react'
 import AttendeeSidebar from './AttendeeSidebar'
 import { useAuthStore } from '@/store/authStore'
 import { useAuth } from '@/hooks/useAuth'
@@ -44,28 +45,30 @@ export default function AttendeeDashboardLayout() {
       </div>
 
       {/* Mobile Sidebar Overlay */}
-      {isMobileMenuOpen && (
-        <div className="fixed inset-0 z-40 md:hidden flex">
-          <div 
-            className="fixed inset-0 bg-gray-900/50 transition-opacity" 
-            onClick={() => setIsMobileMenuOpen(false)} 
-          />
-          <div className="relative flex-1 flex flex-col max-w-xs w-full bg-white z-50">
-            <div className="absolute top-0 right-0 -mr-12 pt-4">
-              <button
-                className="ml-1 flex items-center justify-center h-10 w-10 rounded-full focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                <X className="h-6 w-6 text-white" />
-              </button>
-            </div>
-            {/* Mobile sidebar container */}
-            <div className="flex-1 h-0 overflow-y-auto bg-white flex w-full">
-              <AttendeeSidebar />
-            </div>
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <div className="fixed inset-0 z-40 md:hidden flex">
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" 
+              onClick={() => setIsMobileMenuOpen(false)} 
+            />
+            <motion.div 
+              initial={{ x: '-100%' }}
+              animate={{ x: 0 }}
+              exit={{ x: '-100%' }}
+              transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+              className="relative flex-1 flex flex-col max-w-[280px] w-full bg-white z-50 shadow-2xl"
+            >
+              <div className="flex-1 h-0 overflow-y-auto bg-white flex w-full">
+                <AttendeeSidebar onMobileClose={() => setIsMobileMenuOpen(false)} />
+              </div>
+            </motion.div>
           </div>
-        </div>
-      )}
+        )}
+      </AnimatePresence>
 
       <main className="flex-1 flex flex-col min-w-0">
         {/* Mobile Header */}

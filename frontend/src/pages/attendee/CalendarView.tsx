@@ -128,19 +128,23 @@ export default function CalendarView() {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden flex-1 flex flex-col">
-        {/* Days Header */}
-        <div className="grid grid-cols-7 bg-gray-50/80 border-b border-border">
-          {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((dayName) => (
-            <div key={dayName} className="p-3 text-center text-xs font-bold text-text-muted uppercase tracking-wider border-r border-border/50 last:border-r-0">
-              {dayName}
+      <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden flex-1 flex flex-col relative">
+        <div className="overflow-x-auto flex-1 custom-scrollbar">
+          <div className="min-w-[700px] h-full flex flex-col">
+            {/* Days Header */}
+            <div className="grid grid-cols-7 bg-gray-50/80 border-b border-border">
+              {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map((dayName) => (
+                <div key={dayName} className="p-3 text-center text-xs font-bold text-text-muted uppercase tracking-wider border-r border-border/50 last:border-r-0">
+                  {dayName}
+                </div>
+              ))}
             </div>
-          ))}
-        </div>
-        
-        {/* Calendar Grid */}
-        <div className="flex-1 overflow-y-auto">
-          {rows}
+            
+            {/* Calendar Grid */}
+            <div className="flex-1">
+              {rows}
+            </div>
+          </div>
         </div>
       </div>
       
