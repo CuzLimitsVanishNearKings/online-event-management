@@ -98,7 +98,7 @@ const EventCard = ({ event }: EventCardProps) => {
           {/* Price & Category */}
           <div className="flex items-center justify-between pt-2 border-t border-border/60">
             <span className="text-sm font-semibold text-text-primary">
-              {isFree ? 'Free' : `From $${event.price}`}
+              {isFree ? 'Free' : `${event.price} FCFA`}
             </span>
             <span className="text-xs text-text-muted">
               {event.categoryName || 'General'}

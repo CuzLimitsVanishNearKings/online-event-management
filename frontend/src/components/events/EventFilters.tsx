@@ -10,8 +10,12 @@ import {
   X,
   ChevronDown,
   Filter,
-  SlidersHorizontal
+  SlidersHorizontal,
+  Clock,
+  Video
 } from '../icons'
+import { useCategories } from '../../hooks/useCategories'
+import { Loader2 } from 'lucide-react'
 
 export interface EventFilters {
   search: string
@@ -20,6 +24,8 @@ export interface EventFilters {
   minPrice: number
   maxPrice: number
   tags: string[]
+  date?: string
+  format?: string
 }
 
 interface EventFiltersProps {
@@ -28,18 +34,6 @@ interface EventFiltersProps {
   isOpen?: boolean
   onToggle?: () => void
 }
-
-const categories = [
-  { id: 'music', name: 'Music', icon: '🎵' },
-  { id: 'business', name: 'Business', icon: '💼' },
-  { id: 'food', name: 'Food & Drink', icon: '🍽' },
-  { id: 'arts', name: 'Arts & Culture', icon: '🎨' },
-  { id: 'sports', name: 'Sports & Fitness', icon: '⚽' },
-  { id: 'technology', name: 'Technology', icon: '💻' },
-  { id: 'education', name: 'Education', icon: '📚' },
-  { id: 'social', name: 'Social', icon: '👥' },
-  { id: 'travel', name: 'Travel', icon: '✈️' },
-]
 
 const popularTags = [
   'Live Music', 'Festival', 'Food', 'Networking', 'Workshop',
@@ -52,8 +46,9 @@ const EventFilters = ({
   isOpen = false, 
   onToggle 
 }: EventFiltersProps) => {
+  const { categories, loading: categoriesLoading } = useCategories()
   const [isExpanded, setIsExpanded] = useState(false)
-  const [activeSection, setActiveSection] = useState<'search' | 'category' | 'location' | 'price' | null>(null)
+  const [activeSection, setActiveSection] = useState<'search' | 'category' | 'location' | 'price' | 'date' | 'format' | null>(null)
 
   const handleFilterChange = (key: keyof EventFilters, value: any) => {
     onFiltersChange({
@@ -68,20 +63,24 @@ const EventFilters = ({
       category: '',
       city: '',
       minPrice: 0,
-      maxPrice: 1000,
-      tags: []
+      maxPrice: 100000,
+      tags: [],
+      date: '',
+      format: ''
     })
   }
 
   const hasActiveFilters = filters.search || filters.category || filters.city || 
-    filters.minPrice > 0 || filters.maxPrice < 1000 || filters.tags.length > 0
+    filters.minPrice > 0 || filters.maxPrice < 100000 || filters.tags.length > 0
 
   const activeFiltersCount = [
     filters.search,
     filters.category,
     filters.city,
     filters.minPrice > 0 ? 'price' : null,
-    filters.maxPrice < 1000 ? 'price' : null,
+    filters.maxPrice < 100000 ? 'price' : null,
+    filters.date ? 'date' : null,
+    filters.format ? 'format' : null,
     ...filters.tags
   ].filter(Boolean).length
 
@@ -169,25 +168,33 @@ const EventFilters = ({
           
           {activeSection === 'category' && (
             <div className="mt-3 space-y-2">
-              {categories.map((category) => (
-                <button
-                  key={category.id}
-                  onClick={() => handleFilterChange('category', category.id)}
-                  className={`w-full flex items-center space-x-3 p-3 rounded-lg border transition-colors duration-200 text-left ${
-                    filters.category === category.id
-                      ? 'border-primary bg-primary text-white'
-                      : 'border-border/50 bg-surface/50 hover:border-primary hover:bg-surface/100'
-                  }`}
-                >
-                  <span className="text-lg mr-3">{category.icon}</span>
-                  <span className="text-sm font-medium">{category.name}</span>
-                  {filters.category === category.id && (
-                    <div className="ml-auto">
-                      <X className="w-3 h-3" />
-                    </div>
-                  )}
-                </button>
-              ))}
+              {categoriesLoading ? (
+                <div className="flex items-center justify-center p-4">
+                  <Loader2 className="w-5 h-5 text-primary animate-spin" />
+                </div>
+              ) : categories.length > 0 ? (
+                categories.map((category) => (
+                  <button
+                    key={category.id}
+                    onClick={() => handleFilterChange('category', category.id)}
+                    className={`w-full flex items-center space-x-3 p-3 rounded-lg border transition-colors duration-200 text-left ${
+                      filters.category === category.id
+                        ? 'border-primary bg-primary text-white'
+                        : 'border-border/50 bg-surface/50 hover:border-primary hover:bg-surface/100'
+                    }`}
+                  >
+                    <span className="text-lg mr-3">{category.icon || '📌'}</span>
+                    <span className="text-sm font-medium">{category.name}</span>
+                    {filters.category === category.id && (
+                      <div className="ml-auto">
+                        <X className="w-3 h-3" />
+                      </div>
+                    )}
+                  </button>
+                ))
+              ) : (
+                <p className="text-sm text-text-muted text-center py-2">No categories found</p>
+              )}
             </div>
           )}
         </div>
@@ -272,56 +279,144 @@ const EventFilters = ({
                 <button
                   onClick={() => {
                     handleFilterChange('minPrice', 0)
-                    handleFilterChange('maxPrice', 50)
+                    handleFilterChange('maxPrice', 5000)
                   }}
                   className={`p-2 text-xs rounded-lg border transition-colors duration-200 ${
-                    filters.minPrice === 0 && filters.maxPrice === 50
+                    filters.minPrice === 0 && filters.maxPrice === 5000
                       ? 'border-primary bg-primary text-white'
                       : 'border-border/50 bg-surface/50 hover:border-primary hover:bg-surface/100'
                   }`}
                 >
-                  Free - $50
+                  Free - 5k FCFA
                 </button>
                 <button
                   onClick={() => {
-                    handleFilterChange('minPrice', 50)
-                    handleFilterChange('maxPrice', 100)
+                    handleFilterChange('minPrice', 5000)
+                    handleFilterChange('maxPrice', 15000)
                   }}
                   className={`p-2 text-xs rounded-lg border transition-colors duration-200 ${
-                    filters.minPrice === 50 && filters.maxPrice === 100
+                    filters.minPrice === 5000 && filters.maxPrice === 15000
                       ? 'border-primary bg-primary text-white'
                       : 'border-border/50 bg-surface/50 hover:border-primary hover:bg-surface/100'
                   }`}
                 >
-                  $50 - $100
+                  5k - 15k FCFA
                 </button>
                 <button
                   onClick={() => {
-                    handleFilterChange('minPrice', 100)
-                    handleFilterChange('maxPrice', 200)
+                    handleFilterChange('minPrice', 15000)
+                    handleFilterChange('maxPrice', 50000)
                   }}
                   className={`p-2 text-xs rounded-lg border transition-colors duration-200 ${
-                    filters.minPrice === 100 && filters.maxPrice === 200
+                    filters.minPrice === 15000 && filters.maxPrice === 50000
                       ? 'border-primary bg-primary text-white'
                       : 'border-border/50 bg-surface/50 hover:border-primary hover:bg-surface/100'
                   }`}
                 >
-                  $100 - $200
+                  15k - 50k FCFA
                 </button>
                 <button
                   onClick={() => {
-                    handleFilterChange('minPrice', 200)
-                    handleFilterChange('maxPrice', 1000)
+                    handleFilterChange('minPrice', 50000)
+                    handleFilterChange('maxPrice', 1000000)
                   }}
                   className={`p-2 text-xs rounded-lg border transition-colors duration-200 ${
-                    filters.minPrice === 200 && filters.maxPrice === 1000
+                    filters.minPrice === 50000 && filters.maxPrice === 1000000
                       ? 'border-primary bg-primary text-white'
                       : 'border-border/50 bg-surface/50 hover:border-primary hover:bg-surface/100'
                   }`}
                 >
-                  $200+
+                  50k+ FCFA
                 </button>
               </div>
+            </div>
+          )}
+        </div>
+
+        {/* Date Section */}
+        <div className="p-4 border-b border-border/50">
+          <button
+            onClick={() => setActiveSection(activeSection === 'date' ? null : 'date')}
+            className={`w-full flex items-center justify-between p-3 rounded-lg border transition-colors duration-200 ${
+              activeSection === 'date'
+                ? 'border-primary bg-primary/5'
+                : 'border-border/50 bg-surface/50 hover:border-primary hover:bg-primary/5'
+            }`}
+          >
+            <div className="flex items-center space-x-3">
+              <Clock className="w-4 h-4 text-text-secondary" />
+              <span className="text-sm font-medium text-text-primary">
+                {filters.date ? `Date: ${filters.date}` : 'Date'}
+              </span>
+            </div>
+            <ChevronDown className={`w-4 h-4 text-text-muted transition-transform duration-200 ${
+              activeSection === 'date' ? 'rotate-180' : ''
+            }`} />
+          </button>
+          
+          {activeSection === 'date' && (
+            <div className="mt-3 space-y-2">
+              {['Any Date', 'Today', 'Tomorrow', 'This Weekend', 'Next Week'].map((dateOption) => {
+                const value = dateOption === 'Any Date' ? '' : dateOption;
+                return (
+                  <button
+                    key={dateOption}
+                    onClick={() => handleFilterChange('date', value)}
+                    className={`w-full flex items-center justify-between p-3 rounded-lg border transition-colors duration-200 text-left ${
+                      (filters.date === value || (!filters.date && value === ''))
+                        ? 'border-primary bg-primary/10 text-primary font-bold'
+                        : 'border-border/50 bg-surface/50 hover:border-primary hover:bg-surface/100'
+                    }`}
+                  >
+                    <span className="text-sm">{dateOption}</span>
+                    {filters.date === value && <X className="w-3 h-3" />}
+                  </button>
+                )
+              })}
+            </div>
+          )}
+        </div>
+
+        {/* Format Section */}
+        <div className="p-4 border-b border-border/50">
+          <button
+            onClick={() => setActiveSection(activeSection === 'format' ? null : 'format')}
+            className={`w-full flex items-center justify-between p-3 rounded-lg border transition-colors duration-200 ${
+              activeSection === 'format'
+                ? 'border-primary bg-primary/5'
+                : 'border-border/50 bg-surface/50 hover:border-primary hover:bg-primary/5'
+            }`}
+          >
+            <div className="flex items-center space-x-3">
+              <Video className="w-4 h-4 text-text-secondary" />
+              <span className="text-sm font-medium text-text-primary">
+                {filters.format ? `Format: ${filters.format}` : 'Format'}
+              </span>
+            </div>
+            <ChevronDown className={`w-4 h-4 text-text-muted transition-transform duration-200 ${
+              activeSection === 'format' ? 'rotate-180' : ''
+            }`} />
+          </button>
+          
+          {activeSection === 'format' && (
+            <div className="mt-3 space-y-2">
+              {['Any Format', 'In Person', 'Online'].map((formatOption) => {
+                const value = formatOption === 'Any Format' ? '' : formatOption;
+                return (
+                  <button
+                    key={formatOption}
+                    onClick={() => handleFilterChange('format', value)}
+                    className={`w-full flex items-center justify-between p-3 rounded-lg border transition-colors duration-200 text-left ${
+                      (filters.format === value || (!filters.format && value === ''))
+                        ? 'border-primary bg-primary/10 text-primary font-bold'
+                        : 'border-border/50 bg-surface/50 hover:border-primary hover:bg-surface/100'
+                    }`}
+                  >
+                    <span className="text-sm">{formatOption}</span>
+                    {filters.format === value && <X className="w-3 h-3" />}
+                  </button>
+                )
+              })}
             </div>
           )}
         </div>

@@ -65,7 +65,7 @@ const EventsListPage = () => {
     category: '',
     city: '',
     minPrice: 0,
-    maxPrice: 500,
+    maxPrice: 100000,
     tags: []
   })
   const [currentPage, setCurrentPage] = useState(1)
@@ -120,7 +120,7 @@ const EventsListPage = () => {
       category: '',
       city: '',
       minPrice: 0,
-      maxPrice: 500,
+      maxPrice: 100000,
       tags: []
     })
   }

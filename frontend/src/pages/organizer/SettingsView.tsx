@@ -71,41 +71,7 @@ export default function SettingsView() {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
-        <div className="p-6 border-b border-border bg-gray-50/50 flex items-center gap-3">
-          <CreditCard className="w-5 h-5 text-primary" />
-          <h2 className="text-lg font-bold text-text-primary">Payout Methods</h2>
-        </div>
-        <div className="p-6">
-          {payoutConnected ? (
-            <div className="border border-green-200 rounded-xl p-6 flex items-center justify-between bg-green-50/50">
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-white rounded-lg shadow-sm flex items-center justify-center text-primary">
-                  <CreditCard className="w-6 h-6" />
-                </div>
-                <div>
-                  <h3 className="font-bold text-text-primary flex items-center gap-2">
-                    Stripe Account Connected <Check className="w-4 h-4 text-green-600" />
-                  </h3>
-                  <p className="text-sm text-text-muted mt-0.5">Payouts will be sent to the bank account ending in **4242</p>
-                </div>
-              </div>
-              <Button variant="outline" className="rounded-xl font-bold border-border bg-white text-text-secondary">
-                Manage
-              </Button>
-            </div>
-          ) : (
-            <div className="border border-border rounded-xl p-6 flex flex-col items-center justify-center text-center bg-gray-50/30">
-              <CreditCard className="w-10 h-10 text-text-muted mb-3" />
-              <h3 className="font-bold text-text-primary">No payout method connected</h3>
-              <p className="text-sm text-text-muted mt-1 mb-4 max-w-md">You need to connect a bank account or Stripe to receive payouts for your ticket sales.</p>
-              <Button onClick={handleConnectPayout} variant="outline" className="rounded-xl font-bold min-w-[200px]" disabled={isConnecting}>
-                {isConnecting ? <Loader2 className="w-4 h-4 animate-spin" /> : 'Connect Payout Method'}
-              </Button>
-            </div>
-          )}
-        </div>
-      </div>
+
 
       <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
         <div className="p-6 border-b border-border bg-gray-50/50 flex items-center gap-3">

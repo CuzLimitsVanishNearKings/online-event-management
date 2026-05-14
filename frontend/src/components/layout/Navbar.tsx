@@ -45,7 +45,7 @@ const Navbar = () => {
 
   const navLinks = [
     { path: '/events', label: 'Find Events' },
-    { path: '/events/new', label: 'Create Events' },
+    { path: '/organizer/events/new', label: 'Create Events' },
   ]
 
   return (
