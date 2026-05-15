@@ -1,5 +1,7 @@
 package com.javaweb.event_management_backend.UserManagement.services;
 
+import com.javaweb.event_management_backend.PaymentManagement.models.Wallet;
+import com.javaweb.event_management_backend.PaymentManagement.repository.WalletRepository;
 import com.javaweb.event_management_backend.UserManagement.dtos.request.UserAuthRequestDto;
 import com.javaweb.event_management_backend.UserManagement.enums.UserRole;
 import com.javaweb.event_management_backend.UserManagement.enums.UserStatus;
@@ -22,6 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService
 {
     private final UserRepository userRepository;
+    private final WalletRepository walletRepository ;
     private final OrganizerRepository organizerRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
@@ -43,6 +46,10 @@ public class AuthService
         user.setStatus(UserStatus.ACTIVE);
 
         userRepository.save(user);
+        Wallet wallet = Wallet.builder()
+                .user(user)
+                .build();
+        walletRepository.save(wallet);
 
         return jwtService.generateToken(user);
     }

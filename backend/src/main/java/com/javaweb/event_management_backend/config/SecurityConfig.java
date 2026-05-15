@@ -68,9 +68,9 @@ public class SecurityConfig {
                         .requestMatchers("/api/organizer/**").hasRole("ORGANIZER")
 
                         // ─── ATTENDEE ONLY ───────────────────────────────
-                        .requestMatchers("/api/bookings/**").hasRole("ATTENDEE")
-                        .requestMatchers("/api/wallet/**").hasRole("ATTENDEE")
-                        .requestMatchers("/api/payments/**").hasRole("ATTENDEE")
+                        .requestMatchers("/api/bookings/**").hasRole("CLIENT")
+                        .requestMatchers("/api/wallet/**").hasRole("CLIENT")
+                        .requestMatchers("/api/payments/**").hasRole("CLIENT")
 
                         // ─── ANY AUTHENTICATED USER ──────────────────────
                         .anyRequest().authenticated()
