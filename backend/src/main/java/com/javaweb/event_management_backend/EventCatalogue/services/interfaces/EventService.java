@@ -1,0 +1,57 @@
+package com.javaweb.event_management_backend.EventCatalogue.services.interfaces;
+
+import com.javaweb.event_management_backend.EventCatalogue.dtos.request.EventRequestDto;
+import com.javaweb.event_management_backend.EventCatalogue.dtos.response.EventResponseDto;
+import com.javaweb.event_management_backend.UserManagement.models.User;
+
+import java.util.List;
+
+public interface EventService {
+
+    // ─── PUBLIC ─────────────────────────────────────────────────
+
+    // Get all published events — browse page
+    List<EventResponseDto.Summary> getAllPublishedEvents();
+
+    // Get event full details — event page
+    EventResponseDto.Detail getEventById(Long eventId);
+
+    // Search events by keyword
+    List<EventResponseDto.Summary> searchEvents(String keyword);
+
+    // Filter events by category
+    List<EventResponseDto.Summary> getEventsByCategory(String categoryName);
+
+    // ─── ORGANIZER ───────────────────────────────────────────────
+
+    // Create a new event
+    EventResponseDto.Detail createEvent(EventRequestDto.CreateEvent dto,
+                                        User currentUser);
+
+    // Update an existing event
+    EventResponseDto.Detail updateEvent(Long eventId,
+                                        EventRequestDto.UpdateEvent dto,
+                                        User currentUser);
+
+    // Delete an event
+    void deleteEvent(Long eventId, User currentUser);
+
+    // Publish a draft event
+    EventResponseDto.Detail publishEvent(Long eventId, User currentUser);
+
+    // Cancel an event
+    EventResponseDto.Detail cancelEvent(Long eventId, User currentUser);
+
+    // Reschedule an event
+    EventResponseDto.Detail rescheduleEvent(Long eventId,
+                                            EventRequestDto.UpdateEvent dto,
+                                            User currentUser);
+
+    // Get all events by organizer — organizer dashboard
+    List<EventResponseDto.OrganizerView> getOrganizerEvents(User currentUser);
+
+    // ─── ADMIN ───────────────────────────────────────────────────
+
+    // Get all events regardless of status — admin dashboard
+    List<EventResponseDto.Summary> getAllEvents();
+}
