@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "event")
@@ -57,6 +59,11 @@ public class Event
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "organizer_id", nullable = false)
     private OrganizerProfile organizer;
+
+    // One Event has Many TicketTypes
+    @OneToMany(mappedBy = "event", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Builder.Default
+    private List<TicketType> ticketTypes = new ArrayList<>();
 
     @PrePersist
     protected void FillCreatedTimeOnCreate()
