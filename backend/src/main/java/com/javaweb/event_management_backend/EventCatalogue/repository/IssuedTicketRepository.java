@@ -39,4 +39,10 @@ public interface IssuedTicketRepository extends JpaRepository<IssuedTicket, Long
 
     // Check if a QR code already exists — prevents duplicates
     boolean existsByQrCode(String qrCode);
+
+    // Find ticket by manual code — used for keyboard entry verification
+    Optional<IssuedTicket> findByTicketCode(String ticketCode);
+
+    // Check if ticket code already exists — prevents duplicates
+    boolean existsByTicketCode(String ticketCode);
 }

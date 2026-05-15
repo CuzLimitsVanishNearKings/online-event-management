@@ -1,5 +1,6 @@
 package com.javaweb.event_management_backend.BookingManagement.models;
 
+import com.javaweb.event_management_backend.BookingManagement.enums.PaymentMethod;
 import com.javaweb.event_management_backend.BookingManagement.enums.PaymentStatus;
 import jakarta.persistence.*;
 
@@ -16,8 +17,9 @@ public class Payment
     @Column(name = "amount", nullable = false)
     private BigDecimal amount;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "payment_method", nullable = false)
-    private String paymentMethod;
+    private PaymentMethod paymentMethod;
 
     @Column(name = "payment_date", nullable = false, updatable = false)
     private LocalDateTime paymentDate;

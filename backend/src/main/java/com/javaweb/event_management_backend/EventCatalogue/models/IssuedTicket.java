@@ -1,6 +1,7 @@
 package com.javaweb.event_management_backend.EventCatalogue.models;
 
 
+import com.javaweb.event_management_backend.BookingManagement.models.Booking;
 import com.javaweb.event_management_backend.EventCatalogue.enums.IssuedTicketStatus;
 import jakarta.persistence.*;
 import lombok.*;
@@ -23,6 +24,9 @@ public class IssuedTicket
 
     @Column(name = "qr_code", nullable = false, unique = true)
     private String qrCode;
+
+    @Column(name = "ticket_code", nullable = false, unique = true)
+    private String ticketCode;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
