@@ -1,8 +1,11 @@
-package com.javaweb.event_management_backend.UserManagement.security;
+package com.javaweb.event_management_backend.config;
 
+import com.javaweb.event_management_backend.UserManagement.security.JwtAuthFilter;
+import com.javaweb.event_management_backend.UserManagement.security.UserDetailsServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -20,35 +23,56 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
-public class SecurityConfig
-{
+public class SecurityConfig {
+
     private final JwtAuthFilter jwtAuthFilter;
     private final UserDetailsServiceImpl userDetailsService;
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception
-    {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(csrf -> csrf.disable())
 
                 .authorizeHttpRequests(auth -> auth
-                        // Public endpoints — no token needed
+
+                        // ─── PUBLIC ENDPOINTS ───────────────────────────
                         .requestMatchers("/api/auth/**").permitAll()
 
-                        // Admin only
-                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+                        // Anyone can browse events
+                        .requestMatchers(HttpMethod.GET, "/api/events/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
 
-                        // Organizer only
-                        .requestMatchers("/api/events/create").hasRole("ORGANIZER")
-                        .requestMatchers("/api/events/update/**").hasRole("ORGANIZER")
-                        .requestMatchers("/api/events/delete/**").hasRole("ORGANIZER")
+                        // Swagger UI
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/api-docs/**"
                         ).permitAll()
 
-                        // Any authenticated user
+                        // ─── ADMIN ONLY ──────────────────────────────────
+                        .requestMatchers("/api/admin/**").hasRole("ADMIN")
+
+                        // ─── ORGANIZER ONLY ──────────────────────────────
+                        // event management
+                        .requestMatchers(HttpMethod.POST, "/api/events/**").hasRole("ORGANIZER")
+                        .requestMatchers(HttpMethod.PUT, "/api/events/**").hasRole("ORGANIZER")
+                        .requestMatchers(HttpMethod.DELETE, "/api/events/**").hasRole("ORGANIZER")
+
+                        // ticket type management
+                        .requestMatchers("/api/events/*/ticket-types/**").hasRole("ORGANIZER")
+
+                        // ticket verification at the door
+                        .requestMatchers("/api/tickets/verify/**").hasRole("ORGANIZER")
+
+                        // organizer dashboard
+                        .requestMatchers("/api/organizer/**").hasRole("ORGANIZER")
+
+                        // ─── ATTENDEE ONLY ───────────────────────────────
+                        .requestMatchers("/api/bookings/**").hasRole("ATTENDEE")
+                        .requestMatchers("/api/wallet/**").hasRole("ATTENDEE")
+                        .requestMatchers("/api/payments/**").hasRole("ATTENDEE")
+
+                        // ─── ANY AUTHENTICATED USER ──────────────────────
                         .anyRequest().authenticated()
                 )
 
@@ -67,8 +91,7 @@ public class SecurityConfig
     }
 
     @Bean
-    public AuthenticationProvider authenticationProvider()
-    {
+    public AuthenticationProvider authenticationProvider() {
         DaoAuthenticationProvider provider = new DaoAuthenticationProvider(userDetailsService);
         provider.setPasswordEncoder(passwordEncoder());
         return provider;
@@ -76,14 +99,12 @@ public class SecurityConfig
 
     @Bean
     public AuthenticationManager authenticationManager(
-            AuthenticationConfiguration config) throws Exception
-    {
+            AuthenticationConfiguration config) throws Exception {
         return config.getAuthenticationManager();
     }
 
     @Bean
-    public PasswordEncoder passwordEncoder()
-    {
+    public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 }

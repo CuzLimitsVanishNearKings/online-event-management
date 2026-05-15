@@ -1,7 +1,6 @@
 package com.javaweb.event_management_backend.UserManagement.services;
 
 import com.javaweb.event_management_backend.UserManagement.dtos.request.UserAuthRequestDto;
-import com.javaweb.event_management_backend.UserManagement.dtos.response.UserResponseDto;
 import com.javaweb.event_management_backend.UserManagement.enums.UserRole;
 import com.javaweb.event_management_backend.UserManagement.enums.UserStatus;
 import com.javaweb.event_management_backend.UserManagement.mappers.UserMappers;
@@ -9,8 +8,7 @@ import com.javaweb.event_management_backend.UserManagement.models.OrganizerProfi
 import com.javaweb.event_management_backend.UserManagement.models.User;
 import com.javaweb.event_management_backend.UserManagement.repository.OrganizerRepository;
 import com.javaweb.event_management_backend.UserManagement.repository.UserRepository;
-import com.javaweb.event_management_backend.UserManagement.exceptions.EmailAlreadyExistsException;
-import com.javaweb.event_management_backend.UserManagement.exceptions.UserNotFoundException;
+import com.javaweb.event_management_backend.exceptions.EmailAlreadyExistsException;
 import com.javaweb.event_management_backend.UserManagement.security.JwtService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;

@@ -1,4 +1,4 @@
-package com.javaweb.event_management_backend.UserManagement.exceptions;
+package com.javaweb.event_management_backend.exceptions;
 
 public class UserNotFoundException extends RuntimeException
 {
