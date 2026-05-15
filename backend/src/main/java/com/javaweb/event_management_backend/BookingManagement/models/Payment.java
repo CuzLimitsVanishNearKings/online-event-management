@@ -3,10 +3,19 @@ package com.javaweb.event_management_backend.BookingManagement.models;
 import com.javaweb.event_management_backend.BookingManagement.enums.PaymentMethod;
 import com.javaweb.event_management_backend.BookingManagement.enums.PaymentStatus;
 import jakarta.persistence.*;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+
+@Entity
+@Table(name = "payment")
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class Payment
 {
     @Id
