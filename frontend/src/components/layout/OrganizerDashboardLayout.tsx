@@ -3,64 +3,53 @@ import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Menu } from 'lucide-react'
 import OrganizerSidebar from './OrganizerSidebar'
-import { AdminSecretListener } from '../auth/AdminSecretListener'
 import { useAuthStore } from '@/store/authStore'
-import { useAuth } from '@/hooks/useAuth'
 
 export default function OrganizerDashboardLayout() {
-  const { user, isAuthenticated } = useAuthStore()
-  const { isLoading } = useAuth()
+  const { user, isAuthenticated, isLoading } = useAuthStore()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const token = localStorage.getItem('token')
 
-  // Protect route
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+      <div className="flex items-center justify-center min-h-screen bg-gray-50">
+        <div className="w-8 h-8 border-4 rounded-full border-primary border-t-transparent animate-spin" />
       </div>
     )
   }
 
-  let roleStr = '';
-  if (Array.isArray(user?.role)) {
-    roleStr = typeof user.role[0] === 'string' ? user.role[0] : (user.role[0]?.authority || '');
-  } else if (typeof user?.role === 'object' && user?.role !== null) {
-    roleStr = (user.role as any).authority || '';
-  } else {
-    roleStr = String(user?.role || '');
+  if (!isAuthenticated && !token) {
+    return <Navigate to="/login" replace />
   }
-  const role = roleStr.toLowerCase();
-  
-  if (!isAuthenticated || (role !== 'organizer' && role !== 'role_organizer' && role !== 'admin' && role !== 'role_admin')) {
-    return <Navigate to="/organizer/login" replace state={{ from: location.pathname }} />
+
+  if (isAuthenticated && user?.role !== 'organizer') {
+    return <Navigate to="/login" replace />
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
-      <AdminSecretListener />
-      <div className="hidden md:flex h-screen sticky top-0">
+    <div className="flex min-h-screen bg-gray-50">
+      <div className="sticky top-0 hidden h-screen md:flex">
         <OrganizerSidebar />
       </div>
 
-      {/* Mobile Sidebar Overlay */}
       <AnimatePresence>
         {isMobileMenuOpen && (
-          <div className="fixed inset-0 z-40 md:hidden flex">
-            <motion.div 
+          <div className="fixed inset-0 z-40 flex md:hidden">
+            <motion.div
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity" 
-              onClick={() => setIsMobileMenuOpen(false)} 
+              className="fixed inset-0 transition-opacity bg-gray-900/60 backdrop-blur-sm"
+              onClick={() => setIsMobileMenuOpen(false)}
             />
-            <motion.div 
+            <motion.div
               initial={{ x: '-100%' }}
               animate={{ x: 0 }}
               exit={{ x: '-100%' }}
               transition={{ type: 'spring', damping: 25, stiffness: 200 }}
               className="relative flex-1 flex flex-col max-w-[280px] w-full bg-white z-50 shadow-2xl"
             >
-              <div className="flex-1 h-0 overflow-y-auto bg-white flex w-full">
+              <div className="flex flex-1 w-full h-0 overflow-y-auto bg-white">
                 <OrganizerSidebar onMobileClose={() => setIsMobileMenuOpen(false)} />
               </div>
             </motion.div>
@@ -68,11 +57,10 @@ export default function OrganizerDashboardLayout() {
         )}
       </AnimatePresence>
 
-      <main className="flex-1 flex flex-col min-w-0">
-        {/* Mobile Header */}
-        <header className="md:hidden bg-white border-b border-gray-200 h-16 flex items-center justify-between px-4">
+      <main className="flex flex-col flex-1 min-w-0">
+        <header className="flex items-center justify-between h-16 px-4 bg-white border-b border-gray-200 md:hidden">
           <span className="font-bold text-gray-900">Organizer Portal</span>
-          <button 
+          <button
             className="p-2 -mr-2 text-gray-600 hover:text-gray-900"
             onClick={() => setIsMobileMenuOpen(true)}
           >
@@ -81,7 +69,7 @@ export default function OrganizerDashboardLayout() {
         </header>
 
         <div className="flex-1 overflow-y-auto">
-          <div className="max-w-7xl mx-auto w-full p-4 md:p-8">
+          <div className="w-full p-4 mx-auto max-w-7xl md:p-8">
             <Outlet />
           </div>
         </div>

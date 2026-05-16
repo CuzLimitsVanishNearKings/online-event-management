@@ -27,7 +27,6 @@ import AttendeeSettingsView from '../pages/attendee/SettingsView'
 import AttendeeCalendarView from '../pages/attendee/CalendarView'
 
 import AdminDashboardLayout from '../components/layout/AdminDashboardLayout'
-import AdminLoginPage from '../pages/admin/AdminLoginPage'
 import AdminDashboardHome from '../pages/admin/DashboardHome'
 import AdminUserManagement from '../pages/admin/UserManagement'
 import AdminOrganizerRequests from '../pages/admin/OrganizerRequests'
@@ -65,10 +64,7 @@ const router = createBrowserRouter([
     path: '/register',
     element: <RegisterPage isOrganizer={false} />,
   },
-  {
-    path: '/admin/login',
-    element: <AdminLoginPage />,
-  },
+
   {
     path: '/organizer/login',
     element: <LoginPage isOrganizer={true} />,
