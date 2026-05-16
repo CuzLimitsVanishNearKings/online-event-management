@@ -3,6 +3,7 @@ package com.javaweb.event_management_backend.UserManagement.dtos.response;
 import com.javaweb.event_management_backend.UserManagement.enums.UserRole;
 import com.javaweb.event_management_backend.UserManagement.enums.UserStatus;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.time.LocalDateTime;
 
@@ -12,7 +13,7 @@ public class UserResponseDto
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
-    @Builder
+    @SuperBuilder
     public static class UserSummary
     {
         private String firstName;
@@ -27,7 +28,7 @@ public class UserResponseDto
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
-    @Builder
+    @SuperBuilder
     public static class UserDetail
     {
         private String firstName;
@@ -44,6 +45,7 @@ public class UserResponseDto
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
+    @SuperBuilder
     public static class OrganizerSummary extends UserSummary
     {
         private String organizationName;
@@ -53,6 +55,7 @@ public class UserResponseDto
     @Setter
     @NoArgsConstructor
     @AllArgsConstructor
+    @SuperBuilder
     public static class OrganizerDetails extends UserDetail
     {
         private String organizationName;

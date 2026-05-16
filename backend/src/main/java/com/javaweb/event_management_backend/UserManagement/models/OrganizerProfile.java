@@ -23,7 +23,7 @@ public class OrganizerProfile
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
 
-    @Column(name = "organization_name", nullable = false)
+    @Column(name = "organization_name", nullable = false, unique = true)
     private String organizationName;
 
     @Column(name = "description", columnDefinition = "TEXT")
