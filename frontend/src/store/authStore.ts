@@ -4,13 +4,13 @@ import axiosClient from '../api/axiosClient'
 
 // Types
 export interface User {
-  id: string
-  email: string
-  name: string
-  role?: 'user' | 'admin' | 'organizer'
-  avatar?: string
-  createdAt?: string
-  updatedAt?: string
+    id: string
+    email: string
+    name: string
+    role?: 'client' | 'organizer' | 'admin'  
+    avatar?: string
+    createdAt?: string
+    updatedAt?: string
 }
 
 export interface LoginCredentials {
@@ -63,11 +63,16 @@ const parseJwt = (token: string): Partial<User> | null => {
         return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
     }).join(''));
     const decoded = JSON.parse(jsonPayload);
-    
+
+    // backend sends "ROLE_CLIENT", "ROLE_ORGANIZER", "ROLE_ADMIN"
+    // strip the "ROLE_" prefix and lowercase it
+    const rawRole = decoded.role || ''
+    const role = rawRole.replace('ROLE_', '').toLowerCase()
+
     return {
       email: decoded.sub,
-      role: decoded.role,
-      name: decoded.sub.split('@')[0], // Fallback name
+      role: role,
+      name: decoded.sub.split('@')[0],
     }
   } catch (e) {
     return null;

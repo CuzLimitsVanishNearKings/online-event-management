@@ -46,12 +46,15 @@ const LoginPage = ({ isOrganizer = false }: { isOrganizer?: boolean }) => {
     }
   }
 
-  if (isAuthenticated) {
-    if (user?.role === 'ORGANIZER' || user?.role === 'organizer' || user?.role === 'ROLE_ORGANIZER' || user?.role === 'admin' || isOrganizer) {
-      return <Navigate to="/organizer/dashboard" replace />
+if (isAuthenticated) {
+    if (user?.role === 'admin') {
+        return <Navigate to="/admin/dashboard" replace />
+    }
+    if (user?.role === 'organizer') {
+        return <Navigate to="/organizer/dashboard" replace />
     }
     return <Navigate to="/attendee/dashboard" replace />
-  }
+}
 
   return (
     <AuthLayout 
@@ -77,7 +80,7 @@ const LoginPage = ({ isOrganizer = false }: { isOrganizer?: boolean }) => {
              value={email}
              onChange={(e) => setEmail(e.target.value)}
              required
-             className="rounded-2xl bg-surface/50 border-border focus:bg-white transition-colors"
+             className="transition-colors rounded-2xl bg-surface/50 border-border focus:bg-white"
            />
          </motion.div>
 
@@ -89,7 +92,7 @@ const LoginPage = ({ isOrganizer = false }: { isOrganizer?: boolean }) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="rounded-2xl bg-surface/50 border-border focus:bg-white transition-colors"
+              className="transition-colors rounded-2xl bg-surface/50 border-border focus:bg-white"
             />
             <button
               type="button"
@@ -103,8 +106,8 @@ const LoginPage = ({ isOrganizer = false }: { isOrganizer?: boolean }) => {
          <motion.div variants={itemVariants} className="flex items-center justify-between pt-2">
             <label className="flex items-center gap-3 cursor-pointer group">
                <div className="relative flex items-center justify-center">
-                 <input type="checkbox" className="peer sr-only" />
-                 <div className="w-5 h-5 rounded-md border-2 border-border peer-checked:bg-primary peer-checked:border-primary transition-all flex items-center justify-center">
+                 <input type="checkbox" className="sr-only peer" />
+                 <div className="flex items-center justify-center w-5 h-5 transition-all border-2 rounded-md border-border peer-checked:bg-primary peer-checked:border-primary">
                    <motion.svg 
                      initial={{ scale: 0 }}
                      animate={{ scale: 1 }}
@@ -115,9 +118,9 @@ const LoginPage = ({ isOrganizer = false }: { isOrganizer?: boolean }) => {
                    </motion.svg>
                  </div>
                </div>
-               <span className="text-sm font-medium text-text-secondary group-hover:text-text-primary transition-colors">Remember me</span>
+               <span className="text-sm font-medium transition-colors text-text-secondary group-hover:text-text-primary">Remember me</span>
             </label>
-            <Link to="/forgot-password" size="sm" className="text-sm font-bold text-primary hover:text-primary/80 transition-colors">
+            <Link to="/forgot-password" size="sm" className="text-sm font-bold transition-colors text-primary hover:text-primary/80">
                Forgot password?
             </Link>
          </motion.div>
@@ -126,9 +129,9 @@ const LoginPage = ({ isOrganizer = false }: { isOrganizer?: boolean }) => {
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600"
+              className="flex items-center gap-3 p-4 text-red-600 border border-red-100 bg-red-50 rounded-2xl"
             >
-               <AlertCircle className="w-5 h-5 flex-shrink-0" />
+               <AlertCircle className="flex-shrink-0 w-5 h-5" />
                <p className="text-sm font-bold">{error}</p>
             </motion.div>
          )}
@@ -138,7 +141,7 @@ const LoginPage = ({ isOrganizer = false }: { isOrganizer?: boolean }) => {
              type="submit"
              variant="primary"
              size="lg"
-             className="w-full rounded-2xl py-7 text-lg font-bold shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-shadow"
+             className="w-full text-lg font-bold transition-shadow shadow-xl rounded-2xl py-7 shadow-primary/20 hover:shadow-primary/30"
              loading={isLoading}
            >
              {isLoading ? 'Signing in...' : 'Sign In'}
@@ -149,33 +152,33 @@ const LoginPage = ({ isOrganizer = false }: { isOrganizer?: boolean }) => {
             <div className="absolute inset-0 flex items-center pt-6">
                <div className="w-full border-t border-border/60" />
             </div>
-            <div className="relative flex justify-center text-xs uppercase font-bold tracking-widest">
-               <span className="bg-white px-4 text-text-muted">Or continue with</span>
+            <div className="relative flex justify-center text-xs font-bold tracking-widest uppercase">
+               <span className="px-4 bg-white text-text-muted">Or continue with</span>
             </div>
          </motion.div>
 
          <motion.div variants={itemVariants} className="grid grid-cols-2 gap-4">
-            <button type="button" className="flex items-center justify-center gap-3 px-6 py-4 border-2 border-border/60 rounded-2xl hover:bg-surface hover:border-border transition-all font-bold text-sm text-text-primary">
+            <button type="button" className="flex items-center justify-center gap-3 px-6 py-4 text-sm font-bold transition-all border-2 border-border/60 rounded-2xl hover:bg-surface hover:border-border text-text-primary">
                <Github className="w-5 h-5" />
                GitHub
             </button>
-            <button type="button" className="flex items-center justify-center gap-3 px-6 py-4 border-2 border-border/60 rounded-2xl hover:bg-surface hover:border-border transition-all font-bold text-sm text-text-primary">
+            <button type="button" className="flex items-center justify-center gap-3 px-6 py-4 text-sm font-bold transition-all border-2 border-border/60 rounded-2xl hover:bg-surface hover:border-border text-text-primary">
                <Globe className="w-5 h-5" />
                Google
             </button>
          </motion.div>
 
          <motion.div variants={itemVariants} className="flex flex-col gap-2 pt-4">
-            <p className="text-center text-text-muted font-medium">
+            <p className="font-medium text-center text-text-muted">
                Don't have an account?{' '}
-               <Link to={isOrganizer ? "/organizer/register" : "/register"} className="text-primary font-bold hover:underline underline-offset-4">
+               <Link to={isOrganizer ? "/organizer/register" : "/register"} className="font-bold text-primary hover:underline underline-offset-4">
                   Create account
                </Link>
             </p>
-            <div className="border-t border-border/60 my-2" />
-            <p className="text-center text-text-muted font-medium">
+            <div className="my-2 border-t border-border/60" />
+            <p className="font-medium text-center text-text-muted">
                {isOrganizer ? "Looking to attend events?" : "Are you an organizer?"}{' '}
-               <Link to={isOrganizer ? "/login" : "/organizer/login"} className="text-text-primary font-bold hover:underline underline-offset-4">
+               <Link to={isOrganizer ? "/login" : "/organizer/login"} className="font-bold text-text-primary hover:underline underline-offset-4">
                   {isOrganizer ? "Sign in as Attendee" : "Sign in to Organizer Portal"}
                </Link>
             </p>

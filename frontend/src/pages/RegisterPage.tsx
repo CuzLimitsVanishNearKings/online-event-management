@@ -53,12 +53,15 @@ const RegisterPage = ({ isOrganizer = false }: { isOrganizer?: boolean }) => {
     }
   }
 
-  if (isAuthenticated) {
-    if (user?.role === 'ORGANIZER' || user?.role === 'organizer' || user?.role === 'ROLE_ORGANIZER' || user?.role === 'admin' || isOrganizer) {
-      return <Navigate to="/organizer/dashboard" replace />
+if (isAuthenticated) {
+    if (user?.role === 'admin') {
+        return <Navigate to="/admin/dashboard" replace />
+    }
+    if (user?.role === 'organizer') {
+        return <Navigate to="/organizer/dashboard" replace />
     }
     return <Navigate to="/attendee/dashboard" replace />
-  }
+}
 
   return (
     <AuthLayout 
@@ -84,7 +87,7 @@ const RegisterPage = ({ isOrganizer = false }: { isOrganizer?: boolean }) => {
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
               required
-              className="rounded-2xl bg-surface/50 border-border focus:bg-white transition-colors"
+              className="transition-colors rounded-2xl bg-surface/50 border-border focus:bg-white"
             />
             <Input
               label="Last Name"
@@ -93,7 +96,7 @@ const RegisterPage = ({ isOrganizer = false }: { isOrganizer?: boolean }) => {
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
               required
-              className="rounded-2xl bg-surface/50 border-border focus:bg-white transition-colors"
+              className="transition-colors rounded-2xl bg-surface/50 border-border focus:bg-white"
             />
          </motion.div>
 
@@ -106,7 +109,7 @@ const RegisterPage = ({ isOrganizer = false }: { isOrganizer?: boolean }) => {
                value={organizationName}
                onChange={(e) => setOrganizationName(e.target.value)}
                required
-               className="rounded-2xl bg-surface/50 border-border focus:bg-white transition-colors"
+               className="transition-colors rounded-2xl bg-surface/50 border-border focus:bg-white"
              />
            </motion.div>
          )}
@@ -119,7 +122,7 @@ const RegisterPage = ({ isOrganizer = false }: { isOrganizer?: boolean }) => {
              value={email}
              onChange={(e) => setEmail(e.target.value)}
              required
-             className="rounded-2xl bg-surface/50 border-border focus:bg-white transition-colors"
+             className="transition-colors rounded-2xl bg-surface/50 border-border focus:bg-white"
            />
          </motion.div>
 
@@ -131,7 +134,7 @@ const RegisterPage = ({ isOrganizer = false }: { isOrganizer?: boolean }) => {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="rounded-2xl bg-surface/50 border-border focus:bg-white transition-colors"
+              className="transition-colors rounded-2xl bg-surface/50 border-border focus:bg-white"
             />
             <button
               type="button"
@@ -150,9 +153,9 @@ const RegisterPage = ({ isOrganizer = false }: { isOrganizer?: boolean }) => {
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="p-4 bg-red-50 border border-red-100 rounded-2xl flex items-center gap-3 text-red-600"
+              className="flex items-center gap-3 p-4 text-red-600 border border-red-100 bg-red-50 rounded-2xl"
             >
-               <AlertCircle className="w-5 h-5 flex-shrink-0" />
+               <AlertCircle className="flex-shrink-0 w-5 h-5" />
                <p className="text-sm font-bold">{error}</p>
             </motion.div>
          )}
@@ -162,7 +165,7 @@ const RegisterPage = ({ isOrganizer = false }: { isOrganizer?: boolean }) => {
              type="submit"
              variant="primary"
              size="lg"
-             className="w-full rounded-2xl py-7 text-lg font-bold shadow-xl shadow-primary/20 hover:shadow-primary/30 transition-shadow"
+             className="w-full text-lg font-bold transition-shadow shadow-xl rounded-2xl py-7 shadow-primary/20 hover:shadow-primary/30"
              loading={isLoading}
            >
              {isLoading ? 'Creating account...' : 'Create Account'}
@@ -173,33 +176,33 @@ const RegisterPage = ({ isOrganizer = false }: { isOrganizer?: boolean }) => {
             <div className="absolute inset-0 flex items-center pt-6">
                <div className="w-full border-t border-border/60" />
             </div>
-            <div className="relative flex justify-center text-xs uppercase font-bold tracking-widest">
-               <span className="bg-white px-4 text-text-muted">Or join with</span>
+            <div className="relative flex justify-center text-xs font-bold tracking-widest uppercase">
+               <span className="px-4 bg-white text-text-muted">Or join with</span>
             </div>
          </motion.div>
 
          <motion.div variants={itemVariants} className="grid grid-cols-2 gap-4">
-            <button type="button" className="flex items-center justify-center gap-3 px-6 py-4 border-2 border-border/60 rounded-2xl hover:bg-surface hover:border-border transition-all font-bold text-sm text-text-primary">
+            <button type="button" className="flex items-center justify-center gap-3 px-6 py-4 text-sm font-bold transition-all border-2 border-border/60 rounded-2xl hover:bg-surface hover:border-border text-text-primary">
                <Github className="w-5 h-5" />
                GitHub
             </button>
-            <button type="button" className="flex items-center justify-center gap-3 px-6 py-4 border-2 border-border/60 rounded-2xl hover:bg-surface hover:border-border transition-all font-bold text-sm text-text-primary">
+            <button type="button" className="flex items-center justify-center gap-3 px-6 py-4 text-sm font-bold transition-all border-2 border-border/60 rounded-2xl hover:bg-surface hover:border-border text-text-primary">
                <Globe className="w-5 h-5" />
                Google
             </button>
          </motion.div>
 
          <motion.div variants={itemVariants} className="flex flex-col gap-2 pt-4">
-            <p className="text-center text-text-muted font-medium">
+            <p className="font-medium text-center text-text-muted">
                Already have an account?{' '}
-               <Link to={isOrganizer ? "/organizer/login" : "/login"} className="text-primary font-bold hover:underline underline-offset-4">
+               <Link to={isOrganizer ? "/organizer/login" : "/login"} className="font-bold text-primary hover:underline underline-offset-4">
                   Sign In
                </Link>
             </p>
-            <div className="border-t border-border/60 my-2" />
-            <p className="text-center text-text-muted font-medium">
+            <div className="my-2 border-t border-border/60" />
+            <p className="font-medium text-center text-text-muted">
                {isOrganizer ? "Just looking to attend?" : "Want to host events?"}{' '}
-               <Link to={isOrganizer ? "/register" : "/organizer/register"} className="text-text-primary font-bold hover:underline underline-offset-4">
+               <Link to={isOrganizer ? "/register" : "/organizer/register"} className="font-bold text-text-primary hover:underline underline-offset-4">
                   {isOrganizer ? "Sign up as Attendee" : "Sign up as Organizer"}
                </Link>
             </p>

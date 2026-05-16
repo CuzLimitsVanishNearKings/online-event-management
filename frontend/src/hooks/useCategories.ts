@@ -14,7 +14,7 @@ export const useCategories = () => {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await axiosClient.get('/api/categories')
+        const res = await axiosClient.get('/categories')
         setCategories(res.data)
       } catch (error) {
         console.error('Failed to fetch categories:', error)
