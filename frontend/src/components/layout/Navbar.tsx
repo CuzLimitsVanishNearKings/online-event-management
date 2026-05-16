@@ -16,6 +16,8 @@ import {
   Calendar
 } from '../icons'
 import { cn } from '../../utils/cn'
+import { useCartStore } from '../../store/cartStore'
+import CartSidebar from '../cart/CartSidebar'
 
 const Navbar = () => {
   const { isAuthenticated, user, logoutMutation } = useAuth()
@@ -24,6 +26,7 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
+  const { itemCount, toggleCart } = useCartStore()
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10)
@@ -45,7 +48,7 @@ const Navbar = () => {
 
   const navLinks = [
     { path: '/events', label: 'Find Events' },
-    { path: '/events/new', label: 'Create Events' },
+    { path: '/organizer/events/new', label: 'Create Events' },
   ]
 
   return (
@@ -104,6 +107,19 @@ const Navbar = () => {
                   <Heart className="w-5 h-5" />
                 </button>
                 
+                {/* Cart Toggle */}
+                <button 
+                  onClick={toggleCart}
+                  className="relative p-2.5 text-text-secondary hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
+                >
+                  <Ticket className="w-5 h-5" />
+                  {itemCount > 0 && (
+                    <span className="absolute top-0 right-0 w-4 h-4 bg-primary text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white">
+                      {itemCount}
+                    </span>
+                  )}
+                </button>
+                
                 {/* User Menu */}
                 <div className="relative group">
                   <button className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-gray-50 border border-transparent hover:border-border transition-all">
@@ -119,7 +135,11 @@ const Navbar = () => {
                       <p className="text-xs text-text-muted font-medium truncate mt-0.5">{user?.email}</p>
                     </div>
                     <div className="p-2">
-                      {(user?.role === 'ORGANIZER' || user?.role === 'organizer' || user?.role === 'ROLE_ORGANIZER' || user?.role === 'admin') ? (
+                      {user?.role === 'ADMIN' || user?.role === 'admin' || user?.role === 'ROLE_ADMIN' ? (
+                        <Link to="/admin/dashboard" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-text-secondary hover:bg-primary/5 hover:text-primary rounded-xl transition-all">
+                          <LayoutDashboard className="w-4 h-4" /> Admin Dashboard
+                        </Link>
+                      ) : (user?.role === 'ORGANIZER' || user?.role === 'organizer' || user?.role === 'ROLE_ORGANIZER') ? (
                         <Link to="/organizer/dashboard" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-text-secondary hover:bg-primary/5 hover:text-primary rounded-xl transition-all">
                           <LayoutDashboard className="w-4 h-4" /> Organizer Dashboard
                         </Link>
@@ -202,6 +222,9 @@ const Navbar = () => {
           </div>
         </div>
       )}
+      
+      {/* Cart Sidebar Rendered Here */}
+      <CartSidebar />
     </nav>
   )
 }

@@ -32,7 +32,7 @@ export default function OrganizerDashboardLayout() {
   const role = roleStr.toLowerCase();
   
   if (!isAuthenticated || (role !== 'organizer' && role !== 'role_organizer' && role !== 'admin' && role !== 'role_admin')) {
-    return <Navigate to="/login" replace />
+    return <Navigate to="/organizer/login" replace state={{ from: location.pathname }} />
   }
 
   return (

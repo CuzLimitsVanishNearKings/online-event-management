@@ -80,7 +80,9 @@ export default function AdminSidebar({ onMobileClose }: AdminSidebarProps = {}) 
       <div className={cn("p-6 border-b border-border flex items-center", isSidebarCollapsed ? "justify-center px-0" : "justify-center")}>
         <Link to="/" className="flex items-center gap-2 transition-transform hover:scale-105">
           {isSidebarCollapsed ? (
-            <div className="w-8 h-8 bg-primary rounded-xl flex items-center justify-center text-white font-bold text-lg">E</div>
+            <div className="w-8 h-8 bg-primary rounded-xl flex items-center justify-center p-1.5">
+              <img src="/04_evento-icon-white.svg" alt="Evento Icon" className="w-full h-full object-contain" />
+            </div>
           ) : (
             <img src="/05_evento-horizontal.svg" alt="Evento" className="h-8 w-auto" />
           )}

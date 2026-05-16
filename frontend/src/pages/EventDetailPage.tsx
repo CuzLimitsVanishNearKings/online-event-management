@@ -20,7 +20,10 @@ import {
   Info,
   ShieldCheck,
   Zap,
-  ArrowRight
+  ArrowRight,
+  Facebook,
+  Linkedin,
+  WhatsApp
 } from '../components/icons'
 import { cn } from '../utils/cn'
 
@@ -102,7 +105,7 @@ const EventDetailPage = () => {
               
               {/* Additional Sections */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                 <div className="p-8 bg-gray-50 rounded-xl border border-border/50 space-y-4">
+                 <div className="p-8 bg-surface/50 rounded-2xl border border-border/50 hover:border-primary/20 hover:shadow-sm transition-all duration-300 space-y-4">
                     <div className="flex items-center gap-3 text-primary">
                        <ShieldCheck className="w-6 h-6" />
                        <h3 className="font-display font-bold text-xl text-text-primary">Safety & Guidelines</h3>
@@ -111,8 +114,8 @@ const EventDetailPage = () => {
                        This event follows all local safety protocols. Please bring a valid ID and your digital ticket for entry.
                     </p>
                  </div>
-                 <div className="p-8 bg-gray-50 rounded-xl border border-border/50 space-y-4">
-                    <div className="flex items-center gap-3 text-accent">
+                 <div className="p-8 bg-surface/50 rounded-2xl border border-border/50 hover:border-accent/20 hover:shadow-sm transition-all duration-300 space-y-4">
+                    <div className="flex items-center gap-3 text-accent-dark">
                        <Info className="w-6 h-6" />
                        <h3 className="font-display font-bold text-xl text-text-primary">Refund Policy</h3>
                     </div>
@@ -140,21 +143,39 @@ const EventDetailPage = () => {
                      rel="noopener noreferrer"
                      className="block group"
                    >
-                      <div className="relative aspect-video rounded-2xl overflow-hidden bg-gray-50 mb-4">
-                         <img 
-                           src={`https://maps.googleapis.com/maps/api/staticmap?center=${encodeURIComponent(event.location)}&zoom=15&size=400x200&scale=2&key=YOUR_API_KEY_HERE`} 
-                           alt="Location Map"
-                           className="w-full h-full object-cover transition-transform group-hover:scale-110"
-                         />
-                         {/* Fallback pattern if no API key */}
-                         <div className="absolute inset-0 bg-primary/5 flex items-center justify-center">
-                            <MapPin className="w-8 h-8 text-primary/40" />
+                      <div className="relative aspect-video rounded-2xl overflow-hidden bg-surface/50 mb-4 border border-border/50">
+                         {/* Styled Map Placeholder instead of broken image */}
+                         <div className="absolute inset-0 w-full h-full bg-surface relative overflow-hidden flex items-center justify-center transition-transform group-hover:scale-105 duration-500">
+                           {/* Grid pattern */}
+                           <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(#8B7355 1px, transparent 1px)', backgroundSize: '16px 16px' }} />
+                           {/* Pulse animation ring */}
+                           <div className="absolute w-12 h-12 bg-primary/20 rounded-full animate-ping" />
+                           {/* Map pin */}
+                           <div className="relative w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center border border-border z-10 text-primary">
+                             <MapPin className="w-5 h-5" />
+                           </div>
                          </div>
                       </div>
                       <Button variant="outline" className="w-full rounded-xl gap-2 font-bold uppercase tracking-widest text-xs py-5">
                          Get Directions <ExternalLink className="w-3 h-3" />
                       </Button>
                    </a>
+                </div>
+
+                {/* Social Sharing */}
+                <div className="bg-surface/30 border border-border rounded-xl p-6">
+                   <h3 className="font-display font-bold text-lg text-text-primary mb-4 text-center">Share with friends</h3>
+                   <div className="flex items-center justify-center gap-4">
+                     <button className="w-12 h-12 rounded-full bg-white border border-border flex items-center justify-center text-[#1877F2] hover:bg-[#1877F2] hover:text-white hover:border-[#1877F2] shadow-sm transition-all duration-300 hover:-translate-y-1">
+                       <Facebook className="w-5 h-5" />
+                     </button>
+                     <button className="w-12 h-12 rounded-full bg-white border border-border flex items-center justify-center text-[#0A66C2] hover:bg-[#0A66C2] hover:text-white hover:border-[#0A66C2] shadow-sm transition-all duration-300 hover:-translate-y-1">
+                       <Linkedin className="w-5 h-5" />
+                     </button>
+                     <button className="w-12 h-12 rounded-full bg-white border border-border flex items-center justify-center text-[#25D366] hover:bg-[#25D366] hover:text-white hover:border-[#25D366] shadow-sm transition-all duration-300 hover:-translate-y-1">
+                       <WhatsApp className="w-5 h-5" />
+                     </button>
+                   </div>
                 </div>
               </div>
             </aside>

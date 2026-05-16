@@ -6,6 +6,7 @@ import EventsListPage from '../pages/EventsListPage'
 import EventDetailPage from '../pages/EventDetailPage'
 import LoginPage from '../pages/LoginPage'
 import RegisterPage from '../pages/RegisterPage'
+import CheckoutPage from '../pages/CheckoutPage'
 
 import OrganizerDashboardLayout from '../components/layout/OrganizerDashboardLayout'
 import DashboardHome from '../pages/organizer/DashboardHome'
@@ -54,10 +55,6 @@ const router = createBrowserRouter([
         path: '/events',
         element: <EventsListPage />,
       },
-      {
-        path: '/how-it-works',
-        element: <HomePage />, // Will be replaced with HowItWorksPage
-      },
     ],
   },
   {
@@ -86,6 +83,10 @@ const router = createBrowserRouter([
       {
         path: '/event/:id',
         element: <EventDetailPage />,
+      },
+      {
+        path: '/checkout',
+        element: <CheckoutPage />,
       },
     ],
   },

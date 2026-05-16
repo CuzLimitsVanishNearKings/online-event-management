@@ -2,12 +2,14 @@ import { Link, useNavigate } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import { Search, MapPin } from '../icons'
 import { cn } from '../../utils/cn'
+import { useCategories } from '../../hooks/useCategories'
 
 const HeroSection = () => {
   const [isVisible, setIsVisible] = useState(false)
   const navigate = useNavigate()
   const [searchQuery, setSearchQuery] = useState('')
   const [locationQuery, setLocationQuery] = useState('')
+  const { categories } = useCategories()
 
   useEffect(() => {
     setIsVisible(true)
@@ -71,13 +73,22 @@ const HeroSection = () => {
 
           {/* Quick Category Links */}
           <div className="flex flex-wrap justify-center gap-2 pt-4">
-            {['Music', 'Food & Drink', 'Business', 'Arts', 'Sports', 'Health'].map((tag) => (
+            {(categories.length > 0 ? categories.slice(0, 6).map(c => ({ id: c.id, name: c.name })) : 
+              [
+                { id: 'music', name: 'Music' },
+                { id: 'food', name: 'Food & Drink' },
+                { id: 'business', name: 'Business' },
+                { id: 'arts', name: 'Arts' },
+                { id: 'sports', name: 'Sports' },
+                { id: 'wellness', name: 'Health' }
+              ]
+            ).map((cat) => (
               <Link 
-                key={tag} 
-                to={`/events?category=${tag.toLowerCase()}`}
+                key={cat.id} 
+                to={`/events?category=${cat.id}`}
                 className="px-3 py-1.5 text-xs font-medium text-text-secondary bg-white border border-border rounded-full hover:border-primary hover:text-primary transition-colors"
               >
-                {tag}
+                {cat.name}
               </Link>
             ))}
           </div>
