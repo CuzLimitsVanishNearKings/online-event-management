@@ -1,6 +1,7 @@
 package com.javaweb.event_management_backend.UserManagement.services.impl;
 
 import com.javaweb.event_management_backend.UserManagement.dtos.response.UserResponseDto;
+import com.javaweb.event_management_backend.UserManagement.dtos.request.UserAuthRequestDto;
 import com.javaweb.event_management_backend.UserManagement.enums.UserRole;
 import com.javaweb.event_management_backend.UserManagement.enums.UserStatus;
 import com.javaweb.event_management_backend.UserManagement.mappers.UserMappers;
@@ -133,5 +134,28 @@ public class UserServiceImpl implements UserService {
                             .build();
                 })
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public UserResponseDto.UserDetail updateProfile(UserAuthRequestDto.UpdateProfile dto, User currentUser) {
+        User user = userRepository.findById(currentUser.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (dto.getFirstName() != null && !dto.getFirstName().isBlank()) {
+            user.setFirstName(dto.getFirstName());
+        }
+        if (dto.getLastName() != null && !dto.getLastName().isBlank()) {
+            user.setLastName(dto.getLastName());
+        }
+        if (dto.getUserName() != null && !dto.getUserName().isBlank()) {
+            user.setUserName(dto.getUserName());
+        }
+        if (dto.getProfilePic() != null) {
+            user.setProfilePic(dto.getProfilePic());
+        }
+
+        userRepository.save(user);
+        return userMappers.toDetail(user);
     }
 }

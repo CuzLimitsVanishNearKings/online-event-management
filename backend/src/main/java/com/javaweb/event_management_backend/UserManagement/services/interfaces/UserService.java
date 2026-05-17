@@ -1,6 +1,7 @@
 package com.javaweb.event_management_backend.UserManagement.services.interfaces;
 
 import com.javaweb.event_management_backend.UserManagement.dtos.response.UserResponseDto;
+import com.javaweb.event_management_backend.UserManagement.dtos.request.UserAuthRequestDto;
 import com.javaweb.event_management_backend.UserManagement.enums.UserRole;
 import com.javaweb.event_management_backend.UserManagement.enums.UserStatus;
 import com.javaweb.event_management_backend.UserManagement.models.User;
@@ -35,4 +36,7 @@ public interface UserService {
 
     // Get all organizers — admin use
     List<UserResponseDto.OrganizerSummary> getAllOrganizers();
+
+    // Update currently logged in user profile
+    UserResponseDto.UserDetail updateProfile(UserAuthRequestDto.UpdateProfile dto, User currentUser);
 }

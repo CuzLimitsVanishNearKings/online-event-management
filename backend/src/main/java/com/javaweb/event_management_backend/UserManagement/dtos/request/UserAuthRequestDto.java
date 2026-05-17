@@ -65,4 +65,15 @@ public class UserAuthRequestDto
 
 
     }
+
+    @Getter
+    @Setter
+    @AllArgsConstructor
+    @NoArgsConstructor
+    public static class UpdateProfile {
+        private String firstName;
+        private String lastName;
+        private String userName;
+        private String profilePic;
+    }
 }

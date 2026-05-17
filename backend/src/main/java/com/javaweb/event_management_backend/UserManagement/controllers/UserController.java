@@ -1,6 +1,7 @@
 package com.javaweb.event_management_backend.UserManagement.controllers;
 
 import com.javaweb.event_management_backend.UserManagement.dtos.response.UserResponseDto;
+import com.javaweb.event_management_backend.UserManagement.dtos.request.UserAuthRequestDto;
 import com.javaweb.event_management_backend.UserManagement.enums.UserRole;
 import com.javaweb.event_management_backend.UserManagement.enums.UserStatus;
 import com.javaweb.event_management_backend.UserManagement.models.User;
@@ -28,6 +29,15 @@ public class UserController {
     public ResponseEntity<UserResponseDto.UserDetail> getCurrentUser() {
         User currentUser = SecurityUtils.getCurrentUser();
         return ResponseEntity.ok(userService.getCurrentUser(currentUser));
+    }
+
+    // PUT /api/users/profile
+    // update current user profile (including base64 profilePic)
+    @PutMapping("/profile")
+    public ResponseEntity<UserResponseDto.UserDetail> updateProfile(
+            @RequestBody UserAuthRequestDto.UpdateProfile dto) {
+        User currentUser = SecurityUtils.getCurrentUser();
+        return ResponseEntity.ok(userService.updateProfile(dto, currentUser));
     }
 
     // ─── ADMIN ───────────────────────────────────────────────────
