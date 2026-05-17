@@ -102,7 +102,7 @@ const EventBanner = ({ events = [], className = '' }: EventBannerProps) => {
                 {formatPrice(event.price)}
               </span>
               <span className="text-xs px-2 py-1 bg-primary/10 text-primary rounded-full">
-                {event.category}
+                {typeof event.category === 'object' ? ((event as any).categoryName || (event.category as any)?.name || 'General') : (event.category || 'General')}
               </span>
             </div>
           </div>

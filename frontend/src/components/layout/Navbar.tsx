@@ -20,7 +20,7 @@ import { useCartStore } from '../../store/cartStore'
 import CartSidebar from '../cart/CartSidebar'
 
 const Navbar = () => {
-  const { isAuthenticated, user, logoutMutation } = useAuth()
+  const { isAuthenticated, user, logout } = useAuth()
   const navigate = useNavigate()
   const location = useLocation()
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
@@ -35,8 +35,11 @@ const Navbar = () => {
   }, [])
 
   const handleLogout = () => {
-    logoutMutation.mutate()
+    logout()
     setIsMobileMenuOpen(false)
+    setTimeout(() => {
+      window.location.href = '/'
+    }, 50)
   }
 
   const handleSearch = (e: React.FormEvent) => {

@@ -53,11 +53,11 @@ export const formatDateTime = (dateTime: string): string => {
   }
 }
 
-export const formatCurrency = (amount: number, currency = 'USD'): string => {
-  return new Intl.NumberFormat('en-US', {
-    style: 'currency',
-    currency,
-  }).format(amount)
+export const formatCurrency = (amount: number): string => {
+  return new Intl.NumberFormat('fr-FR', {
+    style: 'decimal',
+    minimumFractionDigits: 0
+  }).format(amount) + ' FCFA'
 }
 
 export const formatNumber = (num: number): string => {

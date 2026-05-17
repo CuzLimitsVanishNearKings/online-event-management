@@ -129,7 +129,9 @@ export default function AttendeeSidebar({ onMobileClose }: AttendeeSidebarProps 
           onClick={() => {
             onMobileClose?.()
             logout()
-            window.location.href = '/'
+            setTimeout(() => {
+              window.location.href = '/'
+            }, 50)
           }}
           title={isCollapsed ? "Sign Out" : undefined}
           className={cn(

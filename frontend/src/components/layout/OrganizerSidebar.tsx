@@ -136,7 +136,9 @@ export default function OrganizerSidebar({ onMobileClose }: OrganizerSidebarProp
           onClick={() => {
             onMobileClose?.()
             logout()
-            window.location.href = '/'
+            setTimeout(() => {
+              window.location.href = '/'
+            }, 50)
           }}
           title={isCollapsed ? "Sign Out" : undefined}
           className={cn(

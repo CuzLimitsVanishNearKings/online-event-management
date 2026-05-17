@@ -15,7 +15,12 @@ export const useCategories = () => {
     const fetchCategories = async () => {
       try {
         const res = await axiosClient.get('/categories')
-        setCategories(res.data)
+        const mapped = res.data.map((cat: any) => ({
+          id: cat.categoryId || cat.id,
+          name: cat.name,
+          icon: cat.icon || 'Sparkles'
+        }))
+        setCategories(mapped)
       } catch (error) {
         console.error('Failed to fetch categories:', error)
         setCategories([])

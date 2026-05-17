@@ -5,6 +5,7 @@ import { useCartStore } from '../store/cartStore'
 import { formatCurrency } from '../utils/format'
 import { Button, Input } from '../components/ui'
 import { ChevronLeft, Ticket, ShieldCheck, CheckCircle } from '../components/icons'
+import axiosClient from '../api/axiosClient'
 
 const CheckoutPage = () => {
   const { items, total, clearCart } = useCartStore()
@@ -14,21 +15,49 @@ const CheckoutPage = () => {
   const [isProcessing, setIsProcessing] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
 
+  const [promoApplied, setPromoApplied] = useState(false)
+
   const handleApplyPromo = () => {
-    if (promoCode.toLowerCase() === 'vip10') {
+    const code = promoCode.toUpperCase()
+    if (code === 'SAVE20') {
+      setDiscount(total * 0.2)
+      setPromoApplied(true)
+      alert("Promo code SAVE20 applied successfully! 20% discount added.")
+    } else if (code === 'WELCOME5000') {
+      setDiscount(Math.min(total, 5000))
+      setPromoApplied(true)
+      alert("Promo code WELCOME5000 applied successfully! 5000 FCFA discount added.")
+    } else if (code === 'STUDENT10') {
       setDiscount(total * 0.1)
+      setPromoApplied(true)
+      alert("Promo code STUDENT10 applied successfully! 10% discount added.")
+    } else if (code === 'EARLYBIRD') {
+      setDiscount(total * 0.15)
+      setPromoApplied(true)
+      alert("Promo code EARLYBIRD applied successfully! 15% discount added.")
     } else {
       setDiscount(0)
-      alert("Invalid promo code")
+      setPromoApplied(false)
+      alert("Invalid promo code. Try SAVE20 or WELCOME5000.")
     }
   }
 
-  const handlePayment = (e: React.FormEvent) => {
+  const handlePayment = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsProcessing(true)
     
-    // Simulate payment processing
-    setTimeout(() => {
+    try {
+      // Loop over and submit each cart item as a booking to the live backend
+      await Promise.all(
+        items.map((item) =>
+          axiosClient.post('/bookings', {
+            ticketTypeId: item.ticketTypeId,
+            quantity: item.quantity,
+            promotionCode: promoApplied ? promoCode.toUpperCase() : null
+          })
+        )
+      )
+      
       setIsProcessing(false)
       setIsSuccess(true)
       clearCart()
@@ -37,7 +66,11 @@ const CheckoutPage = () => {
       setTimeout(() => {
         navigate('/attendee/tickets')
       }, 3000)
-    }, 2000)
+    } catch (err: any) {
+      console.error('Checkout error:', err)
+      alert(err.response?.data?.message || 'Failed to place booking. Please check category availability or try again.')
+      setIsProcessing(false)
+    }
   }
 
   if (items.length === 0 && !isSuccess) {

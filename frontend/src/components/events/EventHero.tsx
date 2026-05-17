@@ -1,22 +1,9 @@
 import { format, parseISO } from 'date-fns'
-import { Calendar, MapPin, User, DollarSign, Users, CheckCircle, Share2, Heart, Clock } from '../icons'
+import { Calendar, MapPin, User, CheckCircle, Share2, Heart, Clock, Users } from '../icons'
 import { cn } from '../../utils/cn'
 
 interface EventHeroProps {
-  event: {
-    id: string
-    title: string
-    description: string
-    date: string
-    time: string
-    location: string
-    price: number
-    capacity: number
-    currentAttendees: number
-    category: string
-    image?: string
-    organizer: string
-  }
+  event: any
 }
 
 const EventHero = ({ event }: EventHeroProps) => {
@@ -41,17 +28,32 @@ const EventHero = ({ event }: EventHeroProps) => {
     console.error('Error formatting date in EventHero:', e)
     formattedDate = event.date || 'TBD'
   }
-  const imageUrl = event.image || `https://picsum.photos/seed/${event.id}/1200/600.jpg`
+
+  const imageUrl = event.coverImage || event.image
+  const organizerName = event.organizerName || event.organizer || 'Event Organizer'
+  const organizerLogo = event.organizerLogoUrl || event.organizerLogo
 
   return (
     <div className="space-y-10">
       {/* Hero Image Container */}
       <div className="relative aspect-[21/9] overflow-hidden rounded-xl shadow-card">
-        <img
-          src={imageUrl}
-          alt={event.title}
-          className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
-        />
+        {imageUrl ? (
+          <img
+            src={imageUrl}
+            alt={event.title}
+            className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+          />
+        ) : (
+          <div className="w-full h-full bg-gradient-to-tr from-[#1E1B18] via-[#3A3530] to-[#5C534C] flex flex-col items-center justify-center p-8 text-center select-none relative">
+            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(#FFF 1px, transparent 1px)', backgroundSize: '24px 24px' }} />
+            <h2 className="text-3xl md:text-5xl font-display font-bold text-[#EAE6DF] max-w-2xl drop-shadow-md z-10 leading-tight">
+              {event.title}
+            </h2>
+            <span className="mt-4 px-4 py-1.5 bg-[#FFF]/10 border border-[#FFF]/20 text-[#FFF]/80 rounded-full text-xs font-bold uppercase tracking-widest z-10">
+              Exclusive Experience
+            </span>
+          </div>
+        )}
         
         {/* Overlays */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
@@ -59,7 +61,7 @@ const EventHero = ({ event }: EventHeroProps) => {
         {/* Floating Category Badge */}
         <div className="absolute top-6 left-6">
           <span className="px-4 py-2 bg-white/90 backdrop-blur-md text-xs font-bold uppercase tracking-widest text-primary rounded-full border border-primary/20 shadow-lg">
-            {event.category}
+            {typeof event.category === 'object' ? (event.categoryName || event.category?.name || 'General') : (event.category || 'General')}
           </span>
         </div>
 
@@ -119,23 +121,29 @@ const EventHero = ({ event }: EventHeroProps) => {
 
         <div className="flex flex-col justify-end space-y-6">
            <div className="flex items-center gap-4 p-6 bg-gray-50 rounded-xl border border-border/50">
-              <div className="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center overflow-hidden">
-                 <img src={`https://i.pravatar.cc/100?u=${event.organizer}`} alt={event.organizer} />
+              <div className="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center overflow-hidden border border-border">
+                 {organizerLogo ? (
+                   <img src={organizerLogo} alt={organizerName} className="w-full h-full object-cover" />
+                 ) : (
+                   <div className="w-full h-full bg-[#1E1B18] text-[#EAE6DF] font-display font-bold flex items-center justify-center text-lg uppercase select-none">
+                     {organizerName.slice(0, 2)}
+                   </div>
+                 )}
               </div>
               <div>
                  <p className="text-xs font-bold text-text-muted uppercase tracking-wider">Hosted by</p>
-                 <p className="text-lg font-display font-bold text-text-primary">{event.organizer}</p>
+                 <p className="text-lg font-display font-bold text-text-primary">{organizerName}</p>
               </div>
            </div>
            
            <div className="flex items-center gap-6 px-4">
               <div className="flex items-center gap-2">
                  <Users className="w-5 h-5 text-text-muted" />
-                 <span className="text-sm font-bold text-text-primary">{event.currentAttendees} / {event.capacity} attending</span>
+                 <span className="text-sm font-bold text-text-primary">{event.currentAttendees || 0} / {event.capacity || 100} attending</span>
               </div>
               <div className="flex items-center gap-2">
                  <CheckCircle className="w-5 h-5 text-green-500" />
-                 <span className="text-sm font-bold text-text-primary">{event.capacity - event.currentAttendees} spots left</span>
+                 <span className="text-sm font-bold text-text-primary">{(event.capacity || 100) - (event.currentAttendees || 0)} spots left</span>
               </div>
            </div>
         </div>

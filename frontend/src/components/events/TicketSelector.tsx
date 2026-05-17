@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '../ui'
 import { formatCurrency } from '../../utils/format'
 import { useCartStore } from '../../store/cartStore'
@@ -9,21 +9,34 @@ interface TicketSelectorProps {
   event: {
     id: string
     title: string
-    price: number
-    capacity: number
-    currentAttendees: number
+    venue: string
+    startDateTime: string
+    coverImage?: string
+    ticketTypes?: any[]
+    date?: string
   }
-  fullEvent?: {
-    date: string
-    location: string
-    image?: string
-  }
+  fullEvent?: any
 }
 
 const TicketSelector = ({ event, fullEvent }: TicketSelectorProps) => {
-  const [quantity, setQuantity] = useState(1)
   const { addItem, hasItem } = useCartStore()
-  const maxTickets = Math.min(10, event.capacity - event.currentAttendees)
+  
+  // Resilient fallback logic for ticket types
+  const ticketTypes = event.ticketTypes && event.ticketTypes.length > 0 
+    ? event.ticketTypes 
+    : [{ ticketTypeId: 0, name: 'General Admission', price: 0, quantityRemaining: 100 }]
+
+  const [selectedTicketType, setSelectedTicketType] = useState<any>(ticketTypes[0])
+  const [quantity, setQuantity] = useState(1)
+
+  // Synchronize when event ticket types change
+  useEffect(() => {
+    if (event.ticketTypes && event.ticketTypes.length > 0) {
+      setSelectedTicketType(event.ticketTypes[0])
+    }
+  }, [event.ticketTypes])
+
+  const maxTickets = Math.min(10, selectedTicketType.quantityRemaining || 100)
 
   const handleQuantityChange = (newQuantity: number) => {
     if (newQuantity >= 1 && newQuantity <= maxTickets) {
@@ -31,19 +44,21 @@ const TicketSelector = ({ event, fullEvent }: TicketSelectorProps) => {
     }
   }
 
-  const totalPrice = event.price * quantity
-  const isSoldOut = event.capacity - event.currentAttendees === 0
+  const totalPrice = selectedTicketType.price * quantity
+  const isSoldOut = selectedTicketType.quantityRemaining === 0
   const isInCart = hasItem(event.id)
 
   const handleAddToCart = () => {
     addItem({
       eventId: event.id,
       eventTitle: event.title,
-      eventDate: fullEvent?.date || '',
-      eventLocation: fullEvent?.location || '',
-      eventImage: fullEvent?.image || '',
+      eventDate: event.date || '',
+      eventLocation: event.venue || '',
+      eventImage: event.coverImage || '',
       quantity,
-      price: event.price
+      price: selectedTicketType.price,
+      ticketTypeId: selectedTicketType.ticketTypeId,
+      ticketTypeName: selectedTicketType.name
     })
   }
 
@@ -55,7 +70,7 @@ const TicketSelector = ({ event, fullEvent }: TicketSelectorProps) => {
         </div>
         <h3 className="text-2xl font-display font-bold text-text-primary">Sold Out</h3>
         <p className="text-text-muted leading-relaxed">
-          This experience is fully booked. Join the waitlist or browse similar events.
+          The selected ticket category is fully booked. Join the waitlist or browse similar events.
         </p>
         <Button variant="outline" className="w-full rounded-2xl">Browse Similar</Button>
       </div>
@@ -63,28 +78,86 @@ const TicketSelector = ({ event, fullEvent }: TicketSelectorProps) => {
   }
 
   return (
-    <div className="bg-white border border-border rounded-xl p-8 shadow-card space-y-8">
+    <div className="bg-white border border-border rounded-xl p-6 md:p-8 shadow-card space-y-6 md:space-y-8">
       {/* Header */}
       <div className="space-y-1">
         <h3 className="text-2xl font-display font-bold text-text-primary">Book Tickets</h3>
         <div className="flex items-center gap-2 text-text-muted">
-           <Zap className="w-4 h-4 text-primary" />
-           <p className="text-sm font-bold uppercase tracking-wider">{maxTickets} spots remaining</p>
+           <Zap className="w-4 h-4 text-primary animate-pulse" />
+           <p className="text-sm font-bold uppercase tracking-wider">{selectedTicketType.quantityRemaining || 100} spots remaining</p>
         </div>
       </div>
 
-      {/* Price & Quantity */}
-      <div className="space-y-6">
-        <div className="flex items-center justify-between">
+      {/* Ticket Selection List */}
+      <div className="space-y-4">
+        <label className="text-xs font-bold text-text-muted uppercase tracking-widest block">Select Ticket Type</label>
+        
+        <div className="flex flex-col gap-3">
+          {ticketTypes.map((tier: any) => {
+            const isSelected = selectedTicketType?.ticketTypeId === tier.ticketTypeId;
+            
+            return (
+              <button
+                key={tier.ticketTypeId}
+                type="button"
+                onClick={() => {
+                  setSelectedTicketType(tier);
+                  setQuantity(1);
+                }}
+                className={cn(
+                  "w-full rounded-xl border flex items-center justify-between p-4 transition-all duration-300 text-left",
+                  isSelected 
+                    ? "bg-[#1E1B18] border-[#1E1B18] shadow-lg scale-[1.02] z-10" 
+                    : "bg-white border-border hover:border-primary/30 hover:bg-gray-50",
+                  isSelected && "ring-2 ring-primary/20 ring-offset-2"
+                )}
+              >
+                <div className="flex flex-col">
+                  <span className={cn(
+                    "font-bold", 
+                    isSelected ? "text-[#EAE6DF]" : "text-text-primary"
+                  )}>
+                    {tier.name}
+                  </span>
+                  <span className={cn(
+                    "text-xs font-bold uppercase tracking-wider mt-1", 
+                    isSelected ? "text-[#EAE6DF]/70" : "text-text-muted"
+                  )}>
+                    {tier.quantityRemaining > 0 ? `${tier.quantityRemaining} available` : 'Sold Out'}
+                  </span>
+                </div>
+                
+                <div className="flex items-center gap-4">
+                  <span className={cn(
+                    "text-lg font-display font-bold", 
+                    isSelected ? "text-[#EAE6DF]" : "text-text-primary"
+                  )}>
+                    {tier.price === 0 ? 'Free' : formatCurrency(tier.price)}
+                  </span>
+                  <div className={cn(
+                    "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors", 
+                    isSelected ? "border-[#EAE6DF] bg-[#EAE6DF]" : "border-gray-300"
+                  )}>
+                    {isSelected && <div className="w-2 h-2 rounded-full bg-[#1E1B18]" />}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+        <div className="flex items-center justify-between pt-2">
            <div>
               <p className="text-xs font-bold text-text-muted uppercase tracking-widest mb-1">Price per guest</p>
               <p className="text-3xl font-display font-bold text-text-primary">
-                 {event.price === 0 ? 'Free' : formatCurrency(event.price)}
+                 {selectedTicketType.price === 0 ? 'Free' : formatCurrency(selectedTicketType.price)}
               </p>
            </div>
            
            <div className="flex items-center gap-4 bg-gray-100 p-2 rounded-2xl border border-border/50">
               <button
+                type="button"
                 onClick={() => handleQuantityChange(quantity - 1)}
                 disabled={quantity <= 1}
                 className="w-10 h-10 rounded-xl bg-white border border-border flex items-center justify-center hover:bg-primary/5 hover:text-primary hover:border-primary/20 disabled:opacity-50 transition-all shadow-sm"
@@ -95,6 +168,7 @@ const TicketSelector = ({ event, fullEvent }: TicketSelectorProps) => {
               <span className="w-6 text-center font-bold text-lg text-text-primary">{quantity}</span>
               
               <button
+                type="button"
                 onClick={() => handleQuantityChange(quantity + 1)}
                 disabled={quantity >= maxTickets}
                 className="w-10 h-10 rounded-xl bg-white border border-border flex items-center justify-center hover:bg-primary/5 hover:text-primary hover:border-primary/20 disabled:opacity-50 transition-all shadow-sm"
@@ -103,14 +177,12 @@ const TicketSelector = ({ event, fullEvent }: TicketSelectorProps) => {
               </button>
            </div>
         </div>
-      </div>
-
       {/* Summary */}
       <div className="pt-6 border-t border-border/50 space-y-4">
         <div className="flex items-baseline justify-between">
           <span className="text-text-muted font-bold">Total Price</span>
           <span className="text-3xl font-display font-bold text-primary">
-            {event.price === 0 ? 'Free' : formatCurrency(totalPrice)}
+            {selectedTicketType.price === 0 ? 'Free' : formatCurrency(totalPrice)}
           </span>
         </div>
         
@@ -124,7 +196,7 @@ const TicketSelector = ({ event, fullEvent }: TicketSelectorProps) => {
            >
              {isInCart 
                ? 'Already in Cart' 
-               : event.price === 0 
+               : selectedTicketType.price === 0 
                  ? 'Register Now' 
                  : 'Reserve My Spot'
              }
@@ -139,11 +211,11 @@ const TicketSelector = ({ event, fullEvent }: TicketSelectorProps) => {
       <div className="pt-6 border-t border-border/50 grid grid-cols-2 gap-4">
          <div className="flex items-center gap-2">
             <ShieldCheck className="w-4 h-4 text-green-500" />
-            <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Secure Payment</span>
+            <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Secure Booking</span>
          </div>
          <div className="flex items-center gap-2">
             <Ticket className="w-4 h-4 text-blue-500" />
-            <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Instant Access</span>
+            <span className="text-[10px] font-bold text-text-muted uppercase tracking-wider">Instant Tickets</span>
          </div>
       </div>
     </div>
@@ -151,4 +223,3 @@ const TicketSelector = ({ event, fullEvent }: TicketSelectorProps) => {
 }
 
 export default TicketSelector
-

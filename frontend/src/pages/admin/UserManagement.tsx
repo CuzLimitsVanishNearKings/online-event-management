@@ -1,9 +1,10 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Search, Filter, Download, Mail, Users, Check, UserPlus, Shield, X, AlertCircle } from 'lucide-react'
-import { Button, Input } from '@/components/ui'
+import { Button, Input, Pagination } from '@/components/ui'
 import { cn } from '@/utils/cn'
 import axiosClient from '@/api/axiosClient'
+import { usePagination } from '@/hooks/usePagination'
 
 type UserTab = 'all' | 'attendees' | 'organizers' | 'admins'
 
@@ -81,6 +82,17 @@ export default function UserManagement() {
       
     return matchesSearch && matchesTab
   })
+
+  const {
+    currentPage,
+    totalPages,
+    paginatedData,
+    goToNextPage,
+    goToPreviousPage,
+    startIndex,
+    endIndex,
+    totalItems
+  } = usePagination(filteredUsers, 10)
 
   const handleExport = () => {
     setIsExporting(true)
@@ -243,57 +255,69 @@ export default function UserManagement() {
             <Button variant="outline" onClick={fetchUsers} className="rounded-xl border-red-200 mt-2 text-red-700 hover:bg-red-50">Retry</Button>
           </div>
         ) : filteredUsers.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="w-full text-left border-collapse">
-              <thead>
-                <tr className="bg-gray-50/50">
-                  <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-muted border-b border-border">User</th>
-                  <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-muted border-b border-border">Username</th>
-                  <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-muted border-b border-border">Role</th>
-                  <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-muted border-b border-border">Status</th>
-                </tr>
-              </thead>
-              <tbody>
-                {filteredUsers.map((u) => (
-                  <tr key={u.email} className="group hover:bg-gray-50/50 transition-colors border-b border-border/50 last:border-0">
-                    <td className="py-4 px-6">
-                      <div className="flex items-center gap-3">
-                        <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
-                          {(u.firstName || u.userName || 'U').charAt(0).toUpperCase()}
-                        </div>
-                        <div>
-                          <p className="font-bold text-text-primary">
-                            {u.firstName && u.lastName ? `${u.firstName} ${u.lastName}` : (u.userName || 'Anonymous')}
-                          </p>
-                          <p className="text-sm text-text-muted">{u.email}</p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="py-4 px-6 text-sm text-text-primary font-medium">
-                      {u.userName || '—'}
-                    </td>
-                    <td className="py-4 px-6">
-                      <span className={cn(
-                        'px-3 py-1 text-xs font-bold rounded-full uppercase',
-                        u.role === 'ORGANIZER' ? 'bg-accent/20 text-accent-dark' :
-                        u.role === 'ADMIN' ? 'bg-primary/10 text-primary' :
-                        'bg-gray-100 text-gray-700'
-                      )}>
-                        {u.role === 'CLIENT' ? 'ATTENDEE' : u.role}
-                      </span>
-                    </td>
-                    <td className="py-4 px-6">
-                      <span className={cn(
-                        'px-3 py-1 text-xs font-bold rounded-full uppercase',
-                        u.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 
-                        u.status === 'PENDING' ? 'bg-amber-100 text-amber-700' :
-                        'bg-red-100 text-red-700'
-                      )}>{u.status}</span>
-                    </td>
+          <div className="p-4">
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-gray-50/50">
+                    <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-muted border-b border-border">User</th>
+                    <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-muted border-b border-border">Username</th>
+                    <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-muted border-b border-border">Role</th>
+                    <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-muted border-b border-border">Status</th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
+                </thead>
+                <tbody>
+                  {paginatedData.map((u) => (
+                    <tr key={u.email} className="group hover:bg-gray-50/50 transition-colors border-b border-border/50 last:border-0">
+                      <td className="py-4 px-6">
+                        <div className="flex items-center gap-3">
+                          <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
+                            {(u.firstName || u.userName || 'U').charAt(0).toUpperCase()}
+                          </div>
+                          <div>
+                            <p className="font-bold text-text-primary">
+                              {u.firstName && u.lastName ? `${u.firstName} ${u.lastName}` : (u.userName || 'Anonymous')}
+                            </p>
+                            <p className="text-sm text-text-muted">{u.email}</p>
+                          </div>
+                        </div>
+                      </td>
+                      <td className="py-4 px-6 text-sm text-text-primary font-medium">
+                        {u.userName || '—'}
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className={cn(
+                          'px-3 py-1 text-xs font-bold rounded-full uppercase',
+                          u.role === 'ORGANIZER' ? 'bg-accent/20 text-accent-dark' :
+                          u.role === 'ADMIN' ? 'bg-primary/10 text-primary' :
+                          'bg-gray-100 text-gray-700'
+                        )}>
+                          {u.role === 'CLIENT' ? 'ATTENDEE' : u.role}
+                        </span>
+                      </td>
+                      <td className="py-4 px-6">
+                        <span className={cn(
+                          'px-3 py-1 text-xs font-bold rounded-full uppercase',
+                          u.status === 'ACTIVE' ? 'bg-green-100 text-green-700' : 
+                          u.status === 'PENDING' ? 'bg-amber-100 text-amber-700' :
+                          'bg-red-100 text-red-700'
+                        )}>{u.status}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+            
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onNext={goToNextPage}
+              onPrevious={goToPreviousPage}
+              startIndex={startIndex}
+              endIndex={endIndex}
+              totalItems={totalItems}
+            />
           </div>
         ) : (
           <div className="flex-1 min-h-[400px] flex flex-col items-center justify-center p-12 text-center m-6 border-2 border-dashed border-border rounded-2xl bg-surface/30">

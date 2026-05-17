@@ -2,9 +2,10 @@ import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { Search, Filter, CalendarDays, MapPin, Ticket, Eye, ShieldAlert, Layers, AlertCircle } from 'lucide-react'
-import { Button } from '@/components/ui'
+import { Button, Pagination } from '@/components/ui'
 import { cn } from '@/utils/cn'
 import axiosClient from '@/api/axiosClient'
+import { usePagination } from '@/hooks/usePagination'
 
 type EventTab = 'all' | 'published' | 'draft' | 'past' | 'flagged'
 
@@ -67,6 +68,17 @@ export default function EventManagement() {
       
     return matchesSearch && matchesTab
   })
+
+  const {
+    currentPage,
+    totalPages,
+    paginatedData,
+    goToNextPage,
+    goToPreviousPage,
+    startIndex,
+    endIndex,
+    totalItems
+  } = usePagination(filteredEvents, 10)
 
   const formatDate = (isoStr: string) => {
     try {
@@ -159,48 +171,59 @@ export default function EventManagement() {
             <Button variant="outline" onClick={fetchEvents} className="rounded-xl border-red-200 mt-2 text-red-700 hover:bg-red-50">Retry</Button>
           </div>
         ) : filteredEvents.length > 0 ? (
-          <div className="divide-y divide-border">
-            {filteredEvents.map((event) => (
-              <div key={event.eventId} className="p-6 hover:bg-gray-50 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex items-start gap-4">
-                  <div className="w-16 h-16 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0 border border-primary/10">
-                    {event.coverImage ? (
-                      <img src={event.coverImage} alt={event.title} className="w-full h-full object-cover rounded-xl" />
-                    ) : (
-                      <CalendarDays className="w-6 h-6 text-primary" />
-                    )}
+          <div className="p-4">
+            <div className="divide-y divide-border">
+              {paginatedData.map((event) => (
+                <div key={event.eventId} className="p-6 hover:bg-gray-50 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex items-start gap-4">
+                    <div className="w-16 h-16 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0 border border-primary/10">
+                      {event.coverImage ? (
+                        <img src={event.coverImage} alt={event.title} className="w-full h-full object-cover rounded-xl" />
+                      ) : (
+                        <CalendarDays className="w-6 h-6 text-primary" />
+                      )}
+                    </div>
+                    <div>
+                      <div className="flex flex-wrap items-center gap-2 mb-1">
+                        <h3 className="font-bold text-text-primary text-lg">{event.title}</h3>
+                        <span className={cn(
+                          'px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider',
+                          event.status === 'PUBLISHED' ? 'bg-green-100 text-green-700' :
+                          event.status === 'DRAFT' ? 'bg-amber-100 text-amber-700' :
+                          event.status === 'CANCELLED' ? 'bg-red-100 text-red-700' :
+                          event.status === 'RESCHEDULED' ? 'bg-blue-100 text-blue-700' :
+                          'bg-gray-100 text-gray-700'
+                        )}>{event.status}</span>
+                      </div>
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-text-muted font-medium mt-1.5">
+                        <span className="flex items-center gap-1.5"><CalendarDays className="w-4 h-4 text-text-muted/65" /> {formatDate(event.startDateTime)}</span>
+                        <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-text-muted/65" /> {event.venue}</span>
+                        <span className="flex items-center gap-1.5"><Layers className="w-4 h-4 text-text-muted/65" /> {event.category?.name || 'Unclassified'}</span>
+                        <span className="flex items-center gap-1.5"><Ticket className="w-4 h-4 text-text-muted/65" /> by {event.organizerName}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div>
-                    <div className="flex flex-wrap items-center gap-2 mb-1">
-                      <h3 className="font-bold text-text-primary text-lg">{event.title}</h3>
-                      <span className={cn(
-                        'px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider',
-                        event.status === 'PUBLISHED' ? 'bg-green-100 text-green-700' :
-                        event.status === 'DRAFT' ? 'bg-amber-100 text-amber-700' :
-                        event.status === 'CANCELLED' ? 'bg-red-100 text-red-700' :
-                        event.status === 'RESCHEDULED' ? 'bg-blue-100 text-blue-700' :
-                        'bg-gray-100 text-gray-700'
-                      )}>{event.status}</span>
-                    </div>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-text-muted font-medium mt-1.5">
-                      <span className="flex items-center gap-1.5"><CalendarDays className="w-4 h-4 text-text-muted/65" /> {formatDate(event.startDateTime)}</span>
-                      <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-text-muted/65" /> {event.venue}</span>
-                      <span className="flex items-center gap-1.5"><Layers className="w-4 h-4 text-text-muted/65" /> {event.category?.name || 'Unclassified'}</span>
-                      <span className="flex items-center gap-1.5"><Ticket className="w-4 h-4 text-text-muted/65" /> by {event.organizerName}</span>
-                    </div>
+                  <div className="flex items-center gap-3 self-end md:self-auto">
+                    <Button 
+                      variant="outline" 
+                      onClick={() => navigate(`/event/${event.eventId}`)}
+                      className="rounded-xl px-4 py-2 border-border text-sm font-bold text-text-secondary gap-1.5 hover:bg-gray-50 bg-white"
+                    >
+                      <Eye className="w-4 h-4" /> View
+                    </Button>
                   </div>
                 </div>
-                <div className="flex items-center gap-3 self-end md:self-auto">
-                  <Button 
-                    variant="outline" 
-                    onClick={() => navigate(`/event/${event.eventId}`)}
-                    className="rounded-xl px-4 py-2 border-border text-sm font-bold text-text-secondary gap-1.5 hover:bg-gray-50 bg-white"
-                  >
-                    <Eye className="w-4 h-4" /> View
-                  </Button>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onNext={goToNextPage}
+              onPrevious={goToPreviousPage}
+              startIndex={startIndex}
+              endIndex={endIndex}
+              totalItems={totalItems}
+            />
           </div>
         ) : (
           <div className="flex-1 min-h-[400px] flex flex-col items-center justify-center p-12 text-center m-6 border-2 border-dashed border-border rounded-2xl bg-surface/30">

@@ -2,22 +2,24 @@ import { useState, useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
 import { ArrowLeft, User as UserIcon, Mail, Phone, Calendar, ShieldCheck, Activity, Save, Shield } from 'lucide-react'
-import { useAuth } from '@/hooks/useAuth'
+import { useAuthStore } from '@/store/authStore'
 import { Button, Input } from '@/components/ui'
 import { format } from 'date-fns'
+import axiosClient from '@/api/axiosClient'
 
 export default function ProfileView() {
   const navigate = useNavigate()
-  const { user, profileQuery } = useAuth()
+  const { user, setUser } = useAuthStore()
   
-  const isLoading = profileQuery.isLoading
-  const isError = profileQuery.isError
+  const isLoading = false
+  const isError = false
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
   const [phone, setPhone] = useState('')
   const [company, setCompany] = useState('')
   const [bio, setBio] = useState('')
+  const [profilePic, setProfilePic] = useState('')
   const [isSaved, setIsSaved] = useState(false)
   
   const [currentPassword, setCurrentPassword] = useState('')
@@ -32,12 +34,49 @@ export default function ProfileView() {
       setPhone(user.phoneNumber || '')
       setCompany('Acme Events Co.') // Simulated data for organizer profile
       setBio('We organize the best tech and music events in the city.') // Simulated data
+      setProfilePic(user.profilePic || '')
     }
   }, [user])
 
-  const handleSave = () => {
-    setIsSaved(true)
-    setTimeout(() => setIsSaved(false), 3000)
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        setProfilePic(event.target.result as string)
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleSave = async () => {
+    try {
+      const names = name.split(' ')
+      const firstName = names[0] || ''
+      const lastName = names.slice(1).join(' ') || ' '
+      
+      const response = await axiosClient.put('/users/profile', {
+        firstName,
+        lastName,
+        profilePic: profilePic || null
+      })
+
+      const updated = response.data
+      setUser({
+        ...user!,
+        name: `${updated.firstName} ${updated.lastName}`,
+        email: updated.email,
+        profilePic: updated.profilePic
+      })
+      
+      setIsSaved(true)
+      setTimeout(() => setIsSaved(false), 3000)
+    } catch (err) {
+      console.error(err)
+      alert("Failed to save profile.")
+    }
   }
 
   const handlePasswordUpdate = () => {
@@ -109,10 +148,15 @@ export default function ProfileView() {
         <div className="p-6 md:p-8 flex flex-col md:flex-row gap-8 items-start">
           <div className="flex flex-col items-center space-y-4">
             <div className="w-32 h-32 rounded-full bg-primary/10 border-4 border-white shadow-md flex items-center justify-center relative group overflow-hidden">
-              <UserIcon className="w-12 h-12 text-primary" />
-              <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
-                <span className="text-white text-xs font-bold text-center px-2">Change Logo</span>
-              </div>
+              {profilePic ? (
+                <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <UserIcon className="w-12 h-12 text-primary" />
+              )}
+              <label className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                <span className="text-white text-xs font-bold text-center px-2">Upload Photo</span>
+                <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+              </label>
             </div>
             <div className="text-center">
               <h3 className="font-bold text-lg text-text-primary">{name || 'Organizer'}</h3>

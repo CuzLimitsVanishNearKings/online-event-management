@@ -1,25 +1,88 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Plus, Search, Filter, CalendarDays, MapPin, Users, Ticket, MoreVertical, Edit2, PauseCircle, Ban } from 'lucide-react'
-import { Button } from '@/components/ui'
-import { useEventStore, EventItem } from '@/store/eventStore'
-import { format } from 'date-fns'
+import { Plus, Search, Filter, CalendarDays, MapPin, Users, Ticket, MoreVertical, Ban, AlertCircle } from 'lucide-react'
+import { Button, Pagination } from '@/components/ui'
+import axiosClient from '@/api/axiosClient'
+import { formatDate } from '@/utils/format'
+import { usePagination } from '@/hooks/usePagination'
+
+interface OrganizerEvent {
+  eventId: number
+  title: string
+  venue: string
+  startDateTime: string
+  endDateTime: string
+  capacity: number
+  status: 'DRAFT' | 'PUBLISHED' | 'CANCELLED' | 'COMPLETED' | 'RESCHEDULED'
+  coverImage: string
+  totalTicketsSold: number
+  totalTicketsRemaining: number
+  totalRevenue: number
+}
 
 export default function EventsManageView() {
   const navigate = useNavigate()
-  const { events } = useEventStore()
+  const [events, setEvents] = useState<OrganizerEvent[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
   const [searchQuery, setSearchQuery] = useState('')
-  const [activeTab, setActiveTab] = useState<'all' | 'published' | 'draft' | 'past'>('all')
-  const [openDropdownId, setOpenDropdownId] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<'all' | 'published' | 'draft' | 'cancelled'>('all')
+  const [openDropdownId, setOpenDropdownId] = useState<number | null>(null)
+
+  useEffect(() => {
+    const fetchOrganizerEvents = async () => {
+      try {
+        setLoading(true)
+        setError(null)
+        const response = await axiosClient.get<OrganizerEvent[]>('/events/organizer/my-events')
+        setEvents(response.data || [])
+      } catch (err: any) {
+        console.error('Failed to fetch organizer events:', err)
+        setError(err.response?.data?.message || 'Failed to fetch your events from the server.')
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchOrganizerEvents()
+  }, [])
+
+  // Action: Cancel Event via API
+  const handleCancelEvent = async (eventId: number) => {
+    try {
+      setError(null)
+      await axiosClient.patch(`/events/${eventId}/cancel`)
+      // Update local state cleanly
+      setEvents(prev => prev.map(e => e.eventId === eventId ? { ...e, status: 'CANCELLED' } : e))
+      setOpenDropdownId(null)
+    } catch (err: any) {
+      console.error('Failed to cancel event:', err)
+      setError(err.response?.data?.message || 'Failed to cancel the event. Only published/rescheduled events can be cancelled.')
+    }
+  }
 
   // Filter events dynamically
   const filteredEvents = events.filter((event) => {
-    const matchesSearch = event.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
-                          event.location.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesTab = activeTab === 'all' || event.status === activeTab
+    const titleVal = event.title || ''
+    const venueVal = event.venue || ''
+    const matchesSearch = titleVal.toLowerCase().includes(searchQuery.toLowerCase()) || 
+                          venueVal.toLowerCase().includes(searchQuery.toLowerCase())
+    
+    // Status enum returned in uppercase from backend (e.g. 'PUBLISHED', 'DRAFT')
+    const matchesTab = activeTab === 'all' || (event.status && event.status.toLowerCase() === activeTab.toLowerCase())
     return matchesSearch && matchesTab
   })
+
+  const {
+    currentPage,
+    totalPages,
+    paginatedData,
+    goToNextPage,
+    goToPreviousPage,
+    startIndex,
+    endIndex,
+    totalItems
+  } = usePagination(filteredEvents, 10)
 
   return (
     <motion.div 
@@ -30,7 +93,7 @@ export default function EventsManageView() {
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
           <h1 className="text-3xl font-display font-bold text-text-primary tracking-tight">Events</h1>
-          <p className="text-text-muted mt-1 font-medium">Manage your event listings and track their status.</p>
+          <p className="text-text-muted mt-1 font-medium">Manage your event listings and track their sales live.</p>
         </div>
         <Button onClick={() => navigate('/organizer/events/new')} variant="primary" className="rounded-xl gap-2 font-bold shadow-md shadow-primary/20">
           <Plus className="w-5 h-5" />
@@ -38,11 +101,18 @@ export default function EventsManageView() {
         </Button>
       </div>
 
+      {error && (
+        <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 flex items-center gap-3 text-sm font-semibold animate-in fade-in duration-300">
+          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
+
       <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden flex flex-col">
         {/* Toolbar */}
         <div className="p-4 border-b border-border flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gray-50/30">
           <div className="flex gap-2 bg-surface/50 p-1 rounded-lg">
-            {['all', 'published', 'draft', 'past'].map((tab) => (
+            {['all', 'published', 'draft', 'cancelled'].map((tab) => (
               <button
                 key={tab}
                 onClick={() => setActiveTab(tab as any)}
@@ -75,64 +145,86 @@ export default function EventsManageView() {
         </div>
 
         {/* Content */}
-        {filteredEvents.length > 0 ? (
-          <div className="divide-y divide-border">
-            {filteredEvents.map((event) => (
-              <div key={event.id} className="p-6 hover:bg-gray-50 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div className="flex items-start gap-4">
-                  <div className="w-16 h-16 bg-surface rounded-xl flex items-center justify-center flex-shrink-0 border border-primary/20">
-                    <CalendarDays className="w-6 h-6 text-primary" />
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-2 mb-1">
-                      <h3 className="font-bold text-text-primary text-lg">{event.title}</h3>
-                      <span className={`px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider ${
-                        event.status === 'published' ? 'bg-green-100 text-green-700' :
-                        event.status === 'draft' ? 'bg-amber-100 text-amber-700' :
-                        'bg-gray-100 text-gray-700'
-                      }`}>
-                        {event.status}
-                      </span>
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-20 gap-4">
+            <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+            <p className="font-semibold text-text-muted text-sm">Fetching your event catalog...</p>
+          </div>
+        ) : filteredEvents.length > 0 ? (
+          <div className="p-4">
+            <div className="divide-y divide-border">
+              {paginatedData.map((event) => (
+                <div key={event.eventId} className="p-6 hover:bg-gray-50 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4">
+                  <div className="flex items-start gap-4">
+                    <div className="w-16 h-16 bg-surface rounded-xl flex items-center justify-center flex-shrink-0 border border-primary/20 overflow-hidden shadow-sm">
+                      {event.coverImage ? (
+                        <img src={event.coverImage} alt={event.title} className="w-full h-full object-cover" />
+                      ) : (
+                        <CalendarDays className="w-6 h-6 text-primary" />
+                      )}
                     </div>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-text-muted font-medium">
-                      <span className="flex items-center gap-1.5"><CalendarDays className="w-4 h-4" /> {format(new Date(event.date), 'MMM do, yyyy')}</span>
-                      <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" /> {event.location}</span>
-                      <span className="flex items-center gap-1.5"><Users className="w-4 h-4" /> 0 / {event.capacity}</span>
-                      <span className="flex items-center gap-1.5"><Ticket className="w-4 h-4" /> {event.price.toLocaleString()} FCFA</span>
-                    </div>
-                  </div>
-                </div>
-                <div className="flex items-center gap-3 self-end md:self-auto relative">
-                  <Button variant="outline" className="rounded-xl px-4 py-2 border-border text-sm font-bold text-text-secondary">
-                    Manage
-                  </Button>
-                  <button 
-                    onClick={() => setOpenDropdownId(openDropdownId === event.id ? null : event.id)}
-                    className="p-2 text-text-muted hover:text-text-primary rounded-xl hover:bg-surface transition-colors"
-                  >
-                    <MoreVertical className="w-5 h-5" />
-                  </button>
-                  
-                  {openDropdownId === event.id && (
-                    <>
-                      <div className="fixed inset-0 z-10" onClick={() => setOpenDropdownId(null)} />
-                      <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-border rounded-xl shadow-lg z-20 py-2 overflow-hidden animate-in fade-in slide-in-from-top-2">
-                        <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-text-secondary hover:bg-primary/5 hover:text-primary transition-colors">
-                           <Edit2 className="w-4 h-4" /> Edit Event
-                        </button>
-                        <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-text-secondary hover:bg-amber-50 hover:text-amber-600 transition-colors">
-                           <PauseCircle className="w-4 h-4" /> Pause Sales
-                        </button>
-                        <div className="border-t border-border my-1" />
-                        <button className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50 transition-colors">
-                           <Ban className="w-4 h-4" /> Cancel Event
-                        </button>
+                    <div>
+                      <div className="flex items-center gap-2 mb-1">
+                        <h3 className="font-bold text-text-primary text-lg">{event.title}</h3>
+                        <span className={`px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider ${
+                          event.status === 'PUBLISHED' ? 'bg-green-100 text-green-700' :
+                          event.status === 'DRAFT' ? 'bg-amber-100 text-amber-700' :
+                          event.status === 'CANCELLED' ? 'bg-red-100 text-red-700' :
+                          'bg-gray-100 text-gray-700'
+                        }`}>
+                          {event.status}
+                        </span>
                       </div>
-                    </>
-                  )}
+                      <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-text-muted font-medium">
+                        <span className="flex items-center gap-1.5"><CalendarDays className="w-4 h-4" /> {formatDate(event.startDateTime)}</span>
+                        <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" /> {event.venue}</span>
+                        <span className="flex items-center gap-1.5"><Users className="w-4 h-4" /> {event.totalTicketsSold} / {event.capacity} Sold</span>
+                        <span className="flex items-center gap-1.5"><Ticket className="w-4 h-4" /> Rev: {event.totalRevenue.toLocaleString()} FCFA</span>
+                      </div>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3 self-end md:self-auto relative">
+                    <Button onClick={() => navigate(`/event/${event.eventId}`)} variant="outline" className="rounded-xl px-4 py-2 border-border text-sm font-bold text-text-secondary">
+                      View
+                    </Button>
+                    
+                    {(event.status === 'PUBLISHED' || event.status === 'RESCHEDULED') && (
+                      <>
+                        <button 
+                          onClick={() => setOpenDropdownId(openDropdownId === event.eventId ? null : event.eventId)}
+                          className="p-2 text-text-muted hover:text-text-primary rounded-xl hover:bg-surface transition-colors"
+                        >
+                          <MoreVertical className="w-5 h-5" />
+                        </button>
+                        
+                        {openDropdownId === event.eventId && (
+                          <>
+                            <div className="fixed inset-0 z-10" onClick={() => setOpenDropdownId(null)} />
+                            <div className="absolute right-0 top-full mt-2 w-48 bg-white border border-border rounded-xl shadow-lg z-20 py-2 overflow-hidden animate-in fade-in slide-in-from-top-2">
+                              <button 
+                                onClick={() => handleCancelEvent(event.eventId)}
+                                className="w-full flex items-center gap-3 px-4 py-2.5 text-sm font-bold text-red-600 hover:bg-red-50 transition-colors"
+                              >
+                                 <Ban className="w-4 h-4" /> Cancel Event
+                              </button>
+                            </div>
+                          </>
+                        )}
+                      </>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onNext={goToNextPage}
+              onPrevious={goToPreviousPage}
+              startIndex={startIndex}
+              endIndex={endIndex}
+              totalItems={totalItems}
+            />
           </div>
         ) : (
           <div className="flex-1 min-h-[400px] flex flex-col items-center justify-center p-12 text-center m-6 border-2 border-dashed border-border rounded-2xl bg-surface/30">

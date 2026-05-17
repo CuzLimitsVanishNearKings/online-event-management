@@ -1,18 +1,120 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
-import { Search, Filter, Ticket, Download, Calendar, MapPin } from 'lucide-react'
-import { Button } from '@/components/ui'
-import { useAttendeeStore } from '@/store/attendeeStore'
+import { Search, Filter, Ticket, Download, Calendar, MapPin, Loader2 } from 'lucide-react'
+import { Button, Pagination } from '@/components/ui'
+import axiosClient from '@/api/axiosClient'
+import { formatCurrency } from '@/utils/format'
+import { usePagination } from '@/hooks/usePagination'
 
 export default function TicketsView() {
-  const { tickets } = useAttendeeStore()
+  const [tickets, setTickets] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming')
   const [searchQuery, setSearchQuery] = useState('')
+
+  const fetchTickets = async () => {
+    try {
+      setLoading(true)
+      const res = await axiosClient.get('/bookings/my-bookings')
+      const summaries = res.data
+      
+      // Fetch details for each booking concurrently to extract actual issued tickets
+      const detailedBookings = await Promise.all(
+        summaries.map(async (b: any) => {
+          try {
+            const detailRes = await axiosClient.get(`/bookings/${b.bookingId}`)
+            return detailRes.data
+          } catch (e) {
+            console.error(`Failed to load booking ${b.bookingId} details:`, e)
+            return {
+              ...b,
+              issuedTickets: []
+            }
+          }
+        })
+      )
+
+      // Flatten issued tickets into individual display cards
+      const mappedTickets: any[] = []
+      detailedBookings.forEach((b: any) => {
+        const startDate = new Date(b.eventStartDateTime)
+        const isUpcoming = startDate.getTime() > Date.now() && b.status === 'CONFIRMED'
+        
+        if (b.issuedTickets && b.issuedTickets.length > 0) {
+          b.issuedTickets.forEach((t: any) => {
+            mappedTickets.push({
+              id: `${b.bookingId}-${t.issuedTicketId}`,
+              bookingId: b.bookingId,
+              eventName: b.eventTitle,
+              location: b.eventVenue,
+              date: startDate.toLocaleDateString('en-US', {
+                weekday: 'short',
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+              }),
+              time: startDate.toLocaleTimeString('en-US', {
+                hour: '2-digit',
+                minute: '2-digit'
+              }),
+              ticketType: t.ticketTypeName,
+              price: t.ticketTypePrice,
+              qrCodeData: t.qrCode || `TICKET-${t.issuedTicketId}`,
+              status: isUpcoming ? 'upcoming' : 'past'
+            })
+          })
+        } else {
+          // Fallback if no specific issued tickets returned yet
+          mappedTickets.push({
+            id: b.bookingId.toString(),
+            bookingId: b.bookingId,
+            eventName: b.eventTitle,
+            location: b.eventVenue,
+            date: startDate.toLocaleDateString('en-US', {
+              weekday: 'short',
+              month: 'short',
+              day: 'numeric',
+              year: 'numeric'
+            }),
+            time: startDate.toLocaleTimeString('en-US', {
+              hour: '2-digit',
+              minute: '2-digit'
+            }),
+            ticketType: 'General Admission',
+            price: b.totalAmount,
+            qrCodeData: `BOOKING-${b.bookingId}`,
+            status: isUpcoming ? 'upcoming' : 'past'
+          })
+        }
+      })
+
+      setTickets(mappedTickets)
+    } catch (err) {
+      console.error('Failed to load attendee tickets:', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchTickets()
+  }, [])
 
   const filteredTickets = tickets.filter(t => 
     t.status === activeTab &&
     t.eventName.toLowerCase().includes(searchQuery.toLowerCase())
   )
+
+  const {
+    currentPage,
+    totalPages,
+    paginatedData,
+    goToNextPage,
+    goToPreviousPage,
+    startIndex,
+    endIndex,
+    totalItems
+  } = usePagination(filteredTickets, 10)
 
   return (
     <motion.div 
@@ -68,58 +170,74 @@ export default function TicketsView() {
 
         {/* Content */}
         <div className="p-6 min-h-[400px] flex flex-col">
-          {filteredTickets.length > 0 ? (
-            <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
-              {filteredTickets.map(ticket => (
-                <div key={ticket.id} className="bg-white border border-border rounded-2xl overflow-hidden shadow-sm flex flex-col sm:flex-row">
-                  <div className="flex-1 p-6 flex flex-col border-b sm:border-b-0 sm:border-r border-dashed border-border">
-                    <div className="flex justify-between items-start mb-4">
-                      <span className={`px-3 py-1 text-xs font-bold rounded-full ${
-                        ticket.status === 'upcoming' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
-                      }`}>
-                        {ticket.status === 'upcoming' ? 'Valid Ticket' : 'Expired'}
-                      </span>
-                      <span className="text-xs font-bold text-text-muted">Order #{ticket.id}</span>
+          {loading ? (
+            <div className="flex-1 w-full h-full flex flex-col items-center justify-center text-center py-20">
+              <Loader2 className="w-10 h-10 text-primary animate-spin mb-4" />
+              <p className="text-text-muted font-bold">Synchronizing tickets with secure database...</p>
+            </div>
+          ) : filteredTickets.length > 0 ? (
+            <div>
+              <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                {paginatedData.map(ticket => (
+                  <div key={ticket.id} className="bg-white border border-border rounded-2xl overflow-hidden shadow-sm flex flex-col sm:flex-row">
+                    <div className="flex-1 p-6 flex flex-col border-b sm:border-b-0 sm:border-r border-dashed border-border">
+                      <div className="flex justify-between items-start mb-4">
+                        <span className={`px-3 py-1 text-xs font-bold rounded-full ${
+                          ticket.status === 'upcoming' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'
+                        }`}>
+                          {ticket.status === 'upcoming' ? 'Valid Ticket' : 'Expired'}
+                        </span>
+                        <span className="text-xs font-bold text-text-muted">Order #{ticket.bookingId}</span>
+                      </div>
+                      
+                      <h3 className="text-xl font-bold text-text-primary mb-4">{ticket.eventName}</h3>
+                      
+                      <div className="space-y-3 mt-auto">
+                        <div className="flex items-center gap-3 text-sm text-text-secondary">
+                          <Calendar className="w-4 h-4 text-primary" />
+                          <span className="font-medium">{ticket.date} • {ticket.time || 'TBD'}</span>
+                        </div>
+                        <div className="flex items-center gap-3 text-sm text-text-secondary">
+                          <MapPin className="w-4 h-4 text-primary" />
+                          <span className="font-medium">{ticket.location}</span>
+                        </div>
+                        <div className="flex items-center gap-3 text-sm text-text-secondary">
+                          <Ticket className="w-4 h-4 text-primary" />
+                          <span className="font-medium">{ticket.ticketType} • {formatCurrency(ticket.price)}</span>
+                        </div>
+                      </div>
                     </div>
                     
-                    <h3 className="text-xl font-bold text-text-primary mb-4">{ticket.eventName}</h3>
-                    
-                    <div className="space-y-3 mt-auto">
-                      <div className="flex items-center gap-3 text-sm text-text-secondary">
-                        <Calendar className="w-4 h-4 text-primary" />
-                        <span className="font-medium">{ticket.date}</span>
+                    <div className="w-full sm:w-48 bg-surface/30 p-6 flex flex-col items-center justify-center relative">
+                      {/* Semi-circles for ticket cut-out effect */}
+                      <div className="hidden sm:block absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-gray-50 rounded-full border-r border-border border-dashed" />
+                      
+                      <div className="w-24 h-24 bg-white border-2 border-gray-200 rounded-xl mb-3 flex items-center justify-center p-2 shadow-inner">
+                         {/* Simulate QR Code with visual matrix */}
+                         <div className="w-full h-full bg-gray-800" style={{
+                           backgroundImage: 'linear-gradient(45deg, #1f2937 25%, transparent 25%, transparent 75%, #1f2937 75%, #1f2937), linear-gradient(45deg, #1f2937 25%, transparent 25%, transparent 75%, #1f2937 75%, #1f2937)',
+                           backgroundSize: '8px 8px',
+                           backgroundPosition: '0 0, 4px 4px'
+                         }} />
                       </div>
-                      <div className="flex items-center gap-3 text-sm text-text-secondary">
-                        <MapPin className="w-4 h-4 text-primary" />
-                        <span className="font-medium">{ticket.location}</span>
-                      </div>
-                      <div className="flex items-center gap-3 text-sm text-text-secondary">
-                        <Ticket className="w-4 h-4 text-primary" />
-                        <span className="font-medium">{ticket.ticketType} • {ticket.price} FCFA</span>
-                      </div>
+                      <p className="text-[9px] font-mono text-text-muted font-bold tracking-wider mb-4 text-center truncate w-full">{ticket.qrCodeData}</p>
+                      
+                      <Button variant="outline" size="sm" className="w-full text-xs font-bold rounded-lg border-border bg-white shadow-sm gap-2">
+                        <Download className="w-3 h-3" /> PDF
+                      </Button>
                     </div>
                   </div>
-                  
-                  <div className="w-full sm:w-48 bg-surface/30 p-6 flex flex-col items-center justify-center relative">
-                    {/* Semi-circles for ticket cut-out effect */}
-                    <div className="hidden sm:block absolute -left-3 top-1/2 -translate-y-1/2 w-6 h-6 bg-gray-50 rounded-full border-r border-border border-dashed" />
-                    
-                    <div className="w-24 h-24 bg-white border-2 border-gray-200 rounded-xl mb-3 flex items-center justify-center p-2">
-                       {/* Simulate QR Code */}
-                       <div className="w-full h-full bg-gray-800" style={{
-                         backgroundImage: 'linear-gradient(45deg, #1f2937 25%, transparent 25%, transparent 75%, #1f2937 75%, #1f2937), linear-gradient(45deg, #1f2937 25%, transparent 25%, transparent 75%, #1f2937 75%, #1f2937)',
-                         backgroundSize: '8px 8px',
-                         backgroundPosition: '0 0, 4px 4px'
-                       }} />
-                    </div>
-                    <p className="text-[10px] font-mono text-text-muted font-bold tracking-wider mb-4">{ticket.qrCodeData}</p>
-                    
-                    <Button variant="outline" size="sm" className="w-full text-xs font-bold rounded-lg border-border bg-white shadow-sm gap-2">
-                      <Download className="w-3 h-3" /> PDF
-                    </Button>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onNext={goToNextPage}
+                onPrevious={goToPreviousPage}
+                startIndex={startIndex}
+                endIndex={endIndex}
+                totalItems={totalItems}
+              />
             </div>
           ) : (
             <div className="flex-1 w-full h-full flex flex-col items-center justify-center text-center py-20 border-2 border-dashed border-border rounded-2xl bg-surface/30">

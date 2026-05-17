@@ -127,7 +127,9 @@ export default function AdminSidebar({ onMobileClose }: AdminSidebarProps = {}) 
           onClick={() => {
             onMobileClose?.()
             logout()
-            window.location.href = '/'
+            setTimeout(() => {
+              window.location.href = '/'
+            }, 50)
           }}
           title={isSidebarCollapsed ? "Sign Out" : undefined}
           className={cn(

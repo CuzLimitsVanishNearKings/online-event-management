@@ -461,48 +461,117 @@ export function Settings() {
 
 // --- Profile ---
 export function Profile() {
-  const { user } = useAuthStore()
+  const { user, setUser } = useAuthStore()
 
-  const profileData = {
-    name: user?.name || 'Administrator',
-    email: user?.email || 'admin@evento.com',
-    role: 'System Administrator',
-    status: 'Active',
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+  const [profilePic, setProfilePic] = useState('')
+  const [isSaved, setIsSaved] = useState(false)
+
+  useEffect(() => {
+    if (user) {
+      const names = (user.name || '').split(' ')
+      setFirstName(names[0] || '')
+      setLastName(names.slice(1).join(' ') || '')
+      setProfilePic(user.profilePic || '')
+    }
+  }, [user])
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        setProfilePic(event.target.result as string)
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const handleSave = async () => {
+    try {
+      const response = await axiosClient.put('/users/profile', {
+        firstName,
+        lastName,
+        profilePic: profilePic || null
+      })
+
+      const updated = response.data
+      setUser({
+        ...user!,
+        name: `${updated.firstName} ${updated.lastName}`,
+        email: updated.email,
+        profilePic: updated.profilePic
+      })
+
+      setIsSaved(true)
+      setTimeout(() => setIsSaved(false), 3000)
+    } catch (err) {
+      console.error(err)
+      alert("Failed to save admin profile.")
+    }
   }
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 max-w-4xl">
       <div>
         <h1 className="text-3xl font-display font-bold text-text-primary tracking-tight">My Profile</h1>
-        <p className="text-text-muted mt-1 font-medium">View your administrative account details.</p>
+        <p className="text-text-muted mt-1 font-medium">Manage your administrative profile and account details.</p>
       </div>
 
       <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
-        <div className="bg-surface/30 px-8 py-6 border-b border-border flex items-center gap-4">
-          <div className="w-16 h-16 bg-primary/20 text-primary-dark rounded-full flex items-center justify-center flex-shrink-0 shadow-sm border border-primary/10">
-            <ShieldCheck className="w-8 h-8" />
-          </div>
-          <div>
-            <h2 className="text-2xl font-display font-bold text-text-primary">{profileData.name}</h2>
-            <p className="text-sm font-bold text-primary mt-1 tracking-wider">{profileData.role}</p>
-          </div>
-        </div>
-        <div className="p-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-y-10 gap-x-12">
-            {[
-              { label: 'Full Name', value: profileData.name },
-              { label: 'Email Address', value: profileData.email },
-              { label: 'Role', value: profileData.role },
-              { label: 'Account Status', value: profileData.status, green: true },
-            ].map((field, idx) => (
-              <div key={idx} className="space-y-1">
-                <p className="text-xs font-bold uppercase tracking-wider text-text-muted">{field.label}</p>
-                <p className={cn('text-lg font-bold', field.green ? 'text-green-700 flex items-center gap-2' : 'text-text-primary')}>
-                  {field.green && <span className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-sm shadow-green-500/50" />}
-                  {field.value}
-                </p>
+        <div className="p-6 md:p-8 flex flex-col md:flex-row gap-8 items-start">
+          <div className="flex flex-col items-center space-y-4">
+            <div className="w-32 h-32 rounded-full bg-primary/10 border-4 border-white shadow-md flex items-center justify-center relative group overflow-hidden">
+              {profilePic ? (
+                <img src={profilePic} alt="Profile" className="w-full h-full object-cover" />
+              ) : (
+                <ShieldCheck className="w-12 h-12 text-primary" />
+              )}
+              <label className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer">
+                <span className="text-white text-xs font-bold text-center px-2">Upload Photo</span>
+                <input type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+              </label>
+            </div>
+            <div className="text-center">
+              <h3 className="font-bold text-lg text-text-primary">{user?.name || 'Administrator'}</h3>
+              <div className="flex items-center justify-center gap-2 mt-2">
+                <span className="px-3 py-1 bg-surface text-primary text-xs font-bold rounded-full inline-flex items-center gap-1 uppercase tracking-widest">
+                  <ShieldCheck className="w-3 h-3" /> System Admin
+                </span>
               </div>
-            ))}
+            </div>
+          </div>
+
+          <div className="flex-1 w-full space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <Input 
+                label="First Name" 
+                value={firstName}
+                onChange={(e) => setFirstName(e.target.value)}
+              />
+              <Input 
+                label="Last Name" 
+                value={lastName}
+                onChange={(e) => setLastName(e.target.value)}
+              />
+              <Input 
+                label="Email Address" 
+                type="email"
+                value={user?.email || ''}
+                disabled
+                className="md:col-span-2 bg-gray-50 text-text-muted"
+              />
+            </div>
+
+            <div className="pt-6 border-t border-border flex justify-end">
+              <Button onClick={handleSave} variant="primary" className="rounded-xl px-8 font-bold gap-2">
+                <Save className="w-4 h-4" />
+                {isSaved ? 'Saved!' : 'Save Details'}
+              </Button>
+            </div>
           </div>
         </div>
       </div>

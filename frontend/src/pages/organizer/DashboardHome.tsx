@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { 
@@ -27,10 +27,10 @@ import {
 } from 'recharts'
 import { Button } from '@/components/ui'
 import { useAuthStore } from '@/store/authStore'
-import { useEventStore } from '@/store/eventStore'
 import { useMetrics } from '@/hooks/useMetrics'
-import { format } from 'date-fns'
 import { cn } from '@/utils/cn'
+import axiosClient from '@/api/axiosClient'
+import { formatDate } from '@/utils/format'
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -76,12 +76,24 @@ const CustomTooltip = ({ active, payload, label }: any) => {
 
 export default function DashboardHome() {
   const { user } = useAuthStore()
-  const { events } = useEventStore()
   const { data: metrics, isLoading } = useMetrics()
   const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d')
+  const [liveEvents, setLiveEvents] = useState<any[]>([])
+
+  useEffect(() => {
+    const fetchLiveEvents = async () => {
+      try {
+        const response = await axiosClient.get('/events/organizer/my-events')
+        setLiveEvents(response.data || [])
+      } catch (err) {
+        console.error('Failed to load live events for dashboard:', err)
+      }
+    }
+    fetchLiveEvents()
+  }, [])
 
   // Real or derived metrics based on the store
-  const activeEventsCount = events.filter(e => e.status === 'published').length
+  const activeEventsCount = liveEvents.filter(e => e.status === 'PUBLISHED').length
   
   if (isLoading) {
     return (
@@ -94,18 +106,24 @@ export default function DashboardHome() {
 
   // Handle case where metrics might be undefined if API failed entirely
   const safeMetrics = metrics || {
-    totalRevenue: 0, ticketsSold: 0, activeEvents: activeEventsCount, pageViews: 0,
-    revenueGrowth: 0, ticketGrowth: 0, eventsGrowth: 0, viewsGrowth: 0,
+    totalRevenue: liveEvents.reduce((sum, e) => sum + (e.totalRevenue || 0), 0),
+    ticketsSold: liveEvents.reduce((sum, e) => sum + (e.totalTicketsSold || 0), 0),
+    activeEvents: activeEventsCount,
+    pageViews: 0,
+    revenueGrowth: 0,
+    ticketGrowth: 0,
+    eventsGrowth: 0,
+    viewsGrowth: 0,
     revenueData: [], 
     recentActivities: [], 
-    upcomingEvents: events.map(e => ({
-      id: e.id,
+    upcomingEvents: liveEvents.map(e => ({
+      id: e.eventId,
       name: e.title,
-      date: format(new Date(e.date), 'MMM do, yyyy'),
-      status: e.status === 'published' ? 'Published' : e.status === 'draft' ? 'Draft' : 'Past',
-      sold: 0,
+      date: formatDate(e.startDateTime),
+      status: e.status === 'PUBLISHED' ? 'Published' : e.status === 'DRAFT' ? 'Draft' : e.status === 'CANCELLED' ? 'Cancelled' : 'Past',
+      sold: e.totalTicketsSold || 0,
       capacity: e.capacity,
-      revenue: 0
+      revenue: e.totalRevenue || 0
     }))
   }
 
@@ -314,9 +332,11 @@ export default function DashboardHome() {
             <h2 className="text-lg font-bold text-text-primary">Upcoming Events</h2>
             <p className="text-sm text-text-muted">Manage your live and draft events</p>
           </div>
-          <Button variant="outline" className="rounded-xl border-border hover:bg-surface font-bold text-sm">
-            View All Events <ArrowUpRight className="w-4 h-4 ml-2" />
-          </Button>
+          <Link to="/organizer/events">
+            <Button variant="outline" className="rounded-xl border-border hover:bg-surface font-bold text-sm">
+              View All Events <ArrowUpRight className="w-4 h-4 ml-2" />
+            </Button>
+          </Link>
         </div>
         
         <div className="overflow-x-auto">

@@ -9,6 +9,7 @@ export interface User {
     name: string
     role?: 'client' | 'organizer' | 'admin'  
     avatar?: string
+    profilePic?: string
     createdAt?: string
     updatedAt?: string
 }
@@ -53,6 +54,7 @@ interface AuthState {
   registerOrganizerAsync: (data: OrganizerRegisterData) => Promise<void>
   logout: () => void
   clearError: () => void
+  fetchCurrentUser: () => Promise<void>
 }
 
 const parseJwt = (token: string): Partial<User> | null => {
@@ -202,6 +204,24 @@ export const useAuthStore = create<AuthState>()(
           error: null
         })
         localStorage.removeItem('token')
+        localStorage.removeItem('auth-storage')
+      },
+
+      fetchCurrentUser: async () => {
+        try {
+          const response = await axiosClient.get('/users/me')
+          const data = response.data
+          const user: User = {
+            id: data.email,
+            email: data.email,
+            name: `${data.firstName} ${data.lastName}`,
+            role: data.role.replace('ROLE_', '').toLowerCase(),
+            profilePic: data.profilePic
+          }
+          set({ user, isAuthenticated: true })
+        } catch (e) {
+          console.error("Failed to fetch current user:", e)
+        }
       },
     }),
     {

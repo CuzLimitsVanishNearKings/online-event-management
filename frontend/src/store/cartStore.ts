@@ -13,6 +13,8 @@ export interface CartItem {
   price: number
   totalPrice: number
   addedAt: string
+  ticketTypeId: number
+  ticketTypeName: string
 }
 
 export interface CartSummary {
@@ -54,28 +56,19 @@ export const useCartStore = create<CartState>()(
       // Initial State
       items: [],
       isOpen: false,
-      
-      // Computed getters
-      get itemCount() {
-        return get().items.reduce((total, item) => total + item.quantity, 0)
-      },
-      
-      get subtotal() {
-        return get().items.reduce((total, item) => total + item.totalPrice, 0)
-      },
-      
-      get total() {
-        return get().subtotal // Add tax if needed in the future
-      },
+      itemCount: 0,
+      subtotal: 0,
+      total: 0,
 
       // Actions
       addItem: (itemData) => {
         const state = get()
         const existingItem = state.items.find(item => item.eventId === itemData.eventId)
         
+        let newItems
         if (existingItem) {
           // Update quantity if item already exists
-          const updatedItems = state.items.map(item =>
+          newItems = state.items.map(item =>
             item.eventId === itemData.eventId
               ? {
                   ...item,
@@ -84,7 +77,6 @@ export const useCartStore = create<CartState>()(
                 }
               : item
           )
-          set({ items: updatedItems })
         } else {
           // Add new item
           const newItem: CartItem = {
@@ -93,12 +85,31 @@ export const useCartStore = create<CartState>()(
             totalPrice: itemData.quantity * itemData.price,
             addedAt: new Date().toISOString()
           }
-          set({ items: [...state.items, newItem] })
+          newItems = [...state.items, newItem]
         }
+
+        const itemCount = newItems.reduce((acc, curr) => acc + curr.quantity, 0)
+        const subtotal = newItems.reduce((acc, curr) => acc + curr.totalPrice, 0)
+
+        set({ 
+          items: newItems,
+          itemCount,
+          subtotal,
+          total: subtotal
+        })
       },
 
       removeItem: (itemId) => {
-        set({ items: get().items.filter(item => item.id !== itemId) })
+        const newItems = get().items.filter(item => item.id !== itemId)
+        const itemCount = newItems.reduce((acc, curr) => acc + curr.quantity, 0)
+        const subtotal = newItems.reduce((acc, curr) => acc + curr.totalPrice, 0)
+
+        set({ 
+          items: newItems,
+          itemCount,
+          subtotal,
+          total: subtotal
+        })
       },
 
       updateQuantity: (itemId, quantity) => {
@@ -107,16 +118,29 @@ export const useCartStore = create<CartState>()(
           return
         }
         
-        const updatedItems = get().items.map(item =>
+        const newItems = get().items.map(item =>
           item.id === itemId
             ? { ...item, quantity, totalPrice: quantity * item.price }
             : item
         )
-        set({ items: updatedItems })
+        const itemCount = newItems.reduce((acc, curr) => acc + curr.quantity, 0)
+        const subtotal = newItems.reduce((acc, curr) => acc + curr.totalPrice, 0)
+
+        set({ 
+          items: newItems,
+          itemCount,
+          subtotal,
+          total: subtotal
+        })
       },
 
       clearCart: () => {
-        set({ items: [] })
+        set({ 
+          items: [],
+          itemCount: 0,
+          subtotal: 0,
+          total: 0
+        })
       },
 
       toggleCart: () => {
@@ -148,6 +172,9 @@ export const useCartStore = create<CartState>()(
       name: 'cart-storage',
       partialize: (state) => ({
         items: state.items,
+        itemCount: state.itemCount,
+        subtotal: state.subtotal,
+        total: state.total
       }),
     }
   )

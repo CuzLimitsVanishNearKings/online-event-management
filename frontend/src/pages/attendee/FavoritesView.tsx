@@ -32,7 +32,7 @@ export default function FavoritesView() {
                   <img src={event.imageUrl} alt={event.eventName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
                 ) : (
                   <div className="w-full h-full bg-primary/10 flex items-center justify-center">
-                    <span className="text-primary/40 font-bold text-xl uppercase tracking-widest">{event.category}</span>
+                    <span className="text-primary/40 font-bold text-xl uppercase tracking-widest">{typeof event.category === 'object' ? ((event as any).categoryName || (event.category as any)?.name || 'General') : (event.category || 'General')}</span>
                   </div>
                 )}
                 <button 
@@ -43,7 +43,7 @@ export default function FavoritesView() {
                 </button>
                 <div className="absolute bottom-4 left-4">
                   <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-text-primary text-xs font-bold rounded-lg shadow-sm">
-                    {event.category}
+                    {typeof event.category === 'object' ? ((event as any).categoryName || (event.category as any)?.name || 'General') : (event.category || 'General')}
                   </span>
                 </div>
               </div>

@@ -5,7 +5,6 @@ import TicketSelector from '../components/events/TicketSelector'
 import EventCard from '../components/events/EventCard'
 
 
-import { useEvents } from '../hooks/useEvents'
 import { Button } from '../components/ui'
 import { 
   MapPin, 
@@ -27,6 +26,9 @@ import {
 } from '../components/icons'
 import { cn } from '../utils/cn'
 
+import axiosClient from '../api/axiosClient'
+import { useEvents } from '../hooks/useEvents'
+
 const EventDetailPage = () => {
   const { id } = useParams<{ id: string }>()
   const { events } = useEvents()
@@ -34,13 +36,56 @@ const EventDetailPage = () => {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    if (id && events.length > 0) {
-      const foundEvent = events.find(e => e.id === id)
-      setEvent(foundEvent || null)
-      setLoading(false)
+    const fetchEventDetail = async () => {
+      if (!id) return
+      try {
+        setLoading(true)
+        const response = await axiosClient.get(`/events/${id}`)
+        const detail = response.data
+        
+        const startDate = new Date(detail.startDateTime)
+        const mappedEvent = {
+          id: detail.eventId?.toString(),
+          title: detail.title || 'Untitled Event',
+          description: detail.description,
+          venue: detail.venue || 'TBD',
+          startDateTime: detail.startDateTime,
+          endDateTime: detail.endDateTime,
+          status: detail.status,
+          coverImage: detail.coverImage,
+          category: detail.category,
+          organizerName: detail.organizerName,
+          organizerLogoUrl: detail.organizerLogoUrl,
+          ticketTypes: detail.ticketTypes || [],
+
+          // UI derived fields
+          date: startDate.toLocaleDateString('en-US', {
+            weekday: 'short',
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric'
+          }),
+          time: startDate.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit'
+          }),
+          location: detail.venue || 'TBD',
+          categoryName: detail.category?.name || 'General',
+          thumbnail: detail.coverImage
+        }
+        
+        setEvent(mappedEvent)
+      } catch (err) {
+        console.error('Failed to fetch event detail:', err)
+        setEvent(null)
+      } finally {
+        setLoading(false)
+      }
     }
+
+    fetchEventDetail()
     window.scrollTo(0, 0)
-  }, [id, events])
+  }, [id])
 
   if (loading) {
     return (
@@ -103,26 +148,28 @@ const EventDetailPage = () => {
             <div className="flex-1 space-y-12">
               <EventHero event={event} />
               
-              {/* Additional Sections */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                 <div className="p-8 bg-surface/50 rounded-2xl border border-border/50 hover:border-primary/20 hover:shadow-sm transition-all duration-300 space-y-4">
-                    <div className="flex items-center gap-3 text-primary">
-                       <ShieldCheck className="w-6 h-6" />
-                       <h3 className="font-display font-bold text-xl text-text-primary">Safety & Guidelines</h3>
-                    </div>
-                    <p className="text-text-muted leading-relaxed">
-                       This event follows all local safety protocols. Please bring a valid ID and your digital ticket for entry.
-                    </p>
-                 </div>
-                 <div className="p-8 bg-surface/50 rounded-2xl border border-border/50 hover:border-accent/20 hover:shadow-sm transition-all duration-300 space-y-4">
-                    <div className="flex items-center gap-3 text-accent-dark">
-                       <Info className="w-6 h-6" />
-                       <h3 className="font-display font-bold text-xl text-text-primary">Refund Policy</h3>
-                    </div>
-                    <p className="text-text-muted leading-relaxed">
-                       Full refunds are available up to 48 hours before the event start time. Service fees are non-refundable.
-                    </p>
-                 </div>
+              {/* Essential Event Information */}
+              <div className="pt-8 border-t border-border/50">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
+                   <div className="space-y-4">
+                      <div className="flex items-center gap-3 text-text-primary">
+                         <ShieldCheck className="w-6 h-6" />
+                         <h3 className="font-display font-bold text-xl tracking-tight">Safety & Guidelines</h3>
+                      </div>
+                      <p className="text-text-muted leading-relaxed">
+                         This event prioritizes your well-being. All local safety protocols are strictly observed. Please ensure you have a valid ID matching your digital ticket for seamless entry.
+                      </p>
+                   </div>
+                   <div className="space-y-4">
+                      <div className="flex items-center gap-3 text-text-primary">
+                         <Info className="w-6 h-6" />
+                         <h3 className="font-display font-bold text-xl tracking-tight">Booking & Cancellation</h3>
+                      </div>
+                      <p className="text-text-muted leading-relaxed">
+                         Secure your spot instantly. Should your plans change, full refunds are honored up to 48 hours prior to the event commencement (platform service fees excluded).
+                      </p>
+                   </div>
+                </div>
               </div>
             </div>
 
@@ -137,29 +184,30 @@ const EventDetailPage = () => {
                       <h3 className="font-display font-bold text-xl text-text-primary">Location</h3>
                       <p className="text-text-muted text-sm leading-relaxed">{event.location}</p>
                    </div>
-                   <a 
-                     href={`https://maps.google.com/?q=${encodeURIComponent(event.location)}`}
-                     target="_blank"
-                     rel="noopener noreferrer"
-                     className="block group"
-                   >
+                   <div className="block group">
                       <div className="relative aspect-video rounded-2xl overflow-hidden bg-surface/50 mb-4 border border-border/50">
-                         {/* Styled Map Placeholder instead of broken image */}
-                         <div className="absolute inset-0 w-full h-full bg-surface relative overflow-hidden flex items-center justify-center transition-transform group-hover:scale-105 duration-500">
-                           {/* Grid pattern */}
-                           <div className="absolute inset-0 opacity-20" style={{ backgroundImage: 'radial-gradient(#8B7355 1px, transparent 1px)', backgroundSize: '16px 16px' }} />
-                           {/* Pulse animation ring */}
-                           <div className="absolute w-12 h-12 bg-primary/20 rounded-full animate-ping" />
-                           {/* Map pin */}
-                           <div className="relative w-10 h-10 bg-white rounded-full shadow-lg flex items-center justify-center border border-border z-10 text-primary">
-                             <MapPin className="w-5 h-5" />
-                           </div>
-                         </div>
+                         <iframe
+                           title="Event Location"
+                           width="100%"
+                           height="100%"
+                           style={{ border: 0 }}
+                           loading="lazy"
+                           allowFullScreen
+                           referrerPolicy="no-referrer-when-downgrade"
+                           src={`https://maps.google.com/maps?q=${encodeURIComponent(event.location || 'Yaounde')}&t=&z=13&ie=UTF8&iwloc=&output=embed`}
+                           className="absolute inset-0 w-full h-full"
+                         ></iframe>
                       </div>
-                      <Button variant="outline" className="w-full rounded-xl gap-2 font-bold uppercase tracking-widest text-xs py-5">
-                         Get Directions <ExternalLink className="w-3 h-3" />
-                      </Button>
-                   </a>
+                      <a 
+                        href={`https://maps.google.com/?q=${encodeURIComponent(event.location)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                      >
+                        <Button variant="outline" className="w-full rounded-xl gap-2 font-bold uppercase tracking-widest text-xs py-5">
+                           Get Directions <ExternalLink className="w-3 h-3" />
+                        </Button>
+                      </a>
+                   </div>
                 </div>
 
                 {/* Social Sharing */}
@@ -199,8 +247,8 @@ const EventDetailPage = () => {
              </div>
              
              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                {events
-                  .filter(e => e.id !== id && e.category === event.category)
+                {(events || [])
+                  .filter(e => e.id !== id && (e.category?.categoryId === event.category?.categoryId || e.categoryName === event.categoryName))
                   .slice(0, 3)
                   .map((e) => (
                     <EventCard key={e.id} event={e} />
