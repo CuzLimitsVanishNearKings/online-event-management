@@ -1,25 +1,87 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Search, Filter, CalendarDays, MapPin, Users, Ticket, MoreVertical, Eye, ShieldAlert } from 'lucide-react'
+import { Search, Filter, CalendarDays, MapPin, Ticket, Eye, ShieldAlert, Layers, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui'
 import { cn } from '@/utils/cn'
+import axiosClient from '@/api/axiosClient'
 
 type EventTab = 'all' | 'published' | 'draft' | 'past' | 'flagged'
 
+interface EventSummary {
+  eventId: number
+  title: string
+  venue: string
+  startDateTime: string
+  endDateTime: string
+  status: 'DRAFT' | 'PUBLISHED' | 'CANCELLED' | 'COMPLETED' | 'RESCHEDULED'
+  coverImage?: string
+  category: {
+    categoryId: number
+    name: string
+  }
+  organizerName: string
+  organizerLogoUrl?: string
+}
+
 export default function EventManagement() {
+  const navigate = useNavigate()
+  
+  const [events, setEvents] = useState<EventSummary[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  
   const [searchQuery, setSearchQuery] = useState('')
   const [activeTab, setActiveTab] = useState<EventTab>('all')
 
-  // No mock data – will be populated from API
-  const events: any[] = []
+  const fetchEvents = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await axiosClient.get<EventSummary[]>('/events/admin/all')
+      setEvents(res.data || [])
+    } catch (err: any) {
+      console.error('Failed to fetch admin events:', err)
+      setError(err.response?.data?.message || 'Failed to load platform events.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchEvents()
+  }, [])
 
   const filteredEvents = events.filter((event) => {
+    const query = searchQuery.toLowerCase()
     const matchesSearch =
-      event.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      event.organizer?.toLowerCase().includes(searchQuery.toLowerCase())
-    const matchesTab = activeTab === 'all' || event.status === activeTab
+      (event.title || '').toLowerCase().includes(query) ||
+      (event.organizerName || '').toLowerCase().includes(query)
+      
+    const matchesTab = 
+      activeTab === 'all' ||
+      (activeTab === 'published' && (event.status === 'PUBLISHED' || event.status === 'RESCHEDULED')) ||
+      (activeTab === 'draft' && event.status === 'DRAFT') ||
+      (activeTab === 'past' && event.status === 'COMPLETED') ||
+      (activeTab === 'flagged' && event.status === 'CANCELLED')
+      
     return matchesSearch && matchesTab
   })
+
+  const formatDate = (isoStr: string) => {
+    try {
+      const d = new Date(isoStr)
+      return d.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      })
+    } catch {
+      return isoStr
+    }
+  }
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8">
@@ -28,9 +90,16 @@ export default function EventManagement() {
           <h1 className="text-3xl font-display font-bold text-text-primary tracking-tight">Events</h1>
           <p className="text-text-muted mt-1 font-medium">Monitor all platform events, manage categories, and ensure quality.</p>
         </div>
-        <Button variant="outline" className="rounded-xl border-border font-bold text-text-secondary bg-white gap-2">
+        <Button 
+          variant="outline" 
+          onClick={() => setActiveTab('flagged')} 
+          className={cn(
+            'rounded-xl border-border font-bold bg-white gap-2 transition-colors',
+            activeTab === 'flagged' ? 'border-red-200 text-red-600 bg-red-50 hover:bg-red-50' : 'text-text-secondary'
+          )}
+        >
           <ShieldAlert className="w-4 h-4" />
-          Flagged Events
+          Flagged/Cancelled
         </Button>
       </div>
 
@@ -47,7 +116,7 @@ export default function EventManagement() {
                   activeTab === tab ? 'bg-white text-text-primary shadow-sm' : 'text-text-muted hover:text-text-primary'
                 )}
               >
-                {tab}
+                {tab === 'flagged' ? 'Cancelled' : tab}
               </button>
             ))}
           </div>
@@ -62,47 +131,73 @@ export default function EventManagement() {
                 className="pl-9 pr-4 py-2 border border-border rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 w-full md:w-72"
               />
             </div>
-            <Button variant="outline" className="rounded-xl px-3 py-2 border-border text-text-secondary">
-              <Filter className="w-4 h-4" />
-            </Button>
           </div>
         </div>
 
         {/* Content */}
-        {filteredEvents.length > 0 ? (
+        {loading ? (
+          <div className="p-12 space-y-6">
+            <div className="flex items-center gap-4 animate-pulse">
+              <div className="w-16 h-16 bg-gray-100 rounded-xl" />
+              <div className="space-y-2 flex-1">
+                <div className="h-5 bg-gray-100 rounded w-1/3" />
+                <div className="h-4 bg-gray-50 rounded w-1/2" />
+              </div>
+            </div>
+            <div className="flex items-center gap-4 animate-pulse">
+              <div className="w-16 h-16 bg-gray-100 rounded-xl" />
+              <div className="space-y-2 flex-1">
+                <div className="h-5 bg-gray-100 rounded w-1/4" />
+                <div className="h-4 bg-gray-50 rounded w-2/3" />
+              </div>
+            </div>
+          </div>
+        ) : error ? (
+          <div className="p-12 text-center text-red-600 font-bold flex flex-col items-center justify-center gap-3">
+            <AlertCircle className="w-12 h-12" />
+            <p>{error}</p>
+            <Button variant="outline" onClick={fetchEvents} className="rounded-xl border-red-200 mt-2 text-red-700 hover:bg-red-50">Retry</Button>
+          </div>
+        ) : filteredEvents.length > 0 ? (
           <div className="divide-y divide-border">
             {filteredEvents.map((event) => (
-              <div key={event.id} className="p-6 hover:bg-gray-50 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4">
+              <div key={event.eventId} className="p-6 hover:bg-gray-50 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-start gap-4">
-                  <div className="w-16 h-16 bg-surface rounded-xl flex items-center justify-center flex-shrink-0 border border-primary/20">
-                    <CalendarDays className="w-6 h-6 text-primary" />
+                  <div className="w-16 h-16 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0 border border-primary/10">
+                    {event.coverImage ? (
+                      <img src={event.coverImage} alt={event.title} className="w-full h-full object-cover rounded-xl" />
+                    ) : (
+                      <CalendarDays className="w-6 h-6 text-primary" />
+                    )}
                   </div>
                   <div>
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex flex-wrap items-center gap-2 mb-1">
                       <h3 className="font-bold text-text-primary text-lg">{event.title}</h3>
                       <span className={cn(
                         'px-2 py-0.5 rounded-md text-xs font-bold uppercase tracking-wider',
-                        event.status === 'published' ? 'bg-green-100 text-green-700' :
-                        event.status === 'draft' ? 'bg-amber-100 text-amber-700' :
-                        event.status === 'flagged' ? 'bg-red-100 text-red-700' :
+                        event.status === 'PUBLISHED' ? 'bg-green-100 text-green-700' :
+                        event.status === 'DRAFT' ? 'bg-amber-100 text-amber-700' :
+                        event.status === 'CANCELLED' ? 'bg-red-100 text-red-700' :
+                        event.status === 'RESCHEDULED' ? 'bg-blue-100 text-blue-700' :
                         'bg-gray-100 text-gray-700'
                       )}>{event.status}</span>
                     </div>
-                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-text-muted font-medium">
-                      <span className="flex items-center gap-1.5"><CalendarDays className="w-4 h-4" /> {event.date}</span>
-                      <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4" /> {event.location}</span>
-                      <span className="flex items-center gap-1.5"><Users className="w-4 h-4" /> {event.sold} / {event.capacity}</span>
-                      <span className="flex items-center gap-1.5"><Ticket className="w-4 h-4" /> by {event.organizer}</span>
+                    <div className="flex flex-wrap items-center gap-x-4 gap-y-2 text-sm text-text-muted font-medium mt-1.5">
+                      <span className="flex items-center gap-1.5"><CalendarDays className="w-4 h-4 text-text-muted/65" /> {formatDate(event.startDateTime)}</span>
+                      <span className="flex items-center gap-1.5"><MapPin className="w-4 h-4 text-text-muted/65" /> {event.venue}</span>
+                      <span className="flex items-center gap-1.5"><Layers className="w-4 h-4 text-text-muted/65" /> {event.category?.name || 'Unclassified'}</span>
+                      <span className="flex items-center gap-1.5"><Ticket className="w-4 h-4 text-text-muted/65" /> by {event.organizerName}</span>
                     </div>
                   </div>
                 </div>
                 <div className="flex items-center gap-3 self-end md:self-auto">
-                  <Button variant="outline" className="rounded-xl px-4 py-2 border-border text-sm font-bold text-text-secondary gap-1.5">
+                  <Button 
+                    variant="outline" 
+                    onClick={() => navigate(`/event/${event.eventId}`)}
+                    className="rounded-xl px-4 py-2 border-border text-sm font-bold text-text-secondary gap-1.5 hover:bg-gray-50 bg-white"
+                  >
                     <Eye className="w-4 h-4" /> View
                   </Button>
-                  <button className="p-2 text-text-muted hover:text-text-primary rounded-xl hover:bg-surface transition-colors">
-                    <MoreVertical className="w-5 h-5" />
-                  </button>
                 </div>
               </div>
             ))}
@@ -116,7 +211,7 @@ export default function EventManagement() {
             <p className="text-text-muted mt-2 max-w-md">
               {searchQuery
                 ? `We couldn't find any events matching "${searchQuery}". Try adjusting your filters.`
-                : "Once organizers publish events, they will appear here for moderation."}
+                : "Once organizers publish events, they will appear here for platform monitoring."}
             </p>
           </div>
         )}

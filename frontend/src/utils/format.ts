@@ -1,16 +1,56 @@
 import { format, parseISO } from 'date-fns'
 
 export const formatDate = (date: string | Date, formatStr = 'MMM dd, yyyy'): string => {
-  const dateObj = typeof date === 'string' ? parseISO(date) : date
-  return format(dateObj, formatStr)
+  try {
+    if (typeof date === 'string') {
+      if (date === 'Invalid Date') return 'TBD'
+      if (date.includes(',') || isNaN(Date.parse(date)) && !date.includes('-') && !date.includes('T')) {
+        return date
+      }
+      const parsed = parseISO(date)
+      if (!isNaN(parsed.getTime())) {
+        return format(parsed, formatStr)
+      }
+      const nativeDate = new Date(date)
+      if (!isNaN(nativeDate.getTime())) {
+        return format(nativeDate, formatStr)
+      }
+      return date
+    }
+    return format(date, formatStr)
+  } catch {
+    return typeof date === 'string' ? date : 'TBD'
+  }
 }
 
 export const formatTime = (time: string): string => {
-  return format(parseISO(`1970-01-01T${time}`), 'h:mm a')
+  try {
+    if (!time || time === 'Invalid Date') return 'TBD'
+    const parsed = parseISO(`1970-01-01T${time}`)
+    if (!isNaN(parsed.getTime())) {
+      return format(parsed, 'h:mm a')
+    }
+    return time
+  } catch {
+    return time
+  }
 }
 
 export const formatDateTime = (dateTime: string): string => {
-  return format(parseISO(dateTime), 'MMM dd, yyyy h:mm a')
+  try {
+    if (!dateTime || dateTime === 'Invalid Date') return 'TBD'
+    const parsed = parseISO(dateTime)
+    if (!isNaN(parsed.getTime())) {
+      return format(parsed, 'MMM dd, yyyy h:mm a')
+    }
+    const nativeDate = new Date(dateTime)
+    if (!isNaN(nativeDate.getTime())) {
+      return format(nativeDate, 'MMM dd, yyyy h:mm a')
+    }
+    return dateTime
+  } catch {
+    return dateTime
+  }
 }
 
 export const formatCurrency = (amount: number, currency = 'USD'): string => {

@@ -1,9 +1,10 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { useAuthStore } from '@/store/authStore'
 import { Button, Input } from '@/components/ui'
-import { Save, Check, Bell, ShieldCheck, Globe, Layers, Plus, Trash2, Edit3, Activity } from 'lucide-react'
+import { Save, Check, Bell, ShieldCheck, Globe, Layers, Plus, Trash2, Edit3, Activity, Search, AlertCircle } from 'lucide-react'
 import { cn } from '@/utils/cn'
+import axiosClient from '@/api/axiosClient'
 
 // --- Reports / Analytics ---
 export function Reporting() {
@@ -96,27 +97,80 @@ export function Reporting() {
 }
 
 // --- Categories ---
+interface Category {
+  categoryId: number
+  name: string
+  description?: string
+}
+
 export function Categories() {
+  const [categories, setCategories] = useState<Category[]>([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState<string | null>(null)
+  
   const [newCategory, setNewCategory] = useState('')
+  const [newDescription, setNewDescription] = useState('')
+  const [searchQuery, setSearchQuery] = useState('')
+  
   const [isAdding, setIsAdding] = useState(false)
   const [added, setAdded] = useState(false)
-  const [categories, setCategories] = useState<string[]>([])
 
-  const handleAdd = () => {
+  const fetchCategories = async () => {
+    setLoading(true)
+    setError(null)
+    try {
+      const res = await axiosClient.get<Category[]>('/categories')
+      setCategories(res.data || [])
+    } catch (err: any) {
+      console.error(err)
+      setError(err.response?.data?.message || 'Failed to load categories.')
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchCategories()
+  }, [])
+
+  const handleAdd = async () => {
     if (!newCategory.trim()) return
     setIsAdding(true)
-    setTimeout(() => {
-      setCategories(prev => [...prev, newCategory.trim()])
+    setError(null)
+    try {
+      const res = await axiosClient.post<Category>('/categories', {
+        name: newCategory.trim(),
+        description: newDescription.trim() || undefined
+      })
+      setCategories(prev => [...prev, res.data])
       setNewCategory('')
-      setIsAdding(false)
+      setNewDescription('')
       setAdded(true)
       setTimeout(() => setAdded(false), 2000)
-    }, 800)
+    } catch (err: any) {
+      console.error(err)
+      setError(err.response?.data?.message || 'Failed to create category.')
+    } finally {
+      setIsAdding(false)
+    }
   }
 
-  const handleDelete = (idx: number) => {
-    setCategories(prev => prev.filter((_, i) => i !== idx))
+  const handleDelete = async (categoryId: number) => {
+    setError(null)
+    try {
+      await axiosClient.delete(`/categories/${categoryId}`)
+      setCategories(prev => prev.filter(c => c.categoryId !== categoryId))
+    } catch (err: any) {
+      console.error(err)
+      setError(err.response?.data?.message || 'Failed to delete category (it may be linked to active events).')
+    }
   }
+
+  const filteredCategories = categories.filter(c => {
+    const query = searchQuery.toLowerCase()
+    return (c.name || '').toLowerCase().includes(query) ||
+      (c.description || '').toLowerCase().includes(query)
+  })
 
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="space-y-8 max-w-4xl">
@@ -131,20 +185,35 @@ export function Categories() {
           <h2 className="text-lg font-bold text-text-primary">Event Categories</h2>
         </div>
         <div className="p-6 space-y-6">
-          <div className="flex gap-3">
-            <div className="flex-1">
+          {error && (
+            <div className="flex items-center gap-3 p-4 text-red-600 border border-red-100 bg-red-50 rounded-xl">
+              <AlertCircle className="w-5 h-5 flex-shrink-0" />
+              <p className="text-sm font-bold">{error}</p>
+            </div>
+          )}
+
+          <div className="flex flex-col sm:flex-row gap-3 items-end">
+            <div className="flex-1 w-full">
               <Input
-                label=""
-                placeholder="New category name (e.g. Music, Sports, Tech)"
+                label="Category Name"
+                placeholder="e.g. Music, Sports, Tech"
                 value={newCategory}
                 onChange={(e) => setNewCategory(e.target.value)}
+              />
+            </div>
+            <div className="flex-1 w-full">
+              <Input
+                label="Description (Optional)"
+                placeholder="What type of events are these?"
+                value={newDescription}
+                onChange={(e) => setNewDescription(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleAdd()}
               />
             </div>
             <Button
               onClick={handleAdd}
               variant="primary"
-              className="rounded-xl font-bold gap-2 self-end"
+              className="rounded-xl font-bold gap-2 py-3 px-6 h-[44px]"
               disabled={isAdding || !newCategory.trim()}
             >
               {isAdding ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> :
@@ -153,32 +222,57 @@ export function Categories() {
             </Button>
           </div>
 
-          {categories.length > 0 ? (
-            <div className="divide-y divide-border">
-              {categories.map((cat, idx) => (
-                <div key={idx} className="flex items-center justify-between py-4 group">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-                      <Layers className="w-4 h-4 text-primary" />
+          {loading ? (
+            <div className="space-y-3 py-6">
+              <div className="h-10 bg-gray-50 rounded-xl animate-pulse" />
+              <div className="h-10 bg-gray-50 rounded-xl animate-pulse" />
+              <div className="h-10 bg-gray-50 rounded-xl animate-pulse" />
+            </div>
+          ) : filteredCategories.length > 0 ? (
+            <div className="space-y-4">
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+                <input
+                  type="text"
+                  placeholder="Search categories..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9 pr-4 py-2 border border-border rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 w-full"
+                />
+              </div>
+
+              <div className="divide-y divide-border border-t border-border mt-4">
+                {filteredCategories.map((cat) => (
+                  <div key={cat.categoryId} className="flex items-center justify-between py-4 group">
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
+                        <Layers className="w-4 h-4 text-primary" />
+                      </div>
+                      <div>
+                        <span className="font-bold text-text-primary block">{cat.name}</span>
+                        {cat.description && (
+                          <span className="text-sm text-text-muted">{cat.description}</span>
+                        )}
+                      </div>
                     </div>
-                    <span className="font-bold text-text-primary">{cat}</span>
+                    <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                      <button onClick={() => handleDelete(cat.categoryId)} className="p-2 text-text-muted hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors" title="Delete Category">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
-                  <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button className="p-2 text-text-muted hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
-                      <Edit3 className="w-4 h-4" />
-                    </button>
-                    <button onClick={() => handleDelete(idx)} className="p-2 text-text-muted hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           ) : (
             <div className="flex flex-col items-center justify-center py-10 text-center bg-gray-50/30 rounded-xl border-2 border-dashed border-border">
               <Layers className="w-10 h-10 text-text-muted mb-3" />
-              <p className="font-bold text-text-primary">No categories yet</p>
-              <p className="text-sm text-text-muted mt-1">Add your first category above to classify events.</p>
+              <p className="font-bold text-text-primary">
+                {searchQuery ? 'No matching categories' : 'No categories yet'}
+              </p>
+              <p className="text-sm text-text-muted mt-1">
+                {searchQuery ? `No category matched "${searchQuery}"` : 'Add your first category above to classify events.'}
+              </p>
             </div>
           )}
         </div>

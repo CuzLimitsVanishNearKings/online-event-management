@@ -20,7 +20,27 @@ interface EventHeroProps {
 }
 
 const EventHero = ({ event }: EventHeroProps) => {
-  const formattedDate = format(parseISO(event.date), 'EEEE, MMMM dd, yyyy')
+  let formattedDate = ''
+  try {
+    if (event.date && event.date !== 'Invalid Date' && (event.date.includes(',') || isNaN(Date.parse(event.date)) && !event.date.includes('-') && !event.date.includes('T'))) {
+      formattedDate = event.date
+    } else {
+      const parsed = parseISO(event.date)
+      if (!isNaN(parsed.getTime())) {
+        formattedDate = format(parsed, 'EEEE, MMMM dd, yyyy')
+      } else {
+        const nativeDate = new Date(event.date)
+        if (!isNaN(nativeDate.getTime())) {
+          formattedDate = format(nativeDate, 'EEEE, MMMM dd, yyyy')
+        } else {
+          formattedDate = event.date
+        }
+      }
+    }
+  } catch (e) {
+    console.error('Error formatting date in EventHero:', e)
+    formattedDate = event.date || 'TBD'
+  }
   const imageUrl = event.image || `https://picsum.photos/seed/${event.id}/1200/600.jpg`
 
   return (

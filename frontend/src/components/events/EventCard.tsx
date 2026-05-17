@@ -33,8 +33,35 @@ interface EventCardProps {
 const EventCard = ({ event }: EventCardProps) => {
   const [isSaved, setIsSaved] = useState(false)
   
-  const eventDate = parseISO(event.date || event.startDateTime)
-  const formattedDate = format(eventDate, 'EEE, MMM d · h:mm a')
+  let formattedDate = ''
+  try {
+    if (event.date && event.date !== 'Invalid Date' && (event.date.includes(',') || isNaN(Date.parse(event.date)) && !event.date.includes('-') && !event.date.includes('T'))) {
+      formattedDate = event.date
+      if (event.time && event.time !== 'Invalid Date' && !event.date.includes('·') && !event.date.includes(':')) {
+        formattedDate += ` · ${event.time}`
+      }
+    } else {
+      const rawDate = event.startDateTime || event.date
+      if (rawDate) {
+        const parsed = parseISO(rawDate)
+        if (!isNaN(parsed.getTime())) {
+          formattedDate = format(parsed, 'EEE, MMM d · h:mm a')
+        } else {
+          const nativeDate = new Date(rawDate)
+          if (!isNaN(nativeDate.getTime())) {
+            formattedDate = format(nativeDate, 'EEE, MMM d · h:mm a')
+          } else {
+            formattedDate = rawDate
+          }
+        }
+      } else {
+        formattedDate = 'TBD'
+      }
+    }
+  } catch (e) {
+    console.error('Error formatting date in EventCard:', e)
+    formattedDate = event.date || event.startDateTime || 'TBD'
+  }
   
   const image = event.thumbnail || event.coverImage || `https://picsum.photos/seed/${event.id}/600/400.jpg`
   const isFree = !event.price || event.price === 0

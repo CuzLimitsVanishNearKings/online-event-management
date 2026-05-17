@@ -16,9 +16,10 @@ export default function OrganizerRequests() {
   const requests: any[] = []
 
   const filteredRequests = requests.filter((r) => {
+    const query = searchQuery.toLowerCase()
     const matchesSearch =
-      r.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      r.organization?.toLowerCase().includes(searchQuery.toLowerCase())
+      (r.name || '').toLowerCase().includes(query) ||
+      (r.organization || '').toLowerCase().includes(query)
     const matchesTab = r.status === activeTab
     return matchesSearch && matchesTab
   })
