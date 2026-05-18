@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import { Calendar, MapPin, Users, Clock } from '../icons'
 import { format, parseISO } from 'date-fns'
+import { getImageUrl } from '../../utils/image'
 
 interface Event {
   id: string
@@ -50,9 +51,9 @@ const EventBanner = ({ events = [], className = '' }: EventBannerProps) => {
     <div className="flex-shrink-0 bg-white border border-border rounded-lg p-4 mx-2 hover:shadow-md transition-shadow duration-200 cursor-pointer min-w-[280px] max-w-[350px]">
       <div className="flex items-start space-x-3">
         {/* Event Thumbnail */}
-        {event.thumbnail ? (
+        {event.thumbnail || (event as any).coverImage ? (
           <img 
-            src={event.thumbnail} 
+            src={getImageUrl(event.thumbnail || (event as any).coverImage)} 
             alt={event.title}
             className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
           />

@@ -1,6 +1,7 @@
 import { format, parseISO } from 'date-fns'
 import { Calendar, MapPin, User, CheckCircle, Share2, Heart, Clock, Users } from '../icons'
 import { cn } from '../../utils/cn'
+import { getImageUrl } from '../../utils/image'
 
 interface EventHeroProps {
   event: any
@@ -29,7 +30,7 @@ const EventHero = ({ event }: EventHeroProps) => {
     formattedDate = event.date || 'TBD'
   }
 
-  const imageUrl = event.coverImage || event.image
+  const imageUrl = getImageUrl(event.coverImage || event.image)
   const organizerName = event.organizerName || event.organizer || 'Event Organizer'
   const organizerLogo = event.organizerLogoUrl || event.organizerLogo
 

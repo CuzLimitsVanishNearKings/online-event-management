@@ -6,6 +6,7 @@ import { Button, Pagination } from '@/components/ui'
 import axiosClient from '@/api/axiosClient'
 import { formatDate } from '@/utils/format'
 import { usePagination } from '@/hooks/usePagination'
+import { getImageUrl } from '@/utils/image'
 
 interface OrganizerEvent {
   eventId: number
@@ -158,7 +159,7 @@ export default function EventsManageView() {
                   <div className="flex items-start gap-4">
                     <div className="w-16 h-16 bg-surface rounded-xl flex items-center justify-center flex-shrink-0 border border-primary/20 overflow-hidden shadow-sm">
                       {event.coverImage ? (
-                        <img src={event.coverImage} alt={event.title} className="w-full h-full object-cover" />
+                        <img src={getImageUrl(event.coverImage)} alt={event.title} className="w-full h-full object-cover" />
                       ) : (
                         <CalendarDays className="w-6 h-6 text-primary" />
                       )}

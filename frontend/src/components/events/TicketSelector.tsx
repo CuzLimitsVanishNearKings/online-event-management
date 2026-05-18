@@ -21,12 +21,9 @@ interface TicketSelectorProps {
 const TicketSelector = ({ event, fullEvent }: TicketSelectorProps) => {
   const { addItem, hasItem } = useCartStore()
   
-  // Resilient fallback logic for ticket types
-  const ticketTypes = event.ticketTypes && event.ticketTypes.length > 0 
-    ? event.ticketTypes 
-    : [{ ticketTypeId: 0, name: 'General Admission', price: 0, quantityRemaining: 100 }]
+  const ticketTypes = event.ticketTypes || []
 
-  const [selectedTicketType, setSelectedTicketType] = useState<any>(ticketTypes[0])
+  const [selectedTicketType, setSelectedTicketType] = useState<any>(ticketTypes[0] || null)
   const [quantity, setQuantity] = useState(1)
 
   // Synchronize when event ticket types change
@@ -35,6 +32,20 @@ const TicketSelector = ({ event, fullEvent }: TicketSelectorProps) => {
       setSelectedTicketType(event.ticketTypes[0])
     }
   }, [event.ticketTypes])
+
+  if (ticketTypes.length === 0 || !selectedTicketType) {
+    return (
+      <div className="bg-gray-50 border border-border rounded-xl p-8 text-center space-y-4">
+        <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto border-2 border-dashed border-border">
+          <Ticket className="w-8 h-8 text-text-muted/50" />
+        </div>
+        <h3 className="text-xl font-display font-bold text-text-primary">Tickets Unavailable</h3>
+        <p className="text-sm text-text-muted leading-relaxed">
+          The organizer has not configured any ticket tiers or seating arrangements for this event yet. Check back soon!
+        </p>
+      </div>
+    )
+  }
 
   const maxTickets = Math.min(10, selectedTicketType.quantityRemaining || 100)
 
@@ -72,7 +83,7 @@ const TicketSelector = ({ event, fullEvent }: TicketSelectorProps) => {
         <p className="text-text-muted leading-relaxed">
           The selected ticket category is fully booked. Join the waitlist or browse similar events.
         </p>
-        <Button variant="outline" className="w-full rounded-2xl">Browse Similar</Button>
+        <Button variant="outline" className="w-full rounded-2xl font-bold">Browse Similar</Button>
       </div>
     )
   }
@@ -84,70 +95,72 @@ const TicketSelector = ({ event, fullEvent }: TicketSelectorProps) => {
         <h3 className="text-2xl font-display font-bold text-text-primary">Book Tickets</h3>
         <div className="flex items-center gap-2 text-text-muted">
            <Zap className="w-4 h-4 text-primary animate-pulse" />
-           <p className="text-sm font-bold uppercase tracking-wider">{selectedTicketType.quantityRemaining || 100} spots remaining</p>
+           <p className="text-sm font-bold uppercase tracking-wider">{selectedTicketType.quantityRemaining || 0} spots remaining</p>
         </div>
       </div>
 
-      {/* Ticket Selection List */}
-      <div className="space-y-4">
-        <label className="text-xs font-bold text-text-muted uppercase tracking-widest block">Select Ticket Type</label>
-        
-        <div className="flex flex-col gap-3">
-          {ticketTypes.map((tier: any) => {
-            const isSelected = selectedTicketType?.ticketTypeId === tier.ticketTypeId;
-            
-            return (
-              <button
-                key={tier.ticketTypeId}
-                type="button"
-                onClick={() => {
-                  setSelectedTicketType(tier);
-                  setQuantity(1);
-                }}
-                className={cn(
-                  "w-full rounded-xl border flex items-center justify-between p-4 transition-all duration-300 text-left",
-                  isSelected 
-                    ? "bg-[#1E1B18] border-[#1E1B18] shadow-lg scale-[1.02] z-10" 
-                    : "bg-white border-border hover:border-primary/30 hover:bg-gray-50",
-                  isSelected && "ring-2 ring-primary/20 ring-offset-2"
-                )}
-              >
-                <div className="flex flex-col">
-                  <span className={cn(
-                    "font-bold", 
-                    isSelected ? "text-[#EAE6DF]" : "text-text-primary"
-                  )}>
-                    {tier.name}
-                  </span>
-                  <span className={cn(
-                    "text-xs font-bold uppercase tracking-wider mt-1", 
-                    isSelected ? "text-[#EAE6DF]/70" : "text-text-muted"
-                  )}>
-                    {tier.quantityRemaining > 0 ? `${tier.quantityRemaining} available` : 'Sold Out'}
-                  </span>
-                </div>
-                
-                <div className="flex items-center gap-4">
-                  <span className={cn(
-                    "text-lg font-display font-bold", 
-                    isSelected ? "text-[#EAE6DF]" : "text-text-primary"
-                  )}>
-                    {tier.price === 0 ? 'Free' : formatCurrency(tier.price)}
-                  </span>
-                  <div className={cn(
-                    "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors", 
-                    isSelected ? "border-[#EAE6DF] bg-[#EAE6DF]" : "border-gray-300"
-                  )}>
-                    {isSelected && <div className="w-2 h-2 rounded-full bg-[#1E1B18]" />}
+      {/* Ticket Selection List - Only show if there are multiple ticket types */}
+      {ticketTypes.length > 1 && (
+        <div className="space-y-4">
+          <label className="text-xs font-bold text-text-muted uppercase tracking-widest block">Select Ticket Type</label>
+          
+          <div className="flex flex-col gap-3">
+            {ticketTypes.map((tier: any) => {
+              const isSelected = selectedTicketType?.ticketTypeId === tier.ticketTypeId;
+              
+              return (
+                <button
+                  key={tier.ticketTypeId}
+                  type="button"
+                  onClick={() => {
+                    setSelectedTicketType(tier);
+                    setQuantity(1);
+                  }}
+                  className={cn(
+                    "w-full rounded-xl border flex items-center justify-between p-4 transition-all duration-300 text-left",
+                    isSelected 
+                      ? "bg-[#1E1B18] border-[#1E1B18] shadow-lg scale-[1.02] z-10" 
+                      : "bg-white border-border hover:border-primary/30 hover:bg-gray-50",
+                    isSelected && "ring-2 ring-primary/20 ring-offset-2"
+                  )}
+                >
+                  <div className="flex flex-col">
+                    <span className={cn(
+                      "font-bold", 
+                      isSelected ? "text-[#EAE6DF]" : "text-text-primary"
+                    )}>
+                      {tier.name}
+                    </span>
+                    <span className={cn(
+                      "text-xs font-bold uppercase tracking-wider mt-1", 
+                      isSelected ? "text-[#EAE6DF]/70" : "text-text-muted"
+                    )}>
+                      {tier.quantityRemaining > 0 ? `${tier.quantityRemaining} available` : 'Sold Out'}
+                    </span>
                   </div>
-                </div>
-              </button>
-            );
-          })}
+                  
+                  <div className="flex items-center gap-4">
+                    <span className={cn(
+                      "text-lg font-display font-bold", 
+                      isSelected ? "text-[#EAE6DF]" : "text-text-primary"
+                    )}>
+                      {tier.price === 0 ? 'Free' : formatCurrency(tier.price)}
+                    </span>
+                    <div className={cn(
+                      "w-5 h-5 rounded-full border-2 flex items-center justify-center transition-colors", 
+                      isSelected ? "border-[#EAE6DF] bg-[#EAE6DF]" : "border-gray-300"
+                    )}>
+                      {isSelected && <div className="w-2 h-2 rounded-full bg-[#1E1B18]" />}
+                    </div>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
-      </div>
+      )}
 
-        <div className="flex items-center justify-between pt-2">
+      <div className="flex items-center justify-between pt-2">
            <div>
               <p className="text-xs font-bold text-text-muted uppercase tracking-widest mb-1">Price per guest</p>
               <p className="text-3xl font-display font-bold text-text-primary">

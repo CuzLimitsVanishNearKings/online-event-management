@@ -6,6 +6,7 @@ import { formatCurrency } from '../utils/format'
 import { Button, Input } from '../components/ui'
 import { ChevronLeft, Ticket, ShieldCheck, CheckCircle } from '../components/icons'
 import axiosClient from '../api/axiosClient'
+import { getImageUrl } from '../utils/image'
 
 const CheckoutPage = () => {
   const { items, total, clearCart } = useCartStore()
@@ -196,7 +197,7 @@ const CheckoutPage = () => {
                   <div key={item.id} className="flex gap-4">
                     <div className="w-16 h-16 bg-surface rounded-xl overflow-hidden flex-shrink-0 border border-border">
                        {item.eventImage ? (
-                          <img src={item.eventImage} alt="Event" className="w-full h-full object-cover" />
+                          <img src={getImageUrl(item.eventImage)} alt="Event" className="w-full h-full object-cover" />
                        ) : (
                           <div className="w-full h-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold">TIC</div>
                        )}

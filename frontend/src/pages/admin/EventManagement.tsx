@@ -6,6 +6,7 @@ import { Button, Pagination } from '@/components/ui'
 import { cn } from '@/utils/cn'
 import axiosClient from '@/api/axiosClient'
 import { usePagination } from '@/hooks/usePagination'
+import { getImageUrl } from '@/utils/image'
 
 type EventTab = 'all' | 'published' | 'draft' | 'past' | 'flagged'
 
@@ -178,7 +179,7 @@ export default function EventManagement() {
                   <div className="flex items-start gap-4">
                     <div className="w-16 h-16 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0 border border-primary/10">
                       {event.coverImage ? (
-                        <img src={event.coverImage} alt={event.title} className="w-full h-full object-cover rounded-xl" />
+                        <img src={getImageUrl(event.coverImage)} alt={event.title} className="w-full h-full object-cover rounded-xl" />
                       ) : (
                         <CalendarDays className="w-6 h-6 text-primary" />
                       )}

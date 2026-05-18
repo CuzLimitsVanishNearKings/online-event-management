@@ -57,6 +57,8 @@ const EventDetailPage = () => {
           organizerName: detail.organizerName,
           organizerLogoUrl: detail.organizerLogoUrl,
           ticketTypes: detail.ticketTypes || [],
+          capacity: detail.capacity || 0,
+          currentAttendees: (detail.ticketTypes || []).reduce((sum: number, tt: any) => sum + ((tt.quantity || 0) - (tt.quantityRemaining || 0)), 0),
 
           // UI derived fields
           date: startDate.toLocaleDateString('en-US', {

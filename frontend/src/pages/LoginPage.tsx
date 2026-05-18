@@ -46,24 +46,20 @@ const LoginPage = ({ isOrganizer = false }: { isOrganizer?: boolean }) => {
     }
   }
 
-if (isAuthenticated) {
+  if (isAuthenticated) {
     if (user?.role === 'admin') {
-        return <Navigate to="/admin/dashboard" replace />
+      return <Navigate to="/admin/dashboard" replace />
     }
     if (user?.role === 'organizer') {
-        return <Navigate to="/organizer/dashboard" replace />
+      return <Navigate to="/organizer/dashboard" replace />
     }
     return <Navigate to="/attendee/dashboard" replace />
-}
+  }
 
   return (
     <AuthLayout 
-      title={isOrganizer ? "Organizer Portal" : "Welcome Back"}
-      subtitle={
-        isOrganizer 
-          ? "Sign in to manage your events, analyze performance, and grow your business." 
-          : "Sign in to manage your tickets, host your next event, and connect with your audience."
-      }
+      title="Welcome Back"
+      subtitle="Sign in to access your experiences, manage your tickets, or host your next event."
     >
       <motion.form 
         variants={containerVariants}
@@ -151,39 +147,32 @@ if (isAuthenticated) {
          <motion.div variants={itemVariants} className="relative pt-6">
             <div className="absolute inset-0 flex items-center pt-6">
                <div className="w-full border-t border-border/60" />
-            </div>
-            <div className="relative flex justify-center text-xs font-bold tracking-widest uppercase">
-               <span className="px-4 bg-white text-text-muted">Or continue with</span>
-            </div>
-         </motion.div>
+             </div>
+             <div className="relative flex justify-center text-xs font-bold tracking-widest uppercase">
+                <span className="px-4 bg-white text-text-muted">Or continue with</span>
+             </div>
+          </motion.div>
 
-         <motion.div variants={itemVariants} className="grid grid-cols-2 gap-4">
-            <button type="button" className="flex items-center justify-center gap-3 px-6 py-4 text-sm font-bold transition-all border-2 border-border/60 rounded-2xl hover:bg-surface hover:border-border text-text-primary">
-               <Github className="w-5 h-5" />
-               GitHub
-            </button>
-            <button type="button" className="flex items-center justify-center gap-3 px-6 py-4 text-sm font-bold transition-all border-2 border-border/60 rounded-2xl hover:bg-surface hover:border-border text-text-primary">
-               <Globe className="w-5 h-5" />
-               Google
-            </button>
-         </motion.div>
+          <motion.div variants={itemVariants} className="grid grid-cols-2 gap-4">
+             <button type="button" className="flex items-center justify-center gap-3 px-6 py-4 text-sm font-bold transition-all border-2 border-border/60 rounded-2xl hover:bg-surface hover:border-border text-text-primary">
+                <Github className="w-5 h-5" />
+                GitHub
+             </button>
+             <button type="button" className="flex items-center justify-center gap-3 px-6 py-4 text-sm font-bold transition-all border-2 border-border/60 rounded-2xl hover:bg-surface hover:border-border text-text-primary">
+                <Globe className="w-5 h-5" />
+                Google
+             </button>
+          </motion.div>
 
-         <motion.div variants={itemVariants} className="flex flex-col gap-2 pt-4">
-            <p className="font-medium text-center text-text-muted">
-               Don't have an account?{' '}
-               <Link to={isOrganizer ? "/organizer/register" : "/register"} className="font-bold text-primary hover:underline underline-offset-4">
-                  Create account
-               </Link>
-            </p>
-            <div className="my-2 border-t border-border/60" />
-            <p className="font-medium text-center text-text-muted">
-               {isOrganizer ? "Looking to attend events?" : "Are you an organizer?"}{' '}
-               <Link to={isOrganizer ? "/login" : "/organizer/login"} className="font-bold text-text-primary hover:underline underline-offset-4">
-                  {isOrganizer ? "Sign in as Attendee" : "Sign in to Organizer Portal"}
-               </Link>
-            </p>
-         </motion.div>
-      </motion.form>
+          <motion.div variants={itemVariants} className="flex flex-col gap-2 pt-4">
+             <p className="font-medium text-center text-text-muted">
+                Don't have an account?{' '}
+                <Link to="/register" className="font-bold text-primary hover:underline underline-offset-4">
+                   Create account
+                </Link>
+             </p>
+          </motion.div>
+       </motion.form>
     </AuthLayout>
   )
 }

@@ -18,6 +18,8 @@ interface Event {
   category?: Category
   organizerName?: string
   organizerLogoUrl?: string
+  capacity?: number
+  price?: number
 
   // UI-only derived fields
   date: string
@@ -62,6 +64,8 @@ export const useEvents = (): UseEventsReturn => {
           category: event.category,
           organizerName: event.organizerName,
           organizerLogoUrl: event.organizerLogoUrl,
+          capacity: event.capacity || 0,
+          price: event.minPrice || 0,
 
           // UI derived fields
           date: startDate.toLocaleDateString('en-US', {

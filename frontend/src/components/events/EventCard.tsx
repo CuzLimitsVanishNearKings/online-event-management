@@ -3,6 +3,7 @@ import { format, parseISO } from 'date-fns'
 import { useState } from 'react'
 import { Heart, MapPin } from '../icons'
 import { cn } from '../../utils/cn'
+import { getImageUrl } from '../../utils/image'
 
 interface EventCardProps {
   event: {
@@ -63,7 +64,7 @@ const EventCard = ({ event }: EventCardProps) => {
     formattedDate = event.date || event.startDateTime || 'TBD'
   }
   
-  const image = event.thumbnail || event.coverImage || `https://picsum.photos/seed/${event.id}/600/400.jpg`
+  const image = getImageUrl(event.thumbnail || event.coverImage) || `https://picsum.photos/seed/${event.id}/600/400.jpg`
   const isFree = !event.price || event.price === 0
 
   const handleSave = (e: React.MouseEvent) => {
