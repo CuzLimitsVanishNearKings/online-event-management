@@ -19,12 +19,11 @@ export interface WalletWithTransactions {
 }
 
 export interface TopUpRequest {
-  id: number
+  requestId: number
   amount: number
   status: 'PENDING' | 'APPROVED' | 'REJECTED'
   createdAt: string
   reviewedAt?: string
-  adminNotes?: string
 }
 
 export const useWallet = () => {
@@ -50,7 +49,8 @@ export const useWallet = () => {
   const fetchTopUpRequests = useCallback(async () => {
     try {
       const response = await axiosClient.get('/top-up-requests/my-requests')
-      setTopUpRequests(response.data)
+      // Backend now returns a Spring Page object, so the array is in response.data.content
+      setTopUpRequests(response.data.content || [])
     } catch (err: any) {
       console.error('Failed to fetch top-up requests:', err)
     }

@@ -176,11 +176,10 @@ export default function WalletView() {
             ) : (
               <div className="space-y-3 p-4">
                 {topUpRequests.map((req) => (
-                  <div key={req.id} className="p-4 rounded-xl border border-border bg-gray-50/50">
+                  <div key={req.requestId} className="p-4 rounded-xl border border-border bg-gray-50/50">
                     <div className="flex items-start justify-between mb-3">
                       <div>
                         <p className="text-lg font-bold text-text-primary">{req.amount} FCFA</p>
-                        <p className="text-xs font-medium text-text-muted mt-1 uppercase tracking-wider">Ref: {req.referenceNumber}</p>
                       </div>
                       <span className={cn(
                         "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest",
