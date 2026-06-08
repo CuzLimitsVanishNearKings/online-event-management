@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Upload, Check, Calendar as CalendarIcon, Clock, MapPin, Tag, AlertCircle, Plus, Trash2 } from 'lucide-react'
+import { ArrowLeft, Check, Calendar as CalendarIcon, Clock, MapPin, Tag, AlertCircle, Plus, Trash2, Upload } from 'lucide-react'
 import { Button, Input } from '@/components/ui'
 import { useCategories } from '@/hooks/useCategories'
 import axiosClient from '@/api/axiosClient'
@@ -103,12 +103,25 @@ export default function CreateEventView() {
       return
     }
 
-    // Validate ticket tiers
+    // Calculate total capacity
+    const totalGlobalCapacity = parseInt(capacity) || 0
+    if (totalGlobalCapacity <= 0) {
+      setError('Total event capacity must be greater than 0.')
+      return
+    }
+
+    let totalTiersCapacity = 0
     for (const tier of ticketTiers) {
       if (!tier.name.trim() || tier.price === '' || tier.capacity === '') {
         setError('Please fill out all fields for every ticket tier.')
         return
       }
+      totalTiersCapacity += parseInt(tier.capacity) || 0
+    }
+
+    if (ticketTiers.length > 0 && totalTiersCapacity > totalGlobalCapacity) {
+      setError(`Ticket tiers capacity (${totalTiersCapacity}) cannot exceed total event capacity (${totalGlobalCapacity}).`)
+      return
     }
 
     setIsSubmitting(true)
@@ -130,15 +143,6 @@ export default function CreateEventView() {
       const startDateTimeStr = formatLocalDateTime(start)
       const endDateTimeStr = formatLocalDateTime(end)
 
-      // Calculate total capacity
-      const totalCapacity = ticketTiers.length > 0 
-        ? ticketTiers.reduce((sum, tier) => sum + (parseInt(tier.capacity) || 0), 0)
-        : parseInt(capacity)
-
-      if (!totalCapacity || totalCapacity <= 0) {
-        throw new Error('Total event capacity must be greater than 0.')
-      }
-
       // Step 1: Create the Event (Status DRAFT)
       const eventPayload = {
         title,
@@ -146,7 +150,7 @@ export default function CreateEventView() {
         venue: location,
         startDateTime: startDateTimeStr,
         endDateTime: endDateTimeStr,
-        capacity: totalCapacity,
+        capacity: totalGlobalCapacity,
         coverImage,
         categoryId: parseInt(selectedCategoryId)
       }
@@ -158,13 +162,23 @@ export default function CreateEventView() {
       }
 
       // Step 2: Add all Ticket Types
-      for (const tier of ticketTiers) {
-        const ticketPayload = {
-          name: tier.name,
-          price: parseFloat(tier.price),
-          quantity: parseInt(tier.capacity)
+      if (ticketTiers.length > 0) {
+        for (const tier of ticketTiers) {
+          const ticketPayload = {
+            name: tier.name,
+            price: parseFloat(tier.price),
+            quantity: parseInt(tier.capacity)
+          }
+          await axiosClient.post(`/events/${eventId}/ticket-types`, ticketPayload)
         }
-        await axiosClient.post(`/events/${eventId}/ticket-types`, ticketPayload)
+      } else {
+        // Create a default ticket tier so the event can be published
+        const defaultTicketPayload = {
+          name: 'General Admission',
+          price: 0,
+          quantity: totalGlobalCapacity
+        }
+        await axiosClient.post(`/events/${eventId}/ticket-types`, defaultTicketPayload)
       }
 
       // Step 3: Publish the Event
@@ -177,7 +191,8 @@ export default function CreateEventView() {
 
     } catch (err: any) {
       console.error('Multi-step event creation sequence failed:', err)
-      setError(err.response?.data?.message || err.message || 'An error occurred while publishing the event.')
+      const apiErrorMessage = err.response?.data?.message || err.response?.data?.error || err.message || 'An unexpected error occurred while publishing the event.'
+      setError(`Error: ${apiErrorMessage}`)
       setIsSubmitting(false)
     }
   }
@@ -359,15 +374,14 @@ export default function CreateEventView() {
                 type="number" 
                 label="Total Event Capacity" 
                 placeholder="e.g., 500" 
-                value={ticketTiers.length > 0 ? ticketTiers.reduce((sum, tier) => sum + (parseInt(tier.capacity) || 0), 0).toString() : capacity}
+                value={capacity}
                 onChange={(e) => setCapacity(e.target.value)}
                 min="1"
-                disabled={ticketTiers.length > 0}
                 required
               />
               {ticketTiers.length > 0 && (
                 <p className="text-xs text-text-muted mt-2 font-medium">
-                  Capacity is automatically calculated from your ticket tiers.
+                  Sum of ticket tier capacities must not exceed the total capacity.
                 </p>
               )}
             </div>
