@@ -27,7 +27,7 @@ public class Wallet
 
     @Column(name = "balance", nullable = false)
     @Builder.Default
-    private BigDecimal balance = new BigDecimal("500000.00");
+    private BigDecimal balance = new BigDecimal("0.00");
 
     @Column(name = "currency", nullable = false)
     @Builder.Default

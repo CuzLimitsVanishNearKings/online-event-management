@@ -253,14 +253,9 @@ export default function WalletView() {
                       placeholder="e.g., 5000"
                       value={amount}
                       onChange={(e) => setAmount(e.target.value)}
-                      min="1000"
-                      max="1000000"
                       required
                       disabled={isSubmitting || formSuccess}
                     />
-                    <p className="text-xs text-text-muted mt-1.5 font-medium">
-                      Minimum: 1,000 FCFA | Maximum: 1,000,000 FCFA
-                    </p>
                   </div>
 
                   <div className="pt-4 border-t border-border flex justify-end gap-3">

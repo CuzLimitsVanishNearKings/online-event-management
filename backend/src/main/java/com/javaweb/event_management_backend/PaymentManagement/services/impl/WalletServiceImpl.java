@@ -156,12 +156,6 @@ public class WalletServiceImpl implements WalletService
                 .build();
 
         walletRepository.save(wallet);
-
-        // record initial funding
-        recordTransaction(wallet,
-                new BigDecimal("500000.00"),
-                TransactionType.CREDIT,
-                "Initial wallet funding");
     }
 
     // ─── PRIVATE HELPERS ─────────────────────────────────────────
