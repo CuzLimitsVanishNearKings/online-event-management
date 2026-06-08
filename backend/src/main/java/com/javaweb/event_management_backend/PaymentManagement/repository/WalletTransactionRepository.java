@@ -3,6 +3,8 @@ package com.javaweb.event_management_backend.PaymentManagement.repository;
 import com.javaweb.event_management_backend.PaymentManagement.enums.TransactionType;
 import com.javaweb.event_management_backend.PaymentManagement.models.Wallet;
 import com.javaweb.event_management_backend.PaymentManagement.models.WalletTransaction;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -18,7 +20,7 @@ public interface WalletTransactionRepository extends JpaRepository<WalletTransac
     List<WalletTransaction> findByWallet(Wallet wallet);
 
     // Find all transactions for a wallet ordered by most recent first
-    List<WalletTransaction> findByWalletOrderByCreatedAtDesc(Wallet wallet);
+    Page<WalletTransaction> findByWalletOrderByCreatedAtDesc(Wallet wallet, Pageable pageable);
 
     // Find all transactions by type for a wallet
     // e.g "show me all DEBIT transactions for this wallet"

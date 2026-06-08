@@ -3,6 +3,7 @@ package com.javaweb.event_management_backend.PaymentManagement.mappers;
 import com.javaweb.event_management_backend.PaymentManagement.dtos.response.WalletResponseDto;
 import com.javaweb.event_management_backend.PaymentManagement.models.Wallet;
 import com.javaweb.event_management_backend.PaymentManagement.models.WalletTransaction;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
@@ -25,11 +26,13 @@ public class WalletMapper {
                 .build();
     }
 
+
     public WalletResponseDto.WalletWithTransactions toWalletWithTransactions(
             Wallet wallet,
+            List<WalletTransaction> transactions,
             BigDecimal totalCredited,
-            BigDecimal totalDebited) {
-
+            BigDecimal totalDebited)
+    {
         return WalletResponseDto.WalletWithTransactions.builder()
                 .walletId(wallet.getWalletId())
                 .balance(wallet.getBalance())
@@ -37,7 +40,7 @@ public class WalletMapper {
                 .totalCredited(totalCredited)
                 .totalDebited(totalDebited)
                 .transactions(
-                        wallet.getTransactions().stream()
+                        transactions.stream()
                                 .map(this::toTransactionResponse)
                                 .collect(Collectors.toList())
                 )

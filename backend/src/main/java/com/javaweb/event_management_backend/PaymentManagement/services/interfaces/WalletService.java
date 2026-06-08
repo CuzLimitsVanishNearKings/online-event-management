@@ -3,11 +3,12 @@ package com.javaweb.event_management_backend.PaymentManagement.services.interfac
 import com.javaweb.event_management_backend.PaymentManagement.dtos.request.WalletRequestDto;
 import com.javaweb.event_management_backend.PaymentManagement.dtos.response.WalletResponseDto;
 import com.javaweb.event_management_backend.UserManagement.models.User;
+import org.springframework.data.domain.Pageable;
 
 import java.math.BigDecimal;
 
-public interface WalletService {
-
+public interface WalletService
+{
     // ─── CLIENT ──────────────────────────────────────────────────
 
     // Get current user wallet details
@@ -15,7 +16,7 @@ public interface WalletService {
 
     // Get current user wallet with transaction history
     WalletResponseDto.WalletWithTransactions getMyWalletWithTransactions(
-            User currentUser);
+            User currentUser, Pageable pageable);
 
     // ─── ADMIN ───────────────────────────────────────────────────
 
@@ -23,7 +24,7 @@ public interface WalletService {
     WalletResponseDto.WalletDetail getWalletByUserId(Long userId);
 
     // Manually adjust wallet balance — admin use
-    // e.g fixing an error
+    // positive amount = credit, negative amount = debit
     WalletResponseDto.WalletDetail adjustBalance(Long userId,
                                                  WalletRequestDto.AdjustBalance dto);
 
