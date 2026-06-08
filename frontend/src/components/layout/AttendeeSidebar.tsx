@@ -10,7 +10,8 @@ import {
   CalendarDays,
   ChevronLeft,
   ChevronRight,
-  X
+  X,
+  Wallet
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { cn } from '@/utils/cn'
@@ -31,7 +32,8 @@ export default function AttendeeSidebar({ onMobileClose }: AttendeeSidebarProps 
     {
       title: "Overview",
       items: [
-        { path: '/attendee/dashboard', label: 'Dashboard', icon: LayoutDashboard }
+        { path: '/attendee/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+        { path: '/attendee/wallet', label: 'My Wallet', icon: Wallet }
       ]
     },
     {

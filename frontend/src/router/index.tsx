@@ -25,6 +25,7 @@ import AttendeeFavoritesView from '../pages/attendee/FavoritesView'
 import AttendeeProfileView from '../pages/attendee/ProfileView'
 import AttendeeSettingsView from '../pages/attendee/SettingsView'
 import AttendeeCalendarView from '../pages/attendee/CalendarView'
+import AttendeeWalletView from '../pages/attendee/WalletView'
 
 import AdminDashboardLayout from '../components/layout/AdminDashboardLayout'
 import AdminDashboardHome from '../pages/admin/DashboardHome'
@@ -148,6 +149,10 @@ const router = createBrowserRouter([
       {
         path: 'profile',
         element: <AttendeeProfileView />,
+      },
+      {
+        path: 'wallet',
+        element: <AttendeeWalletView />,
       },
       {
         path: 'settings',
