@@ -24,6 +24,7 @@ export interface TopUpRequest {
   status: 'PENDING' | 'APPROVED' | 'REJECTED'
   createdAt: string
   reviewedAt?: string
+  adminNote?: string
 }
 
 export const useWallet = () => {

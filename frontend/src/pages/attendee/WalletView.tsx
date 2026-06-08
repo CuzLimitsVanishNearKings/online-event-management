@@ -190,8 +190,15 @@ export default function WalletView() {
                         {req.status}
                       </span>
                     </div>
-                    <div className="flex items-center justify-between pt-3 border-t border-border/50 text-xs text-text-muted">
-                      <span>{formatDate(req.createdAt)}</span>
+                    <div className="flex flex-col gap-2 pt-3 border-t border-border/50">
+                      <div className="flex items-center justify-between text-xs text-text-muted">
+                        <span>{formatDate(req.createdAt)}</span>
+                      </div>
+                      {req.adminNote && (
+                        <div className="bg-gray-100/80 p-2 rounded-lg text-xs text-text-secondary border border-border/50">
+                          <span className="font-bold">Admin Note:</span> {req.adminNote}
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}

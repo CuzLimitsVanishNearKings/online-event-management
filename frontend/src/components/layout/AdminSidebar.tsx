@@ -17,7 +17,8 @@ import {
   ChevronLeft,
   ChevronRight,
   ShieldCheck,
-  X
+  X,
+  Wallet
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { useAdminStore } from '@/store/adminStore'
@@ -47,6 +48,7 @@ export default function AdminSidebar({ onMobileClose }: AdminSidebarProps = {}) 
       { path: '/admin/bookings', label: 'Bookings', icon: BookOpen },
       { path: '/admin/tickets', label: 'Tickets', icon: Ticket },
       { path: '/admin/payments', label: 'Payments', icon: CreditCard },
+      { path: '/admin/top-up-requests', label: 'Top-Up Requests', icon: Wallet },
     ]},
     { group: "System", items: [
       { path: '/admin/notifications', label: 'Notifications', icon: Bell },

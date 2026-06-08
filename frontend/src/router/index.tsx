@@ -36,6 +36,7 @@ import {
   Bookings as AdminBookings, 
   Tickets as AdminTickets, 
   Payments as AdminPayments, 
+  TopUpRequests as AdminTopUpRequests,
   Reporting as AdminReporting, 
   Notifications as AdminNotifications, 
   Categories as AdminCategories, 
@@ -195,6 +196,10 @@ const router = createBrowserRouter([
       {
         path: 'payments',
         element: <AdminPayments />,
+      },
+      {
+        path: 'top-up-requests',
+        element: <AdminTopUpRequests />,
       },
       {
         path: 'reports',
