@@ -52,47 +52,36 @@ public class SecurityConfig {
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
-                                "/api-docs/**" ,
+                                "/api-docs/**",
                                 "/v3/api-docs/**"
-
                         ).permitAll()
 
                         // ─── ADMIN ONLY ──────────────────────────────────
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
                         // ─── ORGANIZER ONLY ──────────────────────────────
-                        // event management
                         .requestMatchers(HttpMethod.POST, "/api/events/**").hasRole("ORGANIZER")
                         .requestMatchers(HttpMethod.PUT, "/api/events/**").hasRole("ORGANIZER")
                         .requestMatchers(HttpMethod.DELETE, "/api/events/**").hasRole("ORGANIZER")
-
-                        // ticket type management
                         .requestMatchers("/api/events/*/ticket-types/**").hasRole("ORGANIZER")
-
-                        // ticket verification at the door
                         .requestMatchers("/api/tickets/verify/**").hasRole("ORGANIZER")
-
-                        // organizer dashboard
                         .requestMatchers("/api/organizer/**").hasRole("ORGANIZER")
 
-                        // ─── ATTENDEE ONLY ───────────────────────────────
-                        .requestMatchers("/api/bookings/**").hasRole("CLIENT")
-                        .requestMatchers("/api/wallet/**").hasRole("CLIENT")
-                        .requestMatchers("/api/payments/**").hasRole("CLIENT")
+                        // ─── CLIENT + ORGANIZER ──────────────────────────
+                        .requestMatchers("/api/bookings/**").hasAnyRole("CLIENT", "ORGANIZER")
+                        .requestMatchers("/api/wallet/**").hasAnyRole("CLIENT", "ORGANIZER")
+                        .requestMatchers("/api/payments/**").hasAnyRole("CLIENT", "ORGANIZER")
+                        .requestMatchers("/api/top-up-requests/**").hasAnyRole("CLIENT", "ORGANIZER", "ADMIN")
 
                         // ─── ANY AUTHENTICATED USER ──────────────────────
                         .anyRequest().authenticated()
                 )
 
-                // Stateless — no sessions, JWT handles everything
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
 
-                // Register our custom auth provider
                 .authenticationProvider(authenticationProvider())
-
-                // Register JWT filter before Spring's default login filter
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -114,7 +103,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:3000","http://localhost:5173"));
+        configuration.setAllowedOrigins(List.of("http://localhost:3000", "http://localhost:5173"));
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setExposedHeaders(List.of("Authorization"));

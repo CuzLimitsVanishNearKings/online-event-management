@@ -48,6 +48,14 @@ public class Wallet
     @Builder.Default
     private List<WalletTransaction> transactions = new ArrayList<>();
 
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
+    @PreUpdate
+    protected void onUpdate() {
+        this.updatedAt = LocalDateTime.now();
+    }
+
     @PrePersist
     protected void onCreate() {
         this.createdAt = LocalDateTime.now();
