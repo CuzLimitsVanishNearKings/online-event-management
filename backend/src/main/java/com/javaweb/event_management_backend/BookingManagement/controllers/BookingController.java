@@ -27,7 +27,7 @@ public class BookingController {
     // POST /api/bookings
     // create a new booking
     @PostMapping
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasAnyRole('CLIENT', 'ORGANIZER')")
     public ResponseEntity<BookingResponseDto.Detail> createBooking(
             @Valid @RequestBody BookingRequestDto.CreateBooking dto) {
         User currentUser = SecurityUtils.getCurrentUser();
