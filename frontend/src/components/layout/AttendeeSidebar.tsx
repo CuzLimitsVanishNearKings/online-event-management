@@ -41,7 +41,6 @@ export default function AttendeeSidebar({ onMobileClose }: AttendeeSidebarProps 
       items: [
         { path: '/attendee/tickets', label: 'My Tickets', icon: Ticket },
         { path: '/attendee/calendar', label: 'Calendar', icon: CalendarDays },
-        { path: '/attendee/favorites', label: 'Favorites', icon: Heart },
       ]
     },
     {

@@ -71,6 +71,17 @@ public class EventServiceImpl implements EventService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<EventResponseDto.Summary> filterEvents(String keyword, String category, String venue, java.time.LocalDateTime startDate, java.time.LocalDateTime endDate) {
+        org.springframework.data.jpa.domain.Specification<Event> spec = 
+            com.javaweb.event_management_backend.EventCatalogue.repository.EventSpecification.filterEvents(keyword, category, venue, startDate, endDate);
+            
+        return eventRepository.findAll(spec)
+                .stream()
+                .map(eventMapper::toSummary)
+                .collect(Collectors.toList());
+    }
+
     // ─── ORGANIZER ───────────────────────────────────────────────
 
     @Override

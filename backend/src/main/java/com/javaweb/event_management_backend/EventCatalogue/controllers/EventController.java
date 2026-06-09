@@ -55,6 +55,18 @@ public class EventController {
                 eventService.getEventsByCategory(categoryName));
     }
 
+    // GET /api/events/filter
+    // advanced filter for events
+    @GetMapping("/filter")
+    public ResponseEntity<List<EventResponseDto.Summary>> filterEvents(
+            @RequestParam(required = false) String keyword,
+            @RequestParam(required = false) String category,
+            @RequestParam(required = false) String venue,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime startDate,
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime endDate) {
+        return ResponseEntity.ok(eventService.filterEvents(keyword, category, venue, startDate, endDate));
+    }
+
     // ─── ORGANIZER ───────────────────────────────────────────────
 
     // GET /api/events/organizer/my-events

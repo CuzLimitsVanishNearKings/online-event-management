@@ -16,8 +16,6 @@ import {
   Calendar
 } from '../icons'
 import { cn } from '../../utils/cn'
-import { usePlanning } from '../../hooks/usePlanning'
-import CartSidebar from '../cart/CartSidebar'
 
 const Navbar = () => {
   const { isAuthenticated, user, logout } = useAuth()
@@ -26,19 +24,12 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const { plannedEvents, toggleCart, fetchPlanning } = usePlanning()
-  const itemCount = plannedEvents.length
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10)
     window.addEventListener('scroll', handleScroll)
     
-    if (isAuthenticated) {
-      fetchPlanning()
-    }
-    
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [isAuthenticated, fetchPlanning])
+  }, [])
 
   const handleLogout = () => {
     logout()
@@ -112,22 +103,7 @@ const Navbar = () => {
           <div className="flex items-center gap-4">
             {isAuthenticated ? (
               <div className="flex items-center gap-3">
-                <button className="hidden sm:flex p-2.5 text-text-secondary hover:text-primary hover:bg-primary/5 rounded-xl transition-all">
-                  <Heart className="w-5 h-5" />
-                </button>
-                
-                {/* Cart Toggle */}
-                <button 
-                  onClick={toggleCart}
-                  className="relative p-2.5 text-text-secondary hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
-                >
-                  <Ticket className="w-5 h-5" />
-                  {itemCount > 0 && (
-                    <span className="absolute top-0 right-0 w-4 h-4 bg-primary text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white">
-                      {itemCount}
-                    </span>
-                  )}
-                </button>
+
                 
                 {/* User Menu */}
                 <div className="relative group">
@@ -232,8 +208,7 @@ const Navbar = () => {
         </div>
       )}
       
-      {/* Cart Sidebar Rendered Here */}
-      <CartSidebar />
+
     </nav>
   )
 }

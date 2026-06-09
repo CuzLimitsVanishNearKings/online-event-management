@@ -22,7 +22,6 @@ import SettingsView from '../pages/organizer/SettingsView'
 import AttendeeDashboardLayout from '../components/layout/AttendeeDashboardLayout'
 import AttendeeDashboardHome from '../pages/attendee/DashboardHome'
 import AttendeeTicketsView from '../pages/attendee/TicketsView'
-import AttendeeFavoritesView from '../pages/attendee/FavoritesView'
 import AttendeeProfileView from '../pages/attendee/ProfileView'
 import AttendeeSettingsView from '../pages/attendee/SettingsView'
 import AttendeeCalendarView from '../pages/attendee/CalendarView'
@@ -149,10 +148,7 @@ const router = createBrowserRouter([
         path: 'calendar',
         element: <AttendeeCalendarView />,
       },
-      {
-        path: 'favorites',
-        element: <AttendeeFavoritesView />,
-      },
+
       {
         path: 'profile',
         element: <AttendeeProfileView />,

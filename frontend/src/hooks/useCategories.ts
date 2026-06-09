@@ -18,7 +18,7 @@ export const useCategories = () => {
         const mapped = res.data.map((cat: any) => ({
           id: cat.categoryId || cat.id,
           name: cat.name,
-          icon: cat.icon || 'Sparkles'
+          icon: cat.icon || '📌'
         }))
         setCategories(mapped)
       } catch (error) {

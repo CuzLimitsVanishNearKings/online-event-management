@@ -33,7 +33,6 @@ export default function DashboardHome() {
   const upcomingEvents = tickets.filter(t => t.status === 'upcoming')
   const pastEventsCount = tickets.filter(t => t.status === 'past').length
   const totalSpent = tickets.reduce((acc, curr) => acc + curr.price, 0)
-  const favoritesCount = favorites.length
 
   const statCards = [
     { 
@@ -50,13 +49,7 @@ export default function DashboardHome() {
       color: 'text-accent-dark',
       bg: 'bg-accent/10'
     },
-    { 
-      title: 'Saved Events', 
-      value: favoritesCount.toString(), 
-      icon: Heart,
-      color: 'text-sage',
-      bg: 'bg-sage/10'
-    },
+
     { 
       title: 'Total Spent', 
       value: `${totalSpent.toLocaleString()} FCFA`, 
@@ -90,7 +83,7 @@ export default function DashboardHome() {
       </motion.div>
 
       {/* Metrics Grid */}
-      <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-3 gap-6">
         {statCards.map((stat, idx) => (
           <div key={idx} className="bg-white p-6 rounded-2xl border border-border shadow-sm hover:shadow-card-hover transition-all duration-300">
             <div className="flex justify-between items-start">
@@ -106,9 +99,9 @@ export default function DashboardHome() {
         ))}
       </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 gap-8">
         {/* Next Event Quick View */}
-        <motion.div variants={itemVariants} className="lg:col-span-2 bg-white rounded-2xl border border-border shadow-sm p-6">
+        <motion.div variants={itemVariants} className="bg-white rounded-2xl border border-border shadow-sm p-6">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-lg font-bold text-text-primary">Your Next Event</h2>
@@ -150,45 +143,7 @@ export default function DashboardHome() {
           </div>
         </motion.div>
 
-        {/* Saved Events Quick List */}
-        <motion.div variants={itemVariants} className="bg-white rounded-2xl border border-border shadow-sm p-6 flex flex-col">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-bold text-text-primary">Recently Saved</h2>
-            <Link to="/attendee/favorites" className="text-sm font-bold text-primary hover:text-primary-dark transition-colors">
-              View All
-            </Link>
-          </div>
-          
-          <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-            {favorites.length > 0 ? (
-              <div className="space-y-4">
-                {favorites.slice(0, 3).map((event) => (
-                  <div key={event.id} className="flex gap-4 p-3 rounded-xl border border-border/50 hover:bg-surface/30 transition-colors">
-                    <div className="w-16 h-16 bg-gray-200 rounded-lg overflow-hidden flex-shrink-0">
-                      {event.imageUrl ? (
-                        <img src={event.imageUrl} alt={event.eventName} className="w-full h-full object-cover" />
-                      ) : (
-                        <div className="w-full h-full bg-primary/20 flex items-center justify-center">
-                          <Heart className="w-6 h-6 text-primary" />
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex flex-col justify-center">
-                      <p className="text-sm text-text-primary font-bold line-clamp-1">{event.eventName}</p>
-                      <p className="text-xs text-text-muted mt-1 font-medium line-clamp-1">{event.date}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="h-full flex flex-col items-center justify-center text-center pb-10">
-                <Heart className="w-10 h-10 text-border mb-3" />
-                <p className="text-text-muted font-bold text-sm">No saved events</p>
-                <p className="text-xs text-text-muted/70 mt-1">Tap the heart icon on any event to save it here.</p>
-              </div>
-            )}
-          </div>
-        </motion.div>
+
       </div>
     </motion.div>
   )

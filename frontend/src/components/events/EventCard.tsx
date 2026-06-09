@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom'
 import { format, parseISO } from 'date-fns'
-import { useState } from 'react'
-import { Heart, MapPin } from '../icons'
+import { MapPin } from '../icons'
 import { cn } from '../../utils/cn'
 import { getImageUrl } from '../../utils/image'
 
@@ -32,8 +31,6 @@ interface EventCardProps {
 }
 
 const EventCard = ({ event }: EventCardProps) => {
-  const [isSaved, setIsSaved] = useState(false)
-  
   let formattedDate = ''
   try {
     if (event.date && event.date !== 'Invalid Date' && (event.date.includes(',') || isNaN(Date.parse(event.date)) && !event.date.includes('-') && !event.date.includes('T'))) {
@@ -67,12 +64,6 @@ const EventCard = ({ event }: EventCardProps) => {
   const image = getImageUrl(event.thumbnail || event.coverImage) || `https://picsum.photos/seed/${event.id}/600/400.jpg`
   const isFree = !event.price || event.price === 0
 
-  const handleSave = (e: React.MouseEvent) => {
-    e.preventDefault()
-    e.stopPropagation()
-    setIsSaved(!isSaved)
-  }
-
   return (
     <Link to={`/event/${event.id}`} className="group block">
       <div className="bg-white rounded-xl border border-border overflow-hidden shadow-card hover:shadow-card-hover transition-shadow duration-300">
@@ -83,19 +74,7 @@ const EventCard = ({ event }: EventCardProps) => {
             alt={event.title}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
           />
-          
-          {/* Save Button */}
-          <button
-            onClick={handleSave}
-            className={cn(
-              "absolute top-3 right-3 p-2 rounded-full transition-all",
-              isSaved 
-                ? "bg-white text-red-500" 
-                : "bg-white/80 text-text-secondary hover:bg-white hover:text-red-500"
-            )}
-          >
-            <Heart className={cn("w-4 h-4", isSaved && "fill-current")} />
-          </button>
+
 
           {/* Badges */}
           {event.isFeatured && (

@@ -22,6 +22,9 @@ public interface EventService {
     // Filter events by category
     List<EventResponseDto.Summary> getEventsByCategory(String categoryName);
 
+    // Advanced dynamic filter for events
+    List<EventResponseDto.Summary> filterEvents(String keyword, String category, String venue, java.time.LocalDateTime startDate, java.time.LocalDateTime endDate);
+
     // ─── ORGANIZER ───────────────────────────────────────────────
 
     // Create a new event
