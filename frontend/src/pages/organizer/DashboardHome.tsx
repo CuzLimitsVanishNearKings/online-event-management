@@ -1,153 +1,76 @@
-import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { 
-  Plus, 
-  TrendingUp, 
-  TrendingDown, 
-  DollarSign, 
-  Ticket, 
-  CalendarDays, 
-  Eye, 
-  Activity,
-  MoreVertical,
+import {
+  Plus,
+  TrendingUp,
+  TrendingDown,
+  DollarSign,
+  Ticket,
+  CalendarDays,
   ArrowUpRight,
-  Clock,
-  MapPin,
-  Users
+  MoreVertical
 } from 'lucide-react'
-import { 
-  AreaChart, 
-  Area, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer 
-} from 'recharts'
 import { Button } from '@/components/ui'
 import { useAuthStore } from '@/store/authStore'
 import { useMetrics } from '@/hooks/useMetrics'
 import { cn } from '@/utils/cn'
-import axiosClient from '@/api/axiosClient'
-import { formatDate } from '@/utils/format'
 
 const containerVariants = {
   hidden: { opacity: 0 },
   visible: {
     opacity: 1,
-    transition: {
-      staggerChildren: 0.1,
-    }
+    transition: { staggerChildren: 0.1 }
   }
 }
 
 const itemVariants = {
   hidden: { opacity: 0, y: 20 },
-  visible: { 
-    opacity: 1, 
+  visible: {
+    opacity: 1,
     y: 0,
     transition: { type: 'spring', stiffness: 300, damping: 24 }
   }
 }
 
-// Custom Tooltip for Recharts
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-white p-4 border border-border rounded-md shadow-card">
-        <p className="text-sm font-semibold text-text-muted mb-2">{label}</p>
-        <div className="flex items-center gap-4">
-          <div>
-            <p className="text-xs text-text-muted uppercase font-bold tracking-wider mb-1">Revenue</p>
-            <p className="text-lg font-bold text-primary">{payload[0].value} FCFA</p>
-          </div>
-          <div className="w-px h-8 bg-border" />
-          <div>
-            <p className="text-xs text-text-muted uppercase font-bold tracking-wider mb-1">Tickets</p>
-            <p className="text-lg font-bold text-text-primary">{payload[0].payload.tickets}</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-  return null
-}
+// Skeleton block helper
+const Skeleton = ({ className }: { className?: string }) => (
+  <div className={cn('bg-gray-100 rounded animate-pulse', className)} />
+)
 
 export default function DashboardHome() {
   const { user } = useAuthStore()
+  // useMetrics now fetches both /events/organizer/my-events and /bookings/organizer
+  // in parallel — no second fetch needed in this component.
   const { data: metrics, isLoading } = useMetrics()
-  const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d')
-  const [liveEvents, setLiveEvents] = useState<any[]>([])
 
-  useEffect(() => {
-    const fetchLiveEvents = async () => {
-      try {
-        const response = await axiosClient.get('/events/organizer/my-events')
-        setLiveEvents(response.data || [])
-      } catch (err) {
-        console.error('Failed to load live events for dashboard:', err)
-      }
-    }
-    fetchLiveEvents()
-  }, [])
-
-  // Real or derived metrics based on the store
-  const activeEventsCount = liveEvents.filter(e => e.status === 'PUBLISHED').length
-  
-  if (isLoading) {
-    return (
-      <div className="min-h-[60vh] flex flex-col items-center justify-center">
-        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
-        <p className="mt-4 font-medium text-text-muted">Loading your dashboard...</p>
-      </div>
-    )
-  }
-
-  // Handle case where metrics might be undefined if API failed entirely
-  const safeMetrics = metrics || {
-    totalRevenue: liveEvents.reduce((sum, e) => sum + (e.totalRevenue || 0), 0),
-    ticketsSold: liveEvents.reduce((sum, e) => sum + (e.totalTicketsSold || 0), 0),
-    activeEvents: activeEventsCount,
-    pageViews: 0,
-    revenueGrowth: 0,
-    ticketGrowth: 0,
-    eventsGrowth: 0,
-    viewsGrowth: 0,
-    revenueData: [], 
-    recentActivities: [], 
-    upcomingEvents: liveEvents.map(e => ({
-      id: e.eventId,
-      name: e.title,
-      date: formatDate(e.startDateTime),
-      status: e.status === 'PUBLISHED' ? 'Published' : e.status === 'DRAFT' ? 'Draft' : e.status === 'CANCELLED' ? 'Cancelled' : 'Past',
-      sold: e.totalTicketsSold || 0,
-      capacity: e.capacity,
-      revenue: e.totalRevenue || 0
-    }))
+  const safeMetrics = metrics ?? {
+    totalRevenue: 0,
+    ticketsSold: 0,
+    activeEvents: 0,
+    upcomingEvents: []
   }
 
   const statCards = [
-    { 
-      title: 'Total Revenue', 
-      value: `${safeMetrics.totalRevenue.toLocaleString()} FCFA`, 
-      growth: 0, 
+    {
+      title: 'Total Revenue',
+      value: `${safeMetrics.totalRevenue.toLocaleString()} FCFA`,
+      growth: metrics?.revenueGrowth ?? 0,
       icon: DollarSign,
       color: 'text-primary',
       bg: 'bg-primary/10'
     },
-    { 
-      title: 'Tickets Sold', 
-      value: safeMetrics.ticketsSold.toLocaleString(), 
-      growth: 0, 
+    {
+      title: 'Tickets Sold',
+      value: safeMetrics.ticketsSold.toLocaleString(),
+      growth: metrics?.ticketGrowth ?? 0,
       icon: Ticket,
       color: 'text-accent-dark',
       bg: 'bg-accent/10'
     },
-    { 
-      title: 'Active Events', 
-      value: safeMetrics.activeEvents.toLocaleString(), 
-      growth: 0, 
+    {
+      title: 'Active Events',
+      value: safeMetrics.activeEvents.toLocaleString(),
+      growth: metrics?.eventsGrowth ?? 0,
       icon: CalendarDays,
       color: 'text-sage',
       bg: 'bg-sage/10'
@@ -155,13 +78,13 @@ export default function DashboardHome() {
   ]
 
   return (
-    <motion.div 
+    <motion.div
       variants={containerVariants}
       initial="hidden"
       animate="visible"
       className="space-y-8"
     >
-      {/* Hero Section */}
+      {/* Header */}
       <motion.div variants={itemVariants} className="flex flex-col md:flex-row md:items-end justify-between gap-6">
         <div>
           <h1 className="text-3xl font-display font-bold text-text-primary tracking-tight">
@@ -171,43 +94,51 @@ export default function DashboardHome() {
             Here's what's happening with your events today.
           </p>
         </div>
-        <Button onClick={() => window.location.href = '/organizer/events/new'} variant="primary" className="rounded-md gap-2 font-bold shadow-md shadow-primary/20">
+        <Button
+          onClick={() => window.location.href = '/organizer/events/new'}
+          variant="primary"
+          className="rounded-md gap-2 font-bold shadow-md shadow-primary/20"
+        >
           <Plus className="w-5 h-5" />
           Create New Event
         </Button>
       </motion.div>
 
-      {/* Metrics Grid */}
-      <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+      {/* Stat Cards */}
+      <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
         {statCards.map((stat, idx) => (
-          <div key={idx} className="bg-white p-6 rounded-lg border border-border shadow-sm hover:shadow-card-hover transition-all duration-300">
+          <div
+            key={idx}
+            className="bg-white p-6 rounded-lg border border-border shadow-sm hover:shadow-card-hover transition-all duration-300"
+          >
             <div className="flex justify-between items-start">
-              <div className={cn("w-12 h-12 rounded-md flex items-center justify-center", stat.bg)}>
-                <stat.icon className={cn("w-6 h-6", stat.color)} />
+              <div className={cn('w-12 h-12 rounded-md flex items-center justify-center', stat.bg)}>
+                <stat.icon className={cn('w-6 h-6', stat.color)} />
               </div>
               {stat.growth !== 0 && (
                 <div className={cn(
-                  "flex items-center gap-1 text-sm font-bold px-2 py-1 rounded-md",
-                  stat.growth > 0 ? "text-green-700 bg-green-50" : "text-red-700 bg-red-50"
+                  'flex items-center gap-1 text-sm font-bold px-2 py-1 rounded-md',
+                  stat.growth > 0 ? 'text-green-700 bg-green-50' : 'text-red-700 bg-red-50'
                 )}>
-                  {stat.growth > 0 ? <TrendingUp className="w-3.5 h-3.5" /> : <TrendingDown className="w-3.5 h-3.5" />}
+                  {stat.growth > 0
+                    ? <TrendingUp className="w-3.5 h-3.5" />
+                    : <TrendingDown className="w-3.5 h-3.5" />}
                   {Math.abs(stat.growth)}%
                 </div>
               )}
             </div>
             <div className="mt-6">
               <p className="text-text-muted font-bold text-xs uppercase tracking-wider">{stat.title}</p>
-              <h3 className="text-3xl font-display font-bold text-text-primary mt-1">{stat.value}</h3>
+              {isLoading
+                ? <Skeleton className="mt-2 h-9 w-32" />
+                : <h3 className="text-3xl font-display font-bold text-text-primary mt-1">{stat.value}</h3>
+              }
             </div>
           </div>
         ))}
       </motion.div>
 
-      <div className="grid grid-cols-1 gap-8">
-        {/* We removed the dummy revenue timeline and activity logs, keeping only supported features */}
-      </div>
-
-      {/* Active Events Table */}
+      {/* Events Table */}
       <motion.div variants={itemVariants} className="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
         <div className="p-6 border-b border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
@@ -220,24 +151,46 @@ export default function DashboardHome() {
             </Button>
           </Link>
         </div>
-        
+
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-gray-50/50">
-                <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-muted border-b border-border">Event Details</th>
-                <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-muted border-b border-border">Status</th>
-                <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-muted border-b border-border">Sales Progress</th>
-                <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-muted border-b border-border">Revenue</th>
-                <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-muted border-b border-border text-right">Actions</th>
+                {['Event Details', 'Status', 'Sales Progress', 'Revenue', ''].map((h, i) => (
+                  <th
+                    key={i}
+                    className={cn(
+                      'py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-muted border-b border-border',
+                      i === 4 && 'text-right'
+                    )}
+                  >
+                    {h}
+                  </th>
+                ))}
               </tr>
             </thead>
             <tbody>
-              {safeMetrics.upcomingEvents.length > 0 ? (
+              {isLoading ? (
+                // Skeleton rows while loading
+                Array.from({ length: 3 }).map((_, i) => (
+                  <tr key={i} className="border-b border-border/50">
+                    <td className="py-4 px-6"><Skeleton className="h-4 w-40 mb-2" /><Skeleton className="h-3 w-24" /></td>
+                    <td className="py-4 px-6"><Skeleton className="h-6 w-20 rounded-full" /></td>
+                    <td className="py-4 px-6"><Skeleton className="h-3 w-32 mb-2" /><Skeleton className="h-2 w-32 rounded-full" /></td>
+                    <td className="py-4 px-6"><Skeleton className="h-4 w-24" /></td>
+                    <td className="py-4 px-6 text-right"><Skeleton className="h-8 w-8 rounded-lg ml-auto" /></td>
+                  </tr>
+                ))
+              ) : safeMetrics.upcomingEvents.length > 0 ? (
                 safeMetrics.upcomingEvents.map((event) => {
-                  const percentSold = Math.round((event.sold / event.capacity) * 100)
+                  const percentSold = event.capacity > 0
+                    ? Math.min(100, Math.round((event.sold / event.capacity) * 100))
+                    : 0
                   return (
-                    <tr key={event.id} className="group hover:bg-gray-50/50 transition-colors border-b border-border/50 last:border-0">
+                    <tr
+                      key={event.id}
+                      className="group hover:bg-gray-50/50 transition-colors border-b border-border/50 last:border-0"
+                    >
                       <td className="py-4 px-6">
                         <div className="font-bold text-text-primary">{event.name}</div>
                         <div className="flex items-center gap-2 text-sm text-text-muted mt-1">
@@ -247,11 +200,12 @@ export default function DashboardHome() {
                       </td>
                       <td className="py-4 px-6">
                         <span className={cn(
-                          "px-3 py-1 text-xs font-bold rounded-full",
-                          event.status === 'Published' ? "bg-green-100 text-green-700" :
-                          event.status === 'Draft' ? "bg-gray-100 text-gray-700" :
-                          event.status === 'Sold Out' ? "bg-accent/20 text-accent-dark" :
-                          "bg-red-100 text-red-700"
+                          'px-3 py-1 text-xs font-bold rounded-full',
+                          event.status === 'Published' ? 'bg-green-100 text-green-700' :
+                          event.status === 'Draft'     ? 'bg-gray-100 text-gray-700' :
+                          event.status === 'Sold Out'  ? 'bg-accent/20 text-accent-dark' :
+                          event.status === 'Past'      ? 'bg-blue-50 text-blue-600' :
+                                                         'bg-red-100 text-red-700'
                         )}>
                           {event.status}
                         </span>
@@ -259,16 +213,18 @@ export default function DashboardHome() {
                       <td className="py-4 px-6">
                         <div className="w-full max-w-[200px]">
                           <div className="flex justify-between text-xs font-bold mb-1.5">
-                            <span className="text-text-primary">{event.sold} <span className="text-text-muted font-medium">/ {event.capacity}</span></span>
-                            <span className={cn(
-                              percentSold >= 90 ? "text-accent-dark" : "text-primary"
-                            )}>{percentSold}%</span>
+                            <span className="text-text-primary">
+                              {event.sold} <span className="text-text-muted font-medium">/ {event.capacity}</span>
+                            </span>
+                            <span className={percentSold >= 90 ? 'text-accent-dark' : 'text-primary'}>
+                              {percentSold}%
+                            </span>
                           </div>
                           <div className="w-full h-2 bg-surface rounded-full overflow-hidden">
-                            <div 
+                            <div
                               className={cn(
-                                "h-full rounded-full transition-all duration-1000",
-                                percentSold >= 90 ? "bg-accent-dark" : "bg-primary"
+                                'h-full rounded-full transition-all duration-700',
+                                percentSold >= 90 ? 'bg-accent-dark' : 'bg-primary'
                               )}
                               style={{ width: `${percentSold}%` }}
                             />
@@ -293,7 +249,12 @@ export default function DashboardHome() {
                       <CalendarDays className="w-12 h-12 text-border mb-3" />
                       <p className="font-bold text-text-primary">No upcoming events</p>
                       <p className="text-sm mt-1 mb-4">You haven't created any events yet.</p>
-                      <Button onClick={() => window.location.href = '/organizer/events/new'} variant="primary" size="sm" className="rounded-md font-bold">
+                      <Button
+                        onClick={() => window.location.href = '/organizer/events/new'}
+                        variant="primary"
+                        size="sm"
+                        className="rounded-md font-bold"
+                      >
                         <Plus className="w-4 h-4 mr-2" /> Create Event
                       </Button>
                     </div>

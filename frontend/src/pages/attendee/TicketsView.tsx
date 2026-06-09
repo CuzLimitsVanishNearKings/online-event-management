@@ -100,26 +100,10 @@ export default function TicketsView() {
   const fetchTickets = async () => {
     try {
       setLoading(true)
-      const res = await axiosClient.get('/bookings/my-bookings')
-      const summaries = res.data
-      
-      // Fetch details for each booking concurrently to extract actual issued tickets
-      const detailedBookings = await Promise.all(
-        summaries.map(async (b: any) => {
-          try {
-            const detailRes = await axiosClient.get(`/bookings/${b.bookingId}`)
-            return detailRes.data
-          } catch (e) {
-            console.error(`Failed to load booking ${b.bookingId} details:`, e)
-            return {
-              ...b,
-              issuedTickets: []
-            }
-          }
-        })
-      )
+      // Single request replaces the previous N+1 pattern
+      const res = await axiosClient.get('/bookings/my-bookings-detailed')
+      const detailedBookings: any[] = res.data
 
-      // Flatten issued tickets into individual display cards
       const mappedTickets: any[] = []
       detailedBookings.forEach((b: any) => {
         const startDate = new Date(b.eventStartDateTime)

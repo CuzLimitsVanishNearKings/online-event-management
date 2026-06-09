@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import axiosClient from '../api/axiosClient'
 
 interface Category {
@@ -20,6 +20,8 @@ interface Event {
   organizerLogoUrl?: string
   capacity?: number
   price?: number
+
+  // UI-only derived fields
   date: string
   time: string
   location: string
@@ -31,22 +33,13 @@ interface UseEventsReturn {
   events: Event[]
   loading: boolean
   error: string | null
-  totalPages: number
-  totalElements: number
   refetch: (filters?: Record<string, any>) => void
 }
 
-export const useEvents = (
-  initialFilters?: Record<string, any>,
-  limit?: number,
-  page: number = 0,
-  size: number = 12
-): UseEventsReturn => {
+export const useEvents = (initialFilters?: Record<string, any>): UseEventsReturn => {
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [totalPages, setTotalPages] = useState(0)
-  const [totalElements, setTotalElements] = useState(0)
 
   const fetchEvents = async (filters?: Record<string, any>) => {
     setLoading(true)
@@ -55,35 +48,27 @@ export const useEvents = (
     try {
       let endpoint = '/events'
       const params = new URLSearchParams()
-
-      if (filters && Object.values(filters).some(v => v)) {
-        // has active filters — use filter endpoint (returns plain list)
+      
+      if (filters) {
         endpoint = '/events/filter'
         if (filters.search) params.append('keyword', filters.search)
         if (filters.category) params.append('category', filters.category)
         if (filters.city) params.append('venue', filters.city)
         if (filters.startDate) params.append('startDate', filters.startDate)
         if (filters.endDate) params.append('endDate', filters.endDate)
-      } else {
-        // no filters — use paginated endpoint
-        params.append('page', String(page))
-        params.append('size', String(size))
       }
-
+      
       const queryString = params.toString()
-      if (queryString) endpoint += `?${queryString}`
+      if (queryString) {
+        endpoint += `?${queryString}`
+      }
 
       const response = await axiosClient.get(endpoint)
       const data = response.data
 
-      // handle both paginated (Page object) and plain list responses
-      const rawList = data.content ?? data
-
-      setTotalPages(data.totalPages ?? 1)
-      setTotalElements(data.totalElements ?? rawList.length)
-
-      const transformedEvents: Event[] = rawList.map((event: any) => {
+      const transformedEvents: Event[] = data.map((event: any) => {
         const startDate = new Date(event.startDateTime)
+
         return {
           id: event.eventId?.toString(),
           title: event.title || 'Untitled Event',
@@ -97,6 +82,8 @@ export const useEvents = (
           organizerLogoUrl: event.organizerLogoUrl,
           capacity: event.capacity || 0,
           price: event.minPrice || 0,
+
+          // UI derived fields
           date: startDate.toLocaleDateString('en-US', {
             weekday: 'short',
             month: 'short',
@@ -113,7 +100,7 @@ export const useEvents = (
         }
       })
 
-      setEvents(limit ? transformedEvents.slice(0, limit) : transformedEvents)
+      setEvents(transformedEvents)
     } catch (err: any) {
       console.error('Failed to fetch events:', err)
       setError(err.response?.data?.message || 'Failed to fetch events')
@@ -123,16 +110,22 @@ export const useEvents = (
     }
   }
 
+  // Serialize filters once; compare with a ref to avoid firing the effect on every
+  // render when the caller passes an inline object literal (new reference each time).
+  const filtersKey = JSON.stringify(initialFilters ?? null)
+  const prevFiltersKey = useRef<string>('')
+
   useEffect(() => {
+    if (filtersKey === prevFiltersKey.current) return
+    prevFiltersKey.current = filtersKey
     fetchEvents(initialFilters)
-  }, [JSON.stringify(initialFilters), page, size])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [filtersKey])
 
   return {
     events,
     loading,
     error,
-    totalPages,
-    totalElements,
     refetch: fetchEvents
   }
 }
