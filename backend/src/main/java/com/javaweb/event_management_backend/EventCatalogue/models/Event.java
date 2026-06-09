@@ -10,7 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "event")
+@Table(name = "event", indexes = {
+    @Index(name = "idx_event_status", columnList = "status"),
+    @Index(name = "idx_event_category", columnList = "category_id"),
+    @Index(name = "idx_event_organizer", columnList = "organizer_id")
+})
 @Getter
 @Setter
 @Builder

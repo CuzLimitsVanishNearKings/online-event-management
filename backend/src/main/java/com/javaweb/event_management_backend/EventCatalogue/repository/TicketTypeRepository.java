@@ -21,4 +21,10 @@ public interface TicketTypeRepository extends JpaRepository<TicketType, Long> {
 
     // Check if a ticket type name already exists for an event
     boolean existsByEventAndNameIgnoreCase(Event event, String name);
+
+    // Pessimistic lock for high concurrency ticket booking
+    @org.springframework.data.jpa.repository.Lock(jakarta.persistence.LockModeType.PESSIMISTIC_WRITE)
+    @org.springframework.data.jpa.repository.QueryHints({@jakarta.persistence.QueryHint(name = "jakarta.persistence.lock.timeout", value = "3000")})
+    @org.springframework.data.jpa.repository.Query("SELECT t FROM TicketType t WHERE t.ticketTypeId = :id")
+    java.util.Optional<TicketType> findByIdWithPessimisticLock(@org.springframework.data.repository.query.Param("id") Long id);
 }

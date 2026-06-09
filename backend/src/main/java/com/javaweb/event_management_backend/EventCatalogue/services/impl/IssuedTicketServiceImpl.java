@@ -149,7 +149,7 @@ public class IssuedTicketServiceImpl implements IssuedTicketService {
 
         Booking booking = findBookingById(bookingId);
 
-        TicketType ticketType = ticketTypeRepository.findById(ticketTypeId)
+        TicketType ticketType = ticketTypeRepository.findByIdWithPessimisticLock(ticketTypeId)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Ticket type not found with id: " + ticketTypeId));
 

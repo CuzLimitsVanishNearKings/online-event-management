@@ -120,6 +120,25 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(body);
     }
 
+    // ─── CONCURRENCY & LOCK EXCEPTIONS ──────────────────────────
+
+    @ExceptionHandler({
+            jakarta.persistence.PessimisticLockException.class,
+            jakarta.persistence.LockTimeoutException.class,
+            org.springframework.dao.CannotAcquireLockException.class
+    })
+    public ResponseEntity<Map<String, Object>> handlePessimisticLockException(Exception ex) {
+        return buildResponse(HttpStatus.SERVICE_UNAVAILABLE, 
+                "The system is currently experiencing high volume for this item. Please try again in a few moments.");
+    }
+
+    @ExceptionHandler(org.springframework.orm.ObjectOptimisticLockingFailureException.class)
+    public ResponseEntity<Map<String, Object>> handleOptimisticLockException(
+            org.springframework.orm.ObjectOptimisticLockingFailureException ex) {
+        return buildResponse(HttpStatus.CONFLICT, 
+                "The resource was modified by another transaction. Please try again.");
+    }
+
     // ─── CATCH ALL ───────────────────────────────────────────────
 
     @ExceptionHandler(Exception.class)

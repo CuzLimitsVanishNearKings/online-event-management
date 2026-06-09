@@ -63,8 +63,10 @@ public class EventController {
             @RequestParam(required = false) String category,
             @RequestParam(required = false) String venue,
             @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime startDate,
-            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime endDate) {
-        return ResponseEntity.ok(eventService.filterEvents(keyword, category, venue, startDate, endDate));
+            @RequestParam(required = false) @org.springframework.format.annotation.DateTimeFormat(iso = org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME) java.time.LocalDateTime endDate,
+            @RequestParam(required = false) java.math.BigDecimal minPrice,
+            @RequestParam(required = false) java.math.BigDecimal maxPrice) {
+        return ResponseEntity.ok(eventService.filterEvents(keyword, category, venue, startDate, endDate, minPrice, maxPrice));
     }
 
     // ─── ORGANIZER ───────────────────────────────────────────────
@@ -155,5 +157,15 @@ public class EventController {
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<EventResponseDto.Summary>> getAllEvents() {
         return ResponseEntity.ok(eventService.getAllEvents());
+    }
+
+    // DELETE /api/events/admin/{eventId}
+    // delete/cancel an event as admin
+    @DeleteMapping("/admin/{eventId}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<Void> adminDeleteEvent(
+            @PathVariable Long eventId) {
+        eventService.adminDeleteEvent(eventId);
+        return ResponseEntity.noContent().build();
     }
 }

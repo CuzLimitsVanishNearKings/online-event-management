@@ -33,6 +33,7 @@ public class EventRequestDto {
         @Positive(message = "Capacity must be a positive number")
         private Integer capacity;
 
+        @Pattern(regexp = "(^$)|^(data:image/(jpeg|jpg|png|webp);base64,).*$", message = "Cover image must be a valid base64 encoded image (jpeg, png, or webp)")
         private String coverImage;
 
         @NotNull(message = "Category is required")
@@ -58,6 +59,7 @@ public class EventRequestDto {
         @Positive(message = "Capacity must be a positive number")
         private Integer capacity;
 
+        @Pattern(regexp = "(^$)|^(data:image/(jpeg|jpg|png|webp);base64,).*$", message = "Cover image must be a valid base64 encoded image (jpeg, png, or webp)")
         private String coverImage;
         private Long categoryId;
     }

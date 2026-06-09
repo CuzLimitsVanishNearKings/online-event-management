@@ -13,6 +13,7 @@ import com.javaweb.event_management_backend.UserManagement.services.interfaces.U
 import com.javaweb.event_management_backend.exceptions.ResourceNotFoundException;
 import com.javaweb.event_management_backend.exceptions.UnauthorizedAccessException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,6 +27,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final OrganizerRepository organizerRepository;
     private final UserMappers userMappers;
+    private final PasswordEncoder passwordEncoder;
 
     // ─── CLIENT ──────────────────────────────────────────────────
 
@@ -157,5 +159,19 @@ public class UserServiceImpl implements UserService {
 
         userRepository.save(user);
         return userMappers.toDetail(user);
+    }
+
+    @Override
+    @Transactional
+    public void changePassword(UserAuthRequestDto.ChangePassword dto, User currentUser) {
+        User user = userRepository.findById(currentUser.getUserId())
+                .orElseThrow(() -> new ResourceNotFoundException("User not found"));
+
+        if (!passwordEncoder.matches(dto.getCurrentPassword(), user.getPasswordHash())) {
+            throw new IllegalArgumentException("Incorrect current password");
+        }
+
+        user.setPasswordHash(passwordEncoder.encode(dto.getNewPassword()));
+        userRepository.save(user);
     }
 }

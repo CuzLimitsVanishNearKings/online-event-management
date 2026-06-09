@@ -56,6 +56,16 @@ public class BookingController {
                 bookingService.getMyBookings(currentUser));
     }
 
+    // GET /api/bookings/my-bookings-detailed
+    // get all bookings with detailed tickets for current user
+    @GetMapping("/my-bookings-detailed")
+    @PreAuthorize("hasRole('CLIENT')")
+    public ResponseEntity<List<BookingResponseDto.Detail>> getMyBookingsDetailed() {
+        User currentUser = SecurityUtils.getCurrentUser();
+        return ResponseEntity.ok(
+                bookingService.getMyBookingsDetailed(currentUser));
+    }
+
     // GET /api/bookings/{bookingId}
     // get booking details by id
     @GetMapping("/{bookingId}")

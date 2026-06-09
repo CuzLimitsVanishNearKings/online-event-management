@@ -10,6 +10,7 @@ import com.javaweb.event_management_backend.EventCatalogue.models.TicketType;
 import com.javaweb.event_management_backend.EventCatalogue.repository.CategoryRepository;
 import com.javaweb.event_management_backend.EventCatalogue.repository.EventRepository;
 import com.javaweb.event_management_backend.EventCatalogue.repository.IssuedTicketRepository;
+import com.javaweb.event_management_backend.BookingManagement.services.interfaces.BookingService;
 import com.javaweb.event_management_backend.EventCatalogue.repository.TicketTypeRepository;
 import com.javaweb.event_management_backend.EventCatalogue.services.interfaces.EventService;
 import com.javaweb.event_management_backend.UserManagement.models.OrganizerProfile;
@@ -18,9 +19,11 @@ import com.javaweb.event_management_backend.UserManagement.repository.OrganizerR
 import com.javaweb.event_management_backend.exceptions.ResourceNotFoundException;
 import com.javaweb.event_management_backend.exceptions.UnauthorizedAccessException;
 import com.javaweb.event_management_backend.EventCatalogue.enums.IssuedTicketStatus;
+import com.javaweb.event_management_backend.UserManagement.services.interfaces.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.context.annotation.Lazy;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -36,6 +39,8 @@ public class EventServiceImpl implements EventService {
     private final TicketTypeRepository ticketTypeRepository;
     private final IssuedTicketRepository issuedTicketRepository;
     private final EventMapper eventMapper;
+    private final @Lazy BookingService bookingService;
+    private final EmailService emailService;
 
     // ─── PUBLIC ─────────────────────────────────────────────────
 
@@ -72,9 +77,9 @@ public class EventServiceImpl implements EventService {
     }
 
     @Override
-    public List<EventResponseDto.Summary> filterEvents(String keyword, String category, String venue, java.time.LocalDateTime startDate, java.time.LocalDateTime endDate) {
+    public List<EventResponseDto.Summary> filterEvents(String keyword, String category, String venue, java.time.LocalDateTime startDate, java.time.LocalDateTime endDate, java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice) {
         org.springframework.data.jpa.domain.Specification<Event> spec = 
-            com.javaweb.event_management_backend.EventCatalogue.repository.EventSpecification.filterEvents(keyword, category, venue, startDate, endDate);
+            com.javaweb.event_management_backend.EventCatalogue.repository.EventSpecification.filterEvents(keyword, category, venue, startDate, endDate, minPrice, maxPrice);
             
         return eventRepository.findAll(spec)
                 .stream()
@@ -197,6 +202,22 @@ public class EventServiceImpl implements EventService {
                     "Only PUBLISHED or RESCHEDULED events can be cancelled");
         }
 
+        // Cancel all associated bookings (FR-11)
+        bookingService.cancelBookingsForEvent(eventId, currentUser);
+
+        // Send cancellation emails (FR-25)
+        event.getTicketTypes().stream()
+                .flatMap(tt -> tt.getIssuedTickets().stream())
+                .map(ticket -> ticket.getBooking().getUser().getEmail())
+                .distinct()
+                .forEach(email -> {
+                    try {
+                        emailService.sendEventCancellationEmail(event, email);
+                    } catch (Exception e) {
+                        // ignore email errors
+                    }
+                });
+
         event.setStatus(EventStatus.CANCELLED);
         eventRepository.save(event);
         return eventMapper.toDetail(event);
@@ -229,6 +250,20 @@ public class EventServiceImpl implements EventService {
 
         eventMapper.updateEntity(dto, event);
         event.setStatus(EventStatus.RESCHEDULED);
+
+        // Send rescheduled emails (FR-26)
+        event.getTicketTypes().stream()
+                .flatMap(tt -> tt.getIssuedTickets().stream())
+                .map(ticket -> ticket.getBooking().getUser().getEmail())
+                .distinct()
+                .forEach(email -> {
+                    try {
+                        emailService.sendEventRescheduledEmail(event, email);
+                    } catch (Exception e) {
+                        // ignore email errors
+                    }
+                });
+
         eventRepository.save(event);
         return eventMapper.toDetail(event);
     }
@@ -262,6 +297,32 @@ public class EventServiceImpl implements EventService {
                 .stream()
                 .map(eventMapper::toSummary)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void adminDeleteEvent(Long eventId) {
+        Event event = findEventById(eventId);
+        
+        // Cancel all associated bookings (if not already cancelled)
+        if (event.getStatus() == EventStatus.PUBLISHED || event.getStatus() == EventStatus.RESCHEDULED) {
+            bookingService.cancelBookingsForEvent(eventId, event.getOrganizer().getUser());
+            
+            // Send cancellation emails
+            event.getTicketTypes().stream()
+                    .flatMap(tt -> tt.getIssuedTickets().stream())
+                    .map(ticket -> ticket.getBooking().getUser().getEmail())
+                    .distinct()
+                    .forEach(email -> {
+                        try {
+                            emailService.sendEventCancellationEmail(event, email);
+                        } catch (Exception e) {
+                            // ignore email errors
+                        }
+                    });
+        }
+        
+        eventRepository.delete(event);
     }
 
     // ─── PRIVATE HELPERS ─────────────────────────────────────────

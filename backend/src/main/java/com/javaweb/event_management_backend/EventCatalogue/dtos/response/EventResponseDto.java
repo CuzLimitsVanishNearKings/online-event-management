@@ -26,6 +26,8 @@ public class EventResponseDto {
         private CategoryResponseDto.Summary category;
         private String organizerName;
         private String organizerLogoUrl;
+        private java.math.BigDecimal startingPrice;
+        private Integer ticketsSold;
     }
 
     // Used when viewing a single event page

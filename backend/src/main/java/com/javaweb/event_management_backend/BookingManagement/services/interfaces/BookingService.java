@@ -24,6 +24,9 @@ public interface BookingService {
     // booking history page
     List<BookingResponseDto.Summary> getMyBookings(User currentUser);
 
+    // Get all bookings with detailed tickets for current user
+    List<BookingResponseDto.Detail> getMyBookingsDetailed(User currentUser);
+
     // Get booking details by id
     BookingResponseDto.Detail getBookingById(Long bookingId, User currentUser);
 
@@ -42,6 +45,9 @@ public interface BookingService {
 
     // Get all bookings for an organizer across all events
     List<BookingResponseDto.Summary> getOrganizerBookings(User currentUser);
+
+    // Cancel all bookings for a specific event (e.g. when event is cancelled)
+    void cancelBookingsForEvent(Long eventId, User currentUser);
 
     // ─── ADMIN ───────────────────────────────────────────────────
 
