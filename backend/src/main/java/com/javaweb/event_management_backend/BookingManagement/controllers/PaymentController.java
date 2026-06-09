@@ -86,7 +86,9 @@ public class PaymentController {
             @RequestParam
             @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
             LocalDateTime start,
-            @RequestParam LocalDateTime end) {
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime end) {
         return ResponseEntity.ok(Map.of(
                 "totalRevenue",
                 paymentService.getRevenueBetween(start, end)));
