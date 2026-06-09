@@ -44,6 +44,7 @@ import {
   Settings as AdminSettings, 
   Profile as AdminProfile 
 } from '../pages/admin/AdminPages'
+import PromotionsView from '../pages/admin/PromotionsView'
 
 const router = createBrowserRouter([
   {
@@ -197,6 +198,10 @@ const router = createBrowserRouter([
       {
         path: 'tickets',
         element: <AdminTickets />,
+      },
+      {
+        path: 'promotions',
+        element: <PromotionsView />,
       },
       {
         path: 'payments',

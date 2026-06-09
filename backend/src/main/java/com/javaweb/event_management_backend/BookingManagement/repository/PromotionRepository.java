@@ -18,8 +18,8 @@ public interface PromotionRepository extends JpaRepository<Promotion, Long> {
     boolean existsByCode(String code);
 
     // Find all promotions that are currently valid
-    // end date is after today AND start date is before today
-    List<Promotion> findByStartDateBeforeAndEndDateAfter(LocalDate start, LocalDate end);
+    // end date is after or equal to today AND start date is before or equal to today
+    List<Promotion> findByStartDateLessThanEqualAndEndDateGreaterThanEqual(LocalDate start, LocalDate end);
 
     // Find all promotions that have not exceeded their usage limit
     List<Promotion> findByTimesUsedLessThan(int usageLimit);

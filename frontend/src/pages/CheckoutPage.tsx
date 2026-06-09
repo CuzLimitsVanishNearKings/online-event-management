@@ -4,13 +4,18 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { formatCurrency } from '../utils/format'
 import { Button } from '../components/ui'
 import { ChevronLeft, Ticket, CheckCircle, ExternalLink, Trash2 } from '../components/icons'
-import { Wallet } from 'lucide-react'
+import { Wallet, Tag } from 'lucide-react'
 import axiosClient from '../api/axiosClient'
 import { getImageUrl } from '../utils/image'
 import { useWallet } from '../hooks/useWallet'
 import { usePlanning } from '../hooks/usePlanning'
 import { useEvents } from '../hooks/useEvents'
-import { cn } from '../utils/cn'
+
+interface AppliedPromo {
+  code: string
+  discountValue: number
+  discountType: 'PERCENTAGE' | 'FIXED'
+}
 
 const CheckoutPage = () => {
   const navigate = useNavigate()
@@ -26,6 +31,12 @@ const CheckoutPage = () => {
 
   // State for the mini ticket selectors (keyed by eventId)
   const [selections, setSelections] = useState<Record<number, { ticketTypeId: number, quantity: number, price: number }>>({})
+
+  // Promo Code States (keyed by itemIdStr)
+  const [promoInputs, setPromoInputs] = useState<Record<string, string>>({})
+  const [appliedPromos, setAppliedPromos] = useState<Record<string, AppliedPromo>>({})
+  const [promoErrors, setPromoErrors] = useState<Record<string, string>>({})
+  const [isApplyingPromo, setIsApplyingPromo] = useState<Record<string, boolean>>({})
 
   useEffect(() => {
     fetchWallet()
@@ -63,6 +74,46 @@ const CheckoutPage = () => {
     }))
   }
 
+  const handleApplyPromo = async (itemIdStr: string) => {
+    const code = promoInputs[itemIdStr]?.trim().toUpperCase()
+    if (!code) return
+    
+    try {
+      setIsApplyingPromo(prev => ({ ...prev, [itemIdStr]: true }))
+      setPromoErrors(prev => ({ ...prev, [itemIdStr]: '' }))
+      
+      const res = await axiosClient.post('/promotions/validate', { code })
+      const data = res.data
+      
+      if (data.isValid) {
+        setAppliedPromos(prev => ({
+          ...prev,
+          [itemIdStr]: {
+            code: data.code,
+            discountValue: data.discountValue,
+            discountType: data.discountType
+          }
+        }))
+      } else {
+        setPromoErrors(prev => ({ ...prev, [itemIdStr]: data.message || 'Invalid promotion code' }))
+      }
+    } catch (err: any) {
+      setPromoErrors(prev => ({ ...prev, [itemIdStr]: err.response?.data?.message || 'Failed to validate promo code' }))
+    } finally {
+      setIsApplyingPromo(prev => ({ ...prev, [itemIdStr]: false }))
+    }
+  }
+
+  const handleRemovePromo = (itemIdStr: string) => {
+    setAppliedPromos(prev => {
+      const newState = { ...prev }
+      delete newState[itemIdStr]
+      return newState
+    })
+    setPromoInputs(prev => ({ ...prev, [itemIdStr]: '' }))
+    setPromoErrors(prev => ({ ...prev, [itemIdStr]: '' }))
+  }
+
   const handlePayment = async (item: any, isSingle: boolean) => {
     const itemIdStr = isSingle ? item.id : item.planningId.toString()
     setProcessingId(itemIdStr)
@@ -88,7 +139,7 @@ const CheckoutPage = () => {
       await axiosClient.post('/bookings', {
         ticketTypeId,
         quantity,
-        promotionCode: null
+        promotionCode: appliedPromos[itemIdStr]?.code || null
       })
       
       setSuccessIds(prev => [...prev, itemIdStr])
@@ -190,7 +241,19 @@ const CheckoutPage = () => {
                 fullEventDetails = events.find(e => Number(e.id) === item.eventId)
               }
 
-              const hasInsufficientFunds = wallet ? wallet.balance < currentTotalPrice : true
+              // Calculate Discount
+              const appliedPromo = appliedPromos[itemIdStr]
+              let discountAmount = 0
+              if (appliedPromo) {
+                if (appliedPromo.discountType === 'PERCENTAGE') {
+                  discountAmount = currentTotalPrice * (appliedPromo.discountValue / 100)
+                } else {
+                  discountAmount = appliedPromo.discountValue
+                }
+              }
+
+              const finalPrice = Math.max(0, currentTotalPrice - discountAmount)
+              const hasInsufficientFunds = wallet ? wallet.balance < finalPrice : true
               
               return (
                 <motion.div 
@@ -281,11 +344,71 @@ const CheckoutPage = () => {
                     </div>
 
                     {/* Right: Payment Action */}
-                    <div className="flex flex-col justify-center items-end border-t md:border-t-0 md:border-l border-border pt-4 md:pt-0 md:pl-6 min-w-[200px]">
-                      <div className="text-2xl font-display font-bold text-primary mb-4 text-right w-full">
-                        {currentTotalPrice === 0 ? 'Free' : formatCurrency(currentTotalPrice)}
+                    <div className="flex flex-col justify-end items-end border-t md:border-t-0 md:border-l border-border pt-4 md:pt-0 md:pl-6 min-w-[240px]">
+                      
+                      {/* Price Display */}
+                      <div className="flex flex-col items-end mb-4 w-full">
+                        {appliedPromo ? (
+                          <>
+                            <span className="text-sm text-text-muted line-through font-bold">{formatCurrency(currentTotalPrice)}</span>
+                            <div className="text-2xl font-display font-bold text-primary">
+                              {finalPrice === 0 ? 'Free' : formatCurrency(finalPrice)}
+                            </div>
+                          </>
+                        ) : (
+                          <div className="text-2xl font-display font-bold text-primary">
+                            {currentTotalPrice === 0 ? 'Free' : formatCurrency(currentTotalPrice)}
+                          </div>
+                        )}
                       </div>
-                      {hasInsufficientFunds && !isSuccess && currentTotalPrice > 0 ? (
+
+                      {/* Promo Code Input */}
+                      {currentTotalPrice > 0 && !isSuccess && (
+                        <div className="w-full mb-4">
+                          {appliedPromo ? (
+                            <div className="flex items-center justify-between bg-green-50 px-3 py-2 rounded-xl border border-green-200">
+                              <div className="flex flex-col">
+                                <span className="text-xs font-bold text-green-700 uppercase flex items-center gap-1">
+                                  <Tag className="w-3 h-3" /> {appliedPromo.code} Applied
+                                </span>
+                                <span className="text-xs text-green-600 font-medium">
+                                  -{appliedPromo.discountType === 'PERCENTAGE' ? `${appliedPromo.discountValue}%` : formatCurrency(appliedPromo.discountValue)}
+                                </span>
+                              </div>
+                              <button onClick={() => handleRemovePromo(itemIdStr)} className="text-text-muted hover:text-red-500 transition-colors p-1" title="Remove promo code">
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </div>
+                          ) : (
+                            <div className="flex flex-col gap-1">
+                              <div className="flex gap-2 relative">
+                                <Tag className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
+                                <input 
+                                  type="text" 
+                                  placeholder="Promo code" 
+                                  value={promoInputs[itemIdStr] || ''}
+                                  onChange={(e) => setPromoInputs(prev => ({ ...prev, [itemIdStr]: e.target.value.toUpperCase() }))}
+                                  className="w-full pl-9 pr-3 py-2 bg-gray-50 border border-border rounded-xl text-sm font-bold text-text-primary focus:outline-none focus:border-primary"
+                                />
+                                <Button 
+                                  variant="outline" 
+                                  onClick={() => handleApplyPromo(itemIdStr)}
+                                  disabled={!promoInputs[itemIdStr] || isApplyingPromo[itemIdStr]}
+                                  className="rounded-xl px-4 py-2 border-border text-xs"
+                                >
+                                  {isApplyingPromo[itemIdStr] ? '...' : 'Apply'}
+                                </Button>
+                              </div>
+                              {promoErrors[itemIdStr] && (
+                                <p className="text-[10px] text-red-500 font-bold px-1">{promoErrors[itemIdStr]}</p>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      )}
+
+                      {/* Pay Button */}
+                      {hasInsufficientFunds && !isSuccess && finalPrice > 0 ? (
                         <div className="text-center w-full">
                           <p className="text-red-500 text-xs font-bold mb-2">Insufficient funds</p>
                           <Button variant="outline" className="w-full rounded-xl opacity-50 cursor-not-allowed border-red-200 text-red-500">
@@ -305,7 +428,7 @@ const CheckoutPage = () => {
                               Paying...
                             </div>
                           ) : (
-                            `Pay ${currentTotalPrice === 0 ? 'Free' : formatCurrency(currentTotalPrice)}`
+                            `Pay ${finalPrice === 0 ? 'Free' : formatCurrency(finalPrice)}`
                           )}
                         </Button>
                       )}
@@ -322,4 +445,3 @@ const CheckoutPage = () => {
 }
 
 export default CheckoutPage
-
