@@ -32,7 +32,7 @@ public class ReportServiceImpl implements ReportService {
         long totalUsers = userRepository.count();
         long totalEvents = eventRepository.count();
 
-        long successfulEventsCount = eventRepository.count() - eventRepository.findByStatus(EventStatus.CANCELLED).size();
+        long successfulEventsCount = totalEvents - eventRepository.countByStatus(EventStatus.CANCELLED);
         double successRate = totalEvents > 0 ? (double) successfulEventsCount / totalEvents * 100 : 0;
 
         List<Booking> confirmedBookings = bookingRepository.findByStatus(BookingStatus.CONFIRMED);

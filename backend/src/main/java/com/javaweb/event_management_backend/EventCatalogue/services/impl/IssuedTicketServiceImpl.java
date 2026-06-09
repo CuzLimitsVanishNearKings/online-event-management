@@ -41,6 +41,7 @@ public class IssuedTicketServiceImpl implements IssuedTicketService {
     // ─── CLIENT ──────────────────────────────────────────────────
 
     @Override
+    @Transactional(readOnly = true)
     public List<IssuedTicketResponseDto.Response> getTicketsByBooking(
             Long bookingId, User currentUser) {
 
@@ -59,6 +60,7 @@ public class IssuedTicketServiceImpl implements IssuedTicketService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public IssuedTicketResponseDto.Response getTicketById(
             Long issuedTicketId, User currentUser) {
 
@@ -105,6 +107,7 @@ public class IssuedTicketServiceImpl implements IssuedTicketService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<IssuedTicketResponseDto.Response> getTicketsByEvent(
             Long eventId, User currentUser) {
 
@@ -155,6 +158,7 @@ public class IssuedTicketServiceImpl implements IssuedTicketService {
 
         List<IssuedTicket> tickets = new ArrayList<>();
 
+// After
         for (int i = 0; i < quantity; i++) {
             IssuedTicket ticket = IssuedTicket.builder()
                     .qrCode(generateUniqueQrCode())
@@ -165,9 +169,10 @@ public class IssuedTicketServiceImpl implements IssuedTicketService {
                     .booking(booking)
                     .build();
 
-            tickets.add(issuedTicketRepository.save(ticket));
+            tickets.add(ticket);
         }
 
+        issuedTicketRepository.saveAll(tickets);
         // decrement quantityRemaining on ticket type
         ticketType.setQuantityRemaining(
                 ticketType.getQuantityRemaining() - quantity);

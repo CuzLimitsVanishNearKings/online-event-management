@@ -3,11 +3,14 @@ package com.javaweb.event_management_backend.EventCatalogue.repository;
 import com.javaweb.event_management_backend.EventCatalogue.enums.EventStatus;
 import com.javaweb.event_management_backend.EventCatalogue.models.Event;
 import com.javaweb.event_management_backend.UserManagement.models.OrganizerProfile;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -17,16 +20,22 @@ public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecific
 
     // Override findAll to eagerly fetch relations
     @EntityGraph(attributePaths = {"category", "organizer", "ticketTypes"})
-    List<Event> findAll();
+    Page<Event> findAll(Pageable pageable);
 
     // Find events by organizer
     @EntityGraph(attributePaths = {"category", "organizer", "ticketTypes"})
     List<Event> findByOrganizer(OrganizerProfile organizer);
 
     // Find events by status
-    @EntityGraph(attributePaths = {"category", "organizer", "ticketTypes"})
-    List<Event> findByStatus(EventStatus status);
+    @EntityGraph(attributePaths = {"category"})
+    Page<Event> findByStatus(EventStatus status, Pageable pageable);
 
+
+
+    @EntityGraph(attributePaths = {"category", "organizer", "ticketTypes"})
+    Optional<Event> findWithDetailsByEventId(Long id);
+
+    long countByStatus(EventStatus status);
     // Find events by category
     @EntityGraph(attributePaths = {"category", "organizer", "ticketTypes"})
     List<Event> findByCategoryName(String categoryName);

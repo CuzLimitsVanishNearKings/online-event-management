@@ -14,6 +14,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 
 @RestController
 @RequestMapping("/api/bookings")
@@ -115,10 +119,13 @@ public class BookingController {
 
     // GET /api/bookings
     // get all bookings — admin dashboard
-    @GetMapping
+    @GetMapping("/admin/all")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<BookingResponseDto.Summary>> getAllBookings() {
-        return ResponseEntity.ok(bookingService.getAllBookings());
+    public ResponseEntity<Page<BookingResponseDto.Summary>> getAllBookings(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("bookingDate").descending());
+        return ResponseEntity.ok(bookingService.getAllBookings(pageable));
     }
 
     // GET /api/bookings/status/{status}

@@ -55,6 +55,13 @@ public interface IssuedTicketRepository extends JpaRepository<IssuedTicket, Long
 // used for client's ticket history page
     List<IssuedTicket> findByBookingUserOrderByIssuedAtDesc(User user);
 
+
+
+    @Query("SELECT tt.event.eventId, SUM(CASE WHEN it.status = 'VALID' THEN 1 ELSE 0 END) " +
+            "FROM IssuedTicket it JOIN it.ticketType tt " +
+            "WHERE tt.event.organizer = :organizer " +
+            "GROUP BY tt.event.eventId")
+    List<Object[]> countSoldTicketsByOrganizer(@Param("organizer") OrganizerProfile organizer);
     // Count tickets by ticket type and multiple statuses
 // used to calculate total sold (VALID + USED)
     long countByTicketTypeAndStatusIn(TicketType ticketType, List<IssuedTicketStatus> statuses);

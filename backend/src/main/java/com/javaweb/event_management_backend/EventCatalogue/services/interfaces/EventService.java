@@ -3,15 +3,18 @@ package com.javaweb.event_management_backend.EventCatalogue.services.interfaces;
 import com.javaweb.event_management_backend.EventCatalogue.dtos.request.EventRequestDto;
 import com.javaweb.event_management_backend.EventCatalogue.dtos.response.EventResponseDto;
 import com.javaweb.event_management_backend.UserManagement.models.User;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 import java.util.List;
+
 
 public interface EventService {
 
     // ─── PUBLIC ─────────────────────────────────────────────────
 
     // Get all published events — browse page
-    List<EventResponseDto.Summary> getAllPublishedEvents();
+    Page<EventResponseDto.Summary> getAllPublishedEvents(Pageable pageable);
 
     // Get event full details — event page
     EventResponseDto.Detail getEventById(Long eventId);
@@ -56,7 +59,7 @@ public interface EventService {
     // ─── ADMIN ───────────────────────────────────────────────────
 
     // Get all events regardless of status — admin dashboard
-    List<EventResponseDto.Summary> getAllEvents();
+    Page<EventResponseDto.Summary> getAllEvents(Pageable pageable);
 
     // Delete/Cancel an event as admin
     void adminDeleteEvent(Long eventId);

@@ -7,6 +7,10 @@ import com.javaweb.event_management_backend.UserManagement.models.User;
 import com.javaweb.event_management_backend.config.SecurityUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -23,11 +27,14 @@ public class EventController {
 
     // ─── PUBLIC ─────────────────────────────────────────────────
 
-    // GET /api/events
+    // GET /api/events?page=0&size=12
     // get all published events — browse page
     @GetMapping
-    public ResponseEntity<List<EventResponseDto.Summary>> getAllPublishedEvents() {
-        return ResponseEntity.ok(eventService.getAllPublishedEvents());
+    public ResponseEntity<Page<EventResponseDto.Summary>> getAllPublishedEvents(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "12") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("startDateTime").ascending());
+        return ResponseEntity.ok(eventService.getAllPublishedEvents(pageable));
     }
 
     // GET /api/events/{eventId}
@@ -151,12 +158,15 @@ public class EventController {
 
     // ─── ADMIN ───────────────────────────────────────────────────
 
-    // GET /api/events/admin/all
+    // GET /api/events/admin/all?page=0&size=20
     // get all events regardless of status
     @GetMapping("/admin/all")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<EventResponseDto.Summary>> getAllEvents() {
-        return ResponseEntity.ok(eventService.getAllEvents());
+    public ResponseEntity<Page<EventResponseDto.Summary>> getAllEvents(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "20") int size) {
+        Pageable pageable = PageRequest.of(page, size, Sort.by("createdAt").descending());
+        return ResponseEntity.ok(eventService.getAllEvents(pageable));
     }
 
     // DELETE /api/events/admin/{eventId}

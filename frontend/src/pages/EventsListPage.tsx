@@ -60,7 +60,7 @@ const EventsListPage = () => {
   }, [filters])
 
   // Fetch from backend using the derived API filters
-  const { events: allEvents, loading } = useEvents(apiFilters)
+  const { events: allEvents, loading, totalPages: backendTotalPages } = useEvents(apiFilters, undefined, currentPage - 1, 12)
 
   // Sync URL when filters change
   const handleFiltersChange = (newFilters: EventFiltersType) => {
@@ -85,10 +85,17 @@ const EventsListPage = () => {
     return new Date(b.startDateTime).getTime() - new Date(a.startDateTime).getTime()
   })
 
-  const totalPages = Math.max(1, Math.ceil(sorted.length / ITEMS_PER_PAGE))
-  const paginated = sorted.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+const hasActive = !!(filters.search || filters.category || filters.city || filters.date)
 
-  const hasActive = !!(filters.search || filters.category || filters.city || filters.date)
+const totalPages = hasActive
+  ? Math.max(1, Math.ceil(sorted.length / ITEMS_PER_PAGE))
+  : backendTotalPages
+
+const paginated = hasActive
+  ? sorted.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
+  : sorted
+
+  
 
   return (
     <div className="min-h-screen bg-[#FDFBF7]">

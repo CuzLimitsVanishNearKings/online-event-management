@@ -5,6 +5,8 @@ import com.javaweb.event_management_backend.BookingManagement.dtos.response.Book
 import com.javaweb.event_management_backend.UserManagement.models.User;
 
 import java.util.List;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 public interface BookingService {
 
@@ -52,7 +54,7 @@ public interface BookingService {
     // ─── ADMIN ───────────────────────────────────────────────────
 
     // Get all bookings — admin dashboard
-    List<BookingResponseDto.Summary> getAllBookings();
+    Page<BookingResponseDto.Summary> getAllBookings(Pageable pageable);
 
     // Get all bookings by status — admin dashboard
     List<BookingResponseDto.Summary> getAllBookingsByStatus(

@@ -71,11 +71,12 @@ const EventCard = ({ event }: EventCardProps) => {
         {/* Image */}
         <div className="relative aspect-[16/10] overflow-hidden bg-surface/30">
           {hasImage ? (
-            <img
-              src={image!}
-              alt={event.title}
-              className="w-full h-full object-cover transition-transform duration-500"
-            />
+                  <img
+                    src={image!}
+                    alt={event.title}
+                    loading="lazy"
+                    className="w-full h-full object-cover transition-transform duration-500"
+                  />
           ) : (
             <div className="w-full h-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
               <span className="font-display font-bold text-4xl text-primary/20 uppercase">

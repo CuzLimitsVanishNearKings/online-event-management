@@ -1,48 +1,58 @@
 import { createBrowserRouter, Navigate } from 'react-router-dom'
+import { lazy, Suspense } from 'react'
+
+// Layouts — eager (Suspense boundary shells)
 import Layout from '../Layout'
 import PublicLayout from '@/components/layout/PublicLayout'
-import HomePage from '../pages/HomePage'
-import EventsListPage from '../pages/EventsListPage'
-import EventDetailPage from '../pages/EventDetailPage'
+import OrganizerDashboardLayout from '../components/layout/OrganizerDashboardLayout'
+import AttendeeDashboardLayout from '../components/layout/AttendeeDashboardLayout'
+import AdminDashboardLayout from '../components/layout/AdminDashboardLayout'
+
+// Auth & error — eager
 import LoginPage from '../pages/LoginPage'
 import RegisterPage from '../pages/RegisterPage'
-import CheckoutPage from '../pages/CheckoutPage'
 import NotFoundView from '../pages/NotFoundView'
 
-import OrganizerDashboardLayout from '../components/layout/OrganizerDashboardLayout'
-import DashboardHome from '../pages/organizer/DashboardHome'
-import ProfileView from '../pages/organizer/ProfileView'
-import EventsManageView from '../pages/organizer/EventsManageView'
-import CreateEventView from '../pages/organizer/CreateEventView'
-import EditEventView from '../pages/organizer/EditEventView'
-import OrdersView from '../pages/organizer/OrdersView'
-import AttendeesView from '../pages/organizer/AttendeesView'
+// Public pages — lazy
+const HomePage = lazy(() => import('../pages/HomePage'))
+const EventsListPage = lazy(() => import('../pages/EventsListPage'))
+const EventDetailPage = lazy(() => import('../pages/EventDetailPage'))
+const CheckoutPage = lazy(() => import('../pages/CheckoutPage'))
 
-import AttendeeDashboardLayout from '../components/layout/AttendeeDashboardLayout'
-import AttendeeDashboardHome from '../pages/attendee/DashboardHome'
-import AttendeeTicketsView from '../pages/attendee/TicketsView'
-import AttendeeCalendarView from '../pages/attendee/CalendarView'
-import AttendeeProfileView from '../pages/attendee/ProfileView'
-import AttendeeWalletView from '../pages/attendee/WalletView'
+// Organizer pages — lazy
+const OrganizerDashboardHome = lazy(() => import('../pages/organizer/DashboardHome'))
+const OrganizerProfileView = lazy(() => import('../pages/organizer/ProfileView'))
+const EventsManageView = lazy(() => import('../pages/organizer/EventsManageView'))
+const CreateEventView = lazy(() => import('../pages/organizer/CreateEventView'))
+const EditEventView = lazy(() => import('../pages/organizer/EditEventView'))
+const OrdersView = lazy(() => import('../pages/organizer/OrdersView'))
+const AttendeesView = lazy(() => import('../pages/organizer/AttendeesView'))
 
-import AdminDashboardLayout from '../components/layout/AdminDashboardLayout'
-import AdminDashboardHome from '../pages/admin/DashboardHome'
-import AdminUserManagement from '../pages/admin/UserManagement'
-import AdminOrganizerRequests from '../pages/admin/OrganizerRequests'
-import AdminEventManagement from '../pages/admin/EventManagement'
-import { 
-  Bookings as AdminBookings, 
-  Payments as AdminPayments, 
-  TopUpRequests as AdminTopUpRequests,
-  Reporting as AdminReporting, 
-  Categories as AdminCategories, 
-  Profile as AdminProfile 
-} from '../pages/admin/AdminPages'
-import PromotionsView from '../pages/admin/PromotionsView'
+// Attendee pages — lazy
+const AttendeeDashboardHome = lazy(() => import('../pages/attendee/DashboardHome'))
+const AttendeeTicketsView = lazy(() => import('../pages/attendee/TicketsView'))
+const AttendeeCalendarView = lazy(() => import('../pages/attendee/CalendarView'))
+const AttendeeProfileView = lazy(() => import('../pages/attendee/ProfileView'))
+const AttendeeWalletView = lazy(() => import('../pages/attendee/WalletView'))
+
+// Admin pages — lazy
+const AdminDashboardHome = lazy(() => import('../pages/admin/DashboardHome'))
+const AdminUserManagement = lazy(() => import('../pages/admin/UserManagement'))
+const AdminOrganizerRequests = lazy(() => import('../pages/admin/OrganizerRequests'))
+const AdminEventManagement = lazy(() => import('../pages/admin/EventManagement'))
+const AdminBookings = lazy(() => import('../pages/admin/AdminPages').then(m => ({ default: m.Bookings })))
+const AdminPayments = lazy(() => import('../pages/admin/AdminPages').then(m => ({ default: m.Payments })))
+const AdminTopUpRequests = lazy(() => import('../pages/admin/AdminPages').then(m => ({ default: m.TopUpRequests })))
+const AdminReporting = lazy(() => import('../pages/admin/AdminPages').then(m => ({ default: m.Reporting })))
+const AdminCategories = lazy(() => import('../pages/admin/AdminPages').then(m => ({ default: m.Categories })))
+const AdminProfile = lazy(() => import('../pages/admin/AdminPages').then(m => ({ default: m.Profile })))
+const PromotionsView = lazy(() => import('../pages/admin/PromotionsView'))
+
+const fallback = <div />
 
 const router = createBrowserRouter([
   {
-    element: <PublicLayout />,
+    element: <Suspense fallback={fallback}><PublicLayout /></Suspense>,
     errorElement: <NotFoundView />,
     children: [
       {
@@ -63,7 +73,6 @@ const router = createBrowserRouter([
     path: '/register',
     element: <RegisterPage isOrganizer={false} />,
   },
-
   {
     path: '/organizer/login',
     element: <LoginPage isOrganizer={true} />,
@@ -73,7 +82,7 @@ const router = createBrowserRouter([
     element: <RegisterPage isOrganizer={true} />,
   },
   {
-    element: <Layout />,
+    element: <Suspense fallback={fallback}><Layout /></Suspense>,
     errorElement: <NotFoundView />,
     children: [
       {
@@ -86,10 +95,9 @@ const router = createBrowserRouter([
       },
     ],
   },
-
   {
     path: '/organizer',
-    element: <OrganizerDashboardLayout />,
+    element: <Suspense fallback={fallback}><OrganizerDashboardLayout /></Suspense>,
     errorElement: <NotFoundView />,
     children: [
       {
@@ -98,11 +106,11 @@ const router = createBrowserRouter([
       },
       {
         path: 'dashboard',
-        element: <DashboardHome />,
+        element: <OrganizerDashboardHome />,
       },
       {
         path: 'profile',
-        element: <ProfileView />,
+        element: <OrganizerProfileView />,
       },
       {
         path: 'events',
@@ -128,7 +136,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/attendee',
-    element: <AttendeeDashboardLayout />,
+    element: <Suspense fallback={fallback}><AttendeeDashboardLayout /></Suspense>,
     errorElement: <NotFoundView />,
     children: [
       {
@@ -159,7 +167,7 @@ const router = createBrowserRouter([
   },
   {
     path: '/admin',
-    element: <AdminDashboardLayout />,
+    element: <Suspense fallback={fallback}><AdminDashboardLayout /></Suspense>,
     errorElement: <NotFoundView />,
     children: [
       {

@@ -33,6 +33,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+
 import com.javaweb.event_management_backend.UserManagement.services.interfaces.EmailService;
 
 @Service
@@ -339,11 +342,9 @@ public class BookingServiceImpl implements BookingService {
 
     @Override
     @Transactional(readOnly = true)
-    public List<BookingResponseDto.Summary> getAllBookings() {
-        return bookingRepository.findAll()
-                .stream()
-                .map(bookingMapper::toSummary)
-                .collect(Collectors.toList());
+    public Page<BookingResponseDto.Summary> getAllBookings(Pageable pageable) {
+        return bookingRepository.findAll(pageable)
+                .map(bookingMapper::toSummary);
     }
 
     @Override

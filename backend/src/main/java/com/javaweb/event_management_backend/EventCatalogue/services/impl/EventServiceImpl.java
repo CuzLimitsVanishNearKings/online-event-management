@@ -1,11 +1,14 @@
 package com.javaweb.event_management_backend.EventCatalogue.services.impl;
 
+import com.javaweb.event_management_backend.BookingManagement.enums.BookingStatus;
+import com.javaweb.event_management_backend.BookingManagement.repository.BookingRepository;
 import com.javaweb.event_management_backend.EventCatalogue.dtos.request.EventRequestDto;
 import com.javaweb.event_management_backend.EventCatalogue.dtos.response.EventResponseDto;
 import com.javaweb.event_management_backend.EventCatalogue.enums.EventStatus;
 import com.javaweb.event_management_backend.EventCatalogue.mappers.EventMapper;
 import com.javaweb.event_management_backend.EventCatalogue.models.Category;
 import com.javaweb.event_management_backend.EventCatalogue.models.Event;
+import com.javaweb.event_management_backend.EventCatalogue.models.IssuedTicket;
 import com.javaweb.event_management_backend.EventCatalogue.models.TicketType;
 import com.javaweb.event_management_backend.EventCatalogue.repository.CategoryRepository;
 import com.javaweb.event_management_backend.EventCatalogue.repository.EventRepository;
@@ -28,6 +31,10 @@ import org.springframework.context.annotation.Lazy;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.Map;
+import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 
 @Service
 @RequiredArgsConstructor
@@ -39,22 +46,22 @@ public class EventServiceImpl implements EventService {
     private final TicketTypeRepository ticketTypeRepository;
     private final IssuedTicketRepository issuedTicketRepository;
     private final EventMapper eventMapper;
-    private final @Lazy BookingService bookingService;
+    private final BookingRepository bookingRepository;
     private final EmailService emailService;
 
     // ─── PUBLIC ─────────────────────────────────────────────────
 
     @Override
-    public List<EventResponseDto.Summary> getAllPublishedEvents() {
-        return eventRepository.findByStatus(EventStatus.PUBLISHED)
-                .stream()
-                .map(eventMapper::toSummary)
-                .collect(Collectors.toList());
+    public Page<EventResponseDto.Summary> getAllPublishedEvents(Pageable pageable) {
+        return eventRepository.findByStatus(EventStatus.PUBLISHED, pageable)
+                .map(eventMapper::toSummary);
     }
 
     @Override
     public EventResponseDto.Detail getEventById(Long eventId) {
-        Event event = findEventById(eventId);
+        Event event = eventRepository.findWithDetailsByEventId(eventId)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Event not found with id: " + eventId));
         return eventMapper.toDetail(event);
     }
 
@@ -78,9 +85,9 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventResponseDto.Summary> filterEvents(String keyword, String category, String venue, java.time.LocalDateTime startDate, java.time.LocalDateTime endDate, java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice) {
-        org.springframework.data.jpa.domain.Specification<Event> spec = 
+        org.springframework.data.jpa.domain.Specification<Event> spec =
             com.javaweb.event_management_backend.EventCatalogue.repository.EventSpecification.filterEvents(keyword, category, venue, startDate, endDate, minPrice, maxPrice);
-            
+
         return eventRepository.findAll(spec)
                 .stream()
                 .map(eventMapper::toSummary)
@@ -203,7 +210,17 @@ public class EventServiceImpl implements EventService {
         }
 
         // Cancel all associated bookings (FR-11)
-        bookingService.cancelBookingsForEvent(eventId, currentUser);
+
+        event.getTicketTypes().stream()
+                .flatMap(tt -> issuedTicketRepository.findByTicketType(tt).stream())
+                .map(IssuedTicket::getBooking)
+                .distinct()
+                .forEach(booking -> {
+                    if (booking.getStatus() == BookingStatus.CONFIRMED) {
+                        booking.setStatus(BookingStatus.CANCELLED);
+                        bookingRepository.save(booking);
+                    }
+                });
 
         // Send cancellation emails (FR-25)
         event.getTicketTypes().stream()
@@ -275,11 +292,19 @@ public class EventServiceImpl implements EventService {
                         "Organizer profile not found for user: "
                                 + currentUser.getEmail()));
 
+        // fetch all ticket sold counts in one query
+        Map<Long, Integer> soldByEvent = issuedTicketRepository
+                .countSoldTicketsByOrganizer(organizer)
+                .stream()
+                .collect(Collectors.toMap(
+                        row -> (Long) row[0],
+                        row -> ((Number) row[1]).intValue()
+                ));
+
         return eventRepository.findByOrganizer(organizer)
                 .stream()
                 .map(event -> {
-                    // calculate stats for each event
-                    Integer totalSold = calculateTotalTicketsSold(event);
+                    Integer totalSold = soldByEvent.getOrDefault(event.getEventId(), 0);
                     Integer totalRemaining = calculateTotalTicketsRemaining(event);
                     BigDecimal totalRevenue = calculateTotalRevenue(event);
 
@@ -292,22 +317,30 @@ public class EventServiceImpl implements EventService {
     // ─── ADMIN ───────────────────────────────────────────────────
 
     @Override
-    public List<EventResponseDto.Summary> getAllEvents() {
-        return eventRepository.findAll()
-                .stream()
-                .map(eventMapper::toSummary)
-                .collect(Collectors.toList());
+    public Page<EventResponseDto.Summary> getAllEvents(Pageable pageable) {
+        return eventRepository.findAll(pageable)
+                .map(eventMapper::toSummary);
     }
 
     @Override
     @Transactional
     public void adminDeleteEvent(Long eventId) {
         Event event = findEventById(eventId);
-        
+
         // Cancel all associated bookings (if not already cancelled)
         if (event.getStatus() == EventStatus.PUBLISHED || event.getStatus() == EventStatus.RESCHEDULED) {
-            bookingService.cancelBookingsForEvent(eventId, event.getOrganizer().getUser());
-            
+
+            event.getTicketTypes().stream()
+                    .flatMap(tt -> issuedTicketRepository.findByTicketType(tt).stream())
+                    .map(IssuedTicket::getBooking)
+                    .distinct()
+                    .forEach(booking -> {
+                        if (booking.getStatus() == BookingStatus.CONFIRMED) {
+                            booking.setStatus(BookingStatus.CANCELLED);
+                            bookingRepository.save(booking);
+                        }
+                    });
+
             // Send cancellation emails
             event.getTicketTypes().stream()
                     .flatMap(tt -> tt.getIssuedTickets().stream())
@@ -321,7 +354,7 @@ public class EventServiceImpl implements EventService {
                         }
                     });
         }
-        
+
         eventRepository.delete(event);
     }
 

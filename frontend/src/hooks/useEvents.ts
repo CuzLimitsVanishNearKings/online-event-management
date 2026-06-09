@@ -20,8 +20,6 @@ interface Event {
   organizerLogoUrl?: string
   capacity?: number
   price?: number
-
-  // UI-only derived fields
   date: string
   time: string
   location: string
@@ -33,13 +31,22 @@ interface UseEventsReturn {
   events: Event[]
   loading: boolean
   error: string | null
+  totalPages: number
+  totalElements: number
   refetch: (filters?: Record<string, any>) => void
 }
 
-export const useEvents = (initialFilters?: Record<string, any>): UseEventsReturn => {
+export const useEvents = (
+  initialFilters?: Record<string, any>,
+  limit?: number,
+  page: number = 0,
+  size: number = 12
+): UseEventsReturn => {
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const [totalPages, setTotalPages] = useState(0)
+  const [totalElements, setTotalElements] = useState(0)
 
   const fetchEvents = async (filters?: Record<string, any>) => {
     setLoading(true)
@@ -48,27 +55,35 @@ export const useEvents = (initialFilters?: Record<string, any>): UseEventsReturn
     try {
       let endpoint = '/events'
       const params = new URLSearchParams()
-      
-      if (filters) {
+
+      if (filters && Object.values(filters).some(v => v)) {
+        // has active filters — use filter endpoint (returns plain list)
         endpoint = '/events/filter'
         if (filters.search) params.append('keyword', filters.search)
         if (filters.category) params.append('category', filters.category)
         if (filters.city) params.append('venue', filters.city)
         if (filters.startDate) params.append('startDate', filters.startDate)
         if (filters.endDate) params.append('endDate', filters.endDate)
+      } else {
+        // no filters — use paginated endpoint
+        params.append('page', String(page))
+        params.append('size', String(size))
       }
-      
+
       const queryString = params.toString()
-      if (queryString) {
-        endpoint += `?${queryString}`
-      }
+      if (queryString) endpoint += `?${queryString}`
 
       const response = await axiosClient.get(endpoint)
       const data = response.data
 
-      const transformedEvents: Event[] = data.map((event: any) => {
-        const startDate = new Date(event.startDateTime)
+      // handle both paginated (Page object) and plain list responses
+      const rawList = data.content ?? data
 
+      setTotalPages(data.totalPages ?? 1)
+      setTotalElements(data.totalElements ?? rawList.length)
+
+      const transformedEvents: Event[] = rawList.map((event: any) => {
+        const startDate = new Date(event.startDateTime)
         return {
           id: event.eventId?.toString(),
           title: event.title || 'Untitled Event',
@@ -82,8 +97,6 @@ export const useEvents = (initialFilters?: Record<string, any>): UseEventsReturn
           organizerLogoUrl: event.organizerLogoUrl,
           capacity: event.capacity || 0,
           price: event.minPrice || 0,
-
-          // UI derived fields
           date: startDate.toLocaleDateString('en-US', {
             weekday: 'short',
             month: 'short',
@@ -100,7 +113,7 @@ export const useEvents = (initialFilters?: Record<string, any>): UseEventsReturn
         }
       })
 
-      setEvents(transformedEvents)
+      setEvents(limit ? transformedEvents.slice(0, limit) : transformedEvents)
     } catch (err: any) {
       console.error('Failed to fetch events:', err)
       setError(err.response?.data?.message || 'Failed to fetch events')
@@ -112,12 +125,14 @@ export const useEvents = (initialFilters?: Record<string, any>): UseEventsReturn
 
   useEffect(() => {
     fetchEvents(initialFilters)
-  }, [JSON.stringify(initialFilters)])
+  }, [JSON.stringify(initialFilters), page, size])
 
   return {
     events,
     loading,
     error,
+    totalPages,
+    totalElements,
     refetch: fetchEvents
   }
 }

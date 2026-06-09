@@ -12,7 +12,7 @@ import { ArrowRight, Sparkles, TrendingUp } from '../components/icons'
 import { cn } from '../utils/cn'
 
 const HomePage = () => {
-  const { events, loading } = useEvents()
+  const { events, loading } = useEvents(undefined, 6)
   const [isVisible, setIsVisible] = useState(false)
 
   useEffect(() => {
