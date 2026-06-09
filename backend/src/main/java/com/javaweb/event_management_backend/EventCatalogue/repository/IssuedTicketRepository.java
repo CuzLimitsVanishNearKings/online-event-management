@@ -4,6 +4,7 @@ import com.javaweb.event_management_backend.BookingManagement.models.Booking;
 import com.javaweb.event_management_backend.EventCatalogue.enums.IssuedTicketStatus;
 import com.javaweb.event_management_backend.EventCatalogue.models.IssuedTicket;
 import com.javaweb.event_management_backend.EventCatalogue.models.TicketType;
+import com.javaweb.event_management_backend.UserManagement.models.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -45,4 +46,12 @@ public interface IssuedTicketRepository extends JpaRepository<IssuedTicket, Long
 
     // Check if ticket code already exists — prevents duplicates
     boolean existsByTicketCode(String ticketCode);
+
+    // Find all tickets for a user across all bookings
+// used for client's ticket history page
+    List<IssuedTicket> findByBookingUserOrderByIssuedAtDesc(User user);
+
+    // Count tickets by ticket type and multiple statuses
+// used to calculate total sold (VALID + USED)
+    long countByTicketTypeAndStatusIn(TicketType ticketType, List<IssuedTicketStatus> statuses);
 }

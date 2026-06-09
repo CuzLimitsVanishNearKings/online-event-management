@@ -25,6 +25,7 @@ public class PaymentMapper {
 
         // navigate chain to get event
         // payment → booking → issuedTickets → first ticket → ticketType → event
+
         Event event = payment.getBooking()
                 .getIssuedTickets()
                 .get(0)

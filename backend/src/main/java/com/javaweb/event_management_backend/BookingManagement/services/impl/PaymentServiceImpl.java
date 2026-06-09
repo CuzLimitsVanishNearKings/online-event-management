@@ -55,6 +55,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PaymentResponseDto.PaymentResult getPaymentByBooking(
             Long bookingId, User currentUser) {
 
@@ -77,6 +78,7 @@ public class PaymentServiceImpl implements PaymentService {
     // ─── ADMIN ───────────────────────────────────────────────────
 
     @Override
+    @Transactional(readOnly = true)
     public List<PaymentResponseDto.AdminView> getAllPayments() {
         return paymentRepository.findAll()
                 .stream()
@@ -85,6 +87,7 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PaymentResponseDto.AdminView> getPaymentsByStatus(
             PaymentStatus status) {
         return paymentRepository.findByStatus(status)
@@ -94,11 +97,13 @@ public class PaymentServiceImpl implements PaymentService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BigDecimal getTotalRevenue() {
         return paymentRepository.calculateTotalRevenue();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BigDecimal getRevenueBetween(
             LocalDateTime start, LocalDateTime end) {
         return paymentRepository.calculateRevenueBetween(start, end);

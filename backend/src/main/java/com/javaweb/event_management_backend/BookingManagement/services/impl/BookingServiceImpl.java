@@ -167,6 +167,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<BookingResponseDto.Summary> getMyBookings(User currentUser) {
         return bookingRepository
                 .findByUserOrderByBookingDateDesc(currentUser)
@@ -176,6 +177,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public BookingResponseDto.Detail getBookingById(
             Long bookingId, User currentUser) {
 
@@ -191,6 +193,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<BookingResponseDto.Summary> getMyBookingsByStatus(
             BookingStatus status, User currentUser) {
         return bookingRepository.findByUserAndStatus(currentUser, status)
@@ -202,23 +205,28 @@ public class BookingServiceImpl implements BookingService {
     // ─── ORGANIZER ───────────────────────────────────────────────
 
     @Override
+    @Transactional(readOnly = true)
     public List<BookingResponseDto.Summary> getBookingsByEvent(
-            Long eventId, User currentUser) {
-
-        OrganizerProfile organizer = organizerRepository
-                .findByUser(currentUser)
+            Long eventId, User currentUser)
+    {
+        // verify organizer owns the event
+        organizerRepository.findByUser(currentUser)
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Organizer profile not found"));
 
-        // get all bookings through ticket types → issued tickets
-        return issuedTicketRepository
-                .findByTicketType(
-                        ticketTypeRepository.findByEventEventId(eventId)
-                                .stream().findFirst()
-                                .orElseThrow(() -> new ResourceNotFoundException(
-                                        "No ticket types found for event: "
-                                                + eventId)))
-                .stream()
+        // get ALL ticket types for the event
+        List<TicketType> ticketTypes = ticketTypeRepository
+                .findByEventEventId(eventId);
+
+        if (ticketTypes.isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "No ticket types found for event: " + eventId);
+        }
+
+        // get all bookings across ALL ticket types
+        return ticketTypes.stream()
+                .flatMap(tt -> issuedTicketRepository
+                        .findByTicketType(tt).stream())
                 .map(IssuedTicket::getBooking)
                 .distinct()
                 .map(bookingMapper::toSummary)
@@ -228,6 +236,7 @@ public class BookingServiceImpl implements BookingService {
     // ─── ADMIN ───────────────────────────────────────────────────
 
     @Override
+    @Transactional(readOnly = true)
     public List<BookingResponseDto.Summary> getAllBookings() {
         return bookingRepository.findAll()
                 .stream()
@@ -236,6 +245,7 @@ public class BookingServiceImpl implements BookingService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<BookingResponseDto.Summary> getAllBookingsByStatus(
             BookingStatus status) {
         return bookingRepository.findByStatus(status)

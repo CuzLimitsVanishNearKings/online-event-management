@@ -36,6 +36,8 @@ public interface IssuedTicketService {
     List<IssuedTicketResponseDto.Response> getTicketsByEvent(Long eventId,
                                                              User currentUser);
 
+    List<IssuedTicketResponseDto.Response> getMyTickets(User currentUser);
+
     // ─── INTERNAL ────────────────────────────────────────────────
 
     // Generate tickets after a successful payment

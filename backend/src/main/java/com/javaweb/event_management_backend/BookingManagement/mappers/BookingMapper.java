@@ -4,6 +4,7 @@ import com.javaweb.event_management_backend.BookingManagement.dtos.response.Book
 import com.javaweb.event_management_backend.BookingManagement.models.Booking;
 import com.javaweb.event_management_backend.EventCatalogue.mappers.IssuedTicketMapper;
 import com.javaweb.event_management_backend.EventCatalogue.models.Event;
+import com.javaweb.event_management_backend.exceptions.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -22,6 +23,10 @@ public class BookingMapper {
 
         // navigate chain to get event
         // booking → issuedTickets → first ticket → ticketType → event
+        if (booking.getIssuedTickets().isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "No tickets found for booking: " + booking.getBookingId());
+        }
         Event event = booking.getIssuedTickets()
                 .get(0)
                 .getTicketType()
@@ -42,6 +47,10 @@ public class BookingMapper {
     public BookingResponseDto.Detail toDetail(Booking booking) {
 
         // navigate chain to get event
+        if (booking.getIssuedTickets().isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "No tickets found for booking: " + booking.getBookingId());
+        }
         Event event = booking.getIssuedTickets()
                 .get(0)
                 .getTicketType()

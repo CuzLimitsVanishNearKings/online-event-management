@@ -35,4 +35,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
 
     // Find events by venue keyword
     List<Event> findByVenueContainingIgnoreCase(String venue);
+
+    // Find published events by category and status combined
+// useful for filtered browsing
+    List<Event> findByCategoryNameAndStatus(String categoryName, EventStatus status);
 }

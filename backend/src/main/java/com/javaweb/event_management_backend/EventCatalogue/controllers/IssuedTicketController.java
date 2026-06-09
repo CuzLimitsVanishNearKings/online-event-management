@@ -16,34 +16,44 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/tickets")
 @RequiredArgsConstructor
-public class IssuedTicketController {
-
+public class IssuedTicketController
+{
     private final IssuedTicketService issuedTicketService;
 
     // ─── CLIENT ──────────────────────────────────────────────────
 
+    // GET /api/tickets/my-tickets
+    // get all tickets for current user across all bookings
+    @GetMapping("/my-tickets")
+    @PreAuthorize("hasAnyRole('CLIENT', 'ORGANIZER')")
+    public ResponseEntity<List<IssuedTicketResponseDto.Response>> getMyTickets()
+    {
+        User currentUser = SecurityUtils.getCurrentUser();
+        return ResponseEntity.ok(issuedTicketService.getMyTickets(currentUser));
+    }
+
     // GET /api/tickets/booking/{bookingId}
-    // get all tickets for a booking
+    // get all tickets for a specific booking
     @GetMapping("/booking/{bookingId}")
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasAnyRole('CLIENT', 'ORGANIZER')")
     public ResponseEntity<List<IssuedTicketResponseDto.Response>>
-    getTicketsByBooking(@PathVariable Long bookingId) {
+    getTicketsByBooking(@PathVariable Long bookingId)
+    {
         User currentUser = SecurityUtils.getCurrentUser();
         return ResponseEntity.ok(
-                issuedTicketService.getTicketsByBooking(
-                        bookingId, currentUser));
+                issuedTicketService.getTicketsByBooking(bookingId, currentUser));
     }
 
     // GET /api/tickets/{issuedTicketId}
     // get a single ticket by id
     @GetMapping("/{issuedTicketId}")
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasAnyRole('CLIENT', 'ORGANIZER')")
     public ResponseEntity<IssuedTicketResponseDto.Response> getTicketById(
-            @PathVariable Long issuedTicketId) {
+            @PathVariable Long issuedTicketId)
+    {
         User currentUser = SecurityUtils.getCurrentUser();
         return ResponseEntity.ok(
-                issuedTicketService.getTicketById(
-                        issuedTicketId, currentUser));
+                issuedTicketService.getTicketById(issuedTicketId, currentUser));
     }
 
     // ─── ORGANIZER ───────────────────────────────────────────────
@@ -54,7 +64,8 @@ public class IssuedTicketController {
     @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<IssuedTicketResponseDto.VerificationResult>
     verifyByQrCode(
-            @Valid @RequestBody IssuedTicketRequestDto.VerifyByQrCode dto) {
+            @Valid @RequestBody IssuedTicketRequestDto.VerifyByQrCode dto)
+    {
         User currentUser = SecurityUtils.getCurrentUser();
         return ResponseEntity.ok(
                 issuedTicketService.verifyByQrCode(dto, currentUser));
@@ -66,7 +77,8 @@ public class IssuedTicketController {
     @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<IssuedTicketResponseDto.VerificationResult>
     verifyByTicketCode(
-            @Valid @RequestBody IssuedTicketRequestDto.VerifyByTicketCode dto) {
+            @Valid @RequestBody IssuedTicketRequestDto.VerifyByTicketCode dto)
+    {
         User currentUser = SecurityUtils.getCurrentUser();
         return ResponseEntity.ok(
                 issuedTicketService.verifyByTicketCode(dto, currentUser));
@@ -77,10 +89,10 @@ public class IssuedTicketController {
     @GetMapping("/event/{eventId}")
     @PreAuthorize("hasRole('ORGANIZER')")
     public ResponseEntity<List<IssuedTicketResponseDto.Response>>
-    getTicketsByEvent(@PathVariable Long eventId) {
+    getTicketsByEvent(@PathVariable Long eventId)
+    {
         User currentUser = SecurityUtils.getCurrentUser();
         return ResponseEntity.ok(
-                issuedTicketService.getTicketsByEvent(
-                        eventId, currentUser));
+                issuedTicketService.getTicketsByEvent(eventId, currentUser));
     }
 }

@@ -7,6 +7,7 @@ import com.javaweb.event_management_backend.UserManagement.models.User;
 import com.javaweb.event_management_backend.config.SecurityUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -39,7 +40,7 @@ public class TopUpRequestController
     // GET /api/top-up-requests/my-requests?page=0&size=10
     @GetMapping("/my-requests")
     @PreAuthorize("hasAnyRole('CLIENT', 'ORGANIZER')")
-    public ResponseEntity<Page<TopUpRequestResponseDto.Summary>> getMyTopUpRequests(
+    public ResponseEntity<Page<TopUpRequestResponseDto.Summary>> getMyTopUpRequests( @ParameterObject
             Pageable pageable)
     {
         User currentUser = SecurityUtils.getCurrentUser();
@@ -63,7 +64,7 @@ public class TopUpRequestController
     // GET /api/top-up-requests?page=0&size=10
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Page<TopUpRequestResponseDto.AdminView>> getAllTopUpRequests(
+    public ResponseEntity<Page<TopUpRequestResponseDto.AdminView>> getAllTopUpRequests( @ParameterObject
             Pageable pageable)
     {
         return ResponseEntity.ok(
@@ -73,7 +74,7 @@ public class TopUpRequestController
     // GET /api/top-up-requests/pending?page=0&size=10
     @GetMapping("/pending")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<Page<TopUpRequestResponseDto.AdminView>> getPendingTopUpRequests(
+    public ResponseEntity<Page<TopUpRequestResponseDto.AdminView>> getPendingTopUpRequests( @ParameterObject
             Pageable pageable)
     {
         return ResponseEntity.ok(
