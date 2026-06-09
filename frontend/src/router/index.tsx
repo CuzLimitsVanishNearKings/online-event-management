@@ -13,6 +13,7 @@ import DashboardHome from '../pages/organizer/DashboardHome'
 import ProfileView from '../pages/organizer/ProfileView'
 import EventsManageView from '../pages/organizer/EventsManageView'
 import CreateEventView from '../pages/organizer/CreateEventView'
+import EditEventView from '../pages/organizer/EditEventView'
 import OrdersView from '../pages/organizer/OrdersView'
 import AttendeesView from '../pages/organizer/AttendeesView'
 import AnalyticsView from '../pages/organizer/AnalyticsView'
@@ -108,6 +109,10 @@ const router = createBrowserRouter([
       {
         path: 'events/new',
         element: <CreateEventView />,
+      },
+      {
+        path: 'events/:eventId/edit',
+        element: <EditEventView />,
       },
       {
         path: 'orders',
