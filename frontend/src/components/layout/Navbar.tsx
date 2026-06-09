@@ -16,7 +16,7 @@ import {
   Calendar
 } from '../icons'
 import { cn } from '../../utils/cn'
-import { useCartStore } from '../../store/cartStore'
+import { usePlanning } from '../../hooks/usePlanning'
 import CartSidebar from '../cart/CartSidebar'
 
 const Navbar = () => {
@@ -26,13 +26,19 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const { itemCount, toggleCart } = useCartStore()
+  const { plannedEvents, toggleCart, fetchPlanning } = usePlanning()
+  const itemCount = plannedEvents.length
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10)
     window.addEventListener('scroll', handleScroll)
+    
+    if (isAuthenticated) {
+      fetchPlanning()
+    }
+    
     return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
+  }, [isAuthenticated, fetchPlanning])
 
   const handleLogout = () => {
     logout()

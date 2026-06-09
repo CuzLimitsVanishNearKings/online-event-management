@@ -122,6 +122,11 @@ public class BookingServiceImpl implements BookingService {
         booking.setStatus(BookingStatus.CONFIRMED);
         bookingRepository.save(booking);
 
+        // fetch generated tickets and attach to booking to avoid ResourceNotFoundException in mapping
+        List<IssuedTicket> generatedTickets = issuedTicketRepository.findByBooking(booking);
+        booking.getIssuedTickets().clear();
+        booking.getIssuedTickets().addAll(generatedTickets);
+
         return bookingMapper.toDetail(booking);
     }
 

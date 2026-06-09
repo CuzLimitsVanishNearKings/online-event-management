@@ -2,12 +2,26 @@ import { format, parseISO } from 'date-fns'
 import { Calendar, MapPin, User, CheckCircle, Share2, Heart, Clock, Users } from '../icons'
 import { cn } from '../../utils/cn'
 import { getImageUrl } from '../../utils/image'
+import { usePlanning } from '../../hooks/usePlanning'
 
 interface EventHeroProps {
   event: any
 }
 
 const EventHero = ({ event }: EventHeroProps) => {
+  const { plannedEvents, addEvent, removeEvent } = usePlanning()
+  
+  const eventIdNum = Number(event?.id)
+  const isSaved = plannedEvents.some(p => p.eventId === eventIdNum)
+
+  const handleToggleSave = async () => {
+    if (isSaved) {
+      await removeEvent(eventIdNum)
+    } else {
+      await addEvent(eventIdNum)
+    }
+  }
+
   let formattedDate = ''
   try {
     if (event.date && event.date !== 'Invalid Date' && (event.date.includes(',') || isNaN(Date.parse(event.date)) && !event.date.includes('-') && !event.date.includes('T'))) {
@@ -68,8 +82,11 @@ const EventHero = ({ event }: EventHeroProps) => {
 
         {/* Floating Actions */}
         <div className="absolute top-6 right-6 flex gap-3">
-           <button className="p-3 bg-white/90 backdrop-blur-md rounded-2xl shadow-lg hover:bg-white transition-all group">
-              <Heart className="w-5 h-5 text-text-secondary group-hover:text-red-500 transition-colors" />
+           <button 
+             onClick={handleToggleSave}
+             className="p-3 bg-white/90 backdrop-blur-md rounded-2xl shadow-lg hover:bg-white transition-all group"
+           >
+              <Heart className={cn("w-5 h-5 transition-colors", isSaved ? "text-red-500 fill-red-500" : "text-text-secondary group-hover:text-red-500")} />
            </button>
            <button className="p-3 bg-white/90 backdrop-blur-md rounded-2xl shadow-lg hover:bg-white transition-all group">
               <Share2 className="w-5 h-5 text-text-secondary group-hover:text-primary transition-colors" />

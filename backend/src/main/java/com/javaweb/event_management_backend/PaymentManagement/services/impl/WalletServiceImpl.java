@@ -153,9 +153,12 @@ public class WalletServiceImpl implements WalletService
 
         Wallet wallet = Wallet.builder()
                 .user(user)
+                .balance(new BigDecimal("500000.00"))
                 .build();
 
         walletRepository.save(wallet);
+
+        recordTransaction(wallet, new BigDecimal("500000.00"), TransactionType.CREDIT, "Welcome bonus");
     }
 
     // ─── PRIVATE HELPERS ─────────────────────────────────────────

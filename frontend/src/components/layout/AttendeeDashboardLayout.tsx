@@ -22,10 +22,10 @@ export default function AttendeeDashboardLayout() {
     return <Navigate to="/login" replace />
   }
 
-  if (isAuthenticated && user?.role === 'organizer') {
-    return <Navigate to="/organizer/dashboard" replace />
-  }
-
+  // Organizers are now allowed to access the Attendee portal to view tickets they have booked
+  // if (isAuthenticated && user?.role === 'organizer') {
+  //   return <Navigate to="/organizer/dashboard" replace />
+  // }
   if (isAuthenticated && user?.role === 'admin') {
     return <Navigate to="/admin/dashboard" replace />
   }

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react'
 import { Button } from '../ui'
 import { formatCurrency } from '../../utils/format'
-import { useCartStore } from '../../store/cartStore'
+import { useNavigate } from 'react-router-dom'
 import { Minus, Plus, AlertCircle, ShieldCheck, Zap, Ticket } from '../icons'
 import { cn } from '../../utils/cn'
 
@@ -19,7 +19,7 @@ interface TicketSelectorProps {
 }
 
 const TicketSelector = ({ event, fullEvent }: TicketSelectorProps) => {
-  const { addItem, hasItem } = useCartStore()
+  const navigate = useNavigate()
   
   const ticketTypes = event.ticketTypes || []
 
@@ -57,19 +57,24 @@ const TicketSelector = ({ event, fullEvent }: TicketSelectorProps) => {
 
   const totalPrice = selectedTicketType.price * quantity
   const isSoldOut = selectedTicketType.quantityRemaining === 0
-  const isInCart = hasItem(event.id)
 
-  const handleAddToCart = () => {
-    addItem({
-      eventId: event.id,
-      eventTitle: event.title,
-      eventDate: event.date || '',
-      eventLocation: event.venue || '',
-      eventImage: event.coverImage || '',
-      quantity,
-      price: selectedTicketType.price,
-      ticketTypeId: selectedTicketType.ticketTypeId,
-      ticketTypeName: selectedTicketType.name
+  const handleReserveNow = () => {
+    navigate('/checkout', {
+      state: {
+        singleItemCheckout: {
+          id: `${event.id}-single`,
+          eventId: event.id,
+          eventTitle: event.title,
+          eventDate: event.date || '',
+          eventLocation: event.venue || '',
+          eventImage: event.coverImage || '',
+          quantity,
+          price: selectedTicketType.price,
+          totalPrice: totalPrice,
+          ticketTypeId: selectedTicketType.ticketTypeId,
+          ticketTypeName: selectedTicketType.name
+        }
+      }
     })
   }
 
@@ -203,15 +208,12 @@ const TicketSelector = ({ event, fullEvent }: TicketSelectorProps) => {
            <Button
              variant="primary"
              size="lg"
-             onClick={handleAddToCart}
+             onClick={handleReserveNow}
              className="w-full rounded-2xl py-7 text-lg font-bold shadow-xl shadow-primary/10"
-             disabled={isInCart}
            >
-             {isInCart 
-               ? 'Already Selected' 
-               : selectedTicketType.price === 0 
-                 ? 'Register Now' 
-                 : 'Reserve My Spot'
+             {selectedTicketType.price === 0 
+               ? 'Register Now' 
+               : 'Reserve My Spot'
              }
            </Button>
            <p className="text-center text-xs text-text-muted font-medium">
