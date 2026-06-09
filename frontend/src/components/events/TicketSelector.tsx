@@ -208,7 +208,7 @@ const TicketSelector = ({ event, fullEvent }: TicketSelectorProps) => {
              disabled={isInCart}
            >
              {isInCart 
-               ? 'Already in Cart' 
+               ? 'Already Selected' 
                : selectedTicketType.price === 0 
                  ? 'Register Now' 
                  : 'Reserve My Spot'

@@ -1,253 +1,189 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { useCartStore } from '../store/cartStore'
 import { formatCurrency } from '../utils/format'
-import { Button, Input } from '../components/ui'
-import { ChevronLeft, Ticket, ShieldCheck, CheckCircle } from '../components/icons'
+import { Button } from '../components/ui'
+import { ChevronLeft, Ticket, CheckCircle, ExternalLink } from '../components/icons'
+import { Wallet } from 'lucide-react'
 import axiosClient from '../api/axiosClient'
 import { getImageUrl } from '../utils/image'
+import { useWallet } from '../hooks/useWallet'
 
 const CheckoutPage = () => {
-  const { items, total, clearCart } = useCartStore()
+  const { items, total, removeItem } = useCartStore()
   const navigate = useNavigate()
-  const [promoCode, setPromoCode] = useState('')
-  const [discount, setDiscount] = useState(0)
-  const [isProcessing, setIsProcessing] = useState(false)
-  const [isSuccess, setIsSuccess] = useState(false)
+  const [processingId, setProcessingId] = useState<string | null>(null)
+  const [successIds, setSuccessIds] = useState<string[]>([])
+  
+  const { wallet, loading, fetchWallet } = useWallet()
 
-  const [promoApplied, setPromoApplied] = useState(false)
+  useEffect(() => {
+    fetchWallet()
+  }, [fetchWallet])
 
-  const handleApplyPromo = () => {
-    const code = promoCode.toUpperCase()
-    if (code === 'SAVE20') {
-      setDiscount(total * 0.2)
-      setPromoApplied(true)
-      alert("Promo code SAVE20 applied successfully! 20% discount added.")
-    } else if (code === 'WELCOME5000') {
-      setDiscount(Math.min(total, 5000))
-      setPromoApplied(true)
-      alert("Promo code WELCOME5000 applied successfully! 5000 FCFA discount added.")
-    } else if (code === 'STUDENT10') {
-      setDiscount(total * 0.1)
-      setPromoApplied(true)
-      alert("Promo code STUDENT10 applied successfully! 10% discount added.")
-    } else if (code === 'EARLYBIRD') {
-      setDiscount(total * 0.15)
-      setPromoApplied(true)
-      alert("Promo code EARLYBIRD applied successfully! 15% discount added.")
-    } else {
-      setDiscount(0)
-      setPromoApplied(false)
-      alert("Invalid promo code. Try SAVE20 or WELCOME5000.")
-    }
-  }
-
-  const handlePayment = async (e: React.FormEvent) => {
-    e.preventDefault()
-    setIsProcessing(true)
+  const handlePayment = async (item: any) => {
+    setProcessingId(item.id)
     
     try {
-      // Loop over and submit each cart item as a booking to the live backend
-      await Promise.all(
-        items.map((item) =>
-          axiosClient.post('/bookings', {
-            ticketTypeId: item.ticketTypeId,
-            quantity: item.quantity,
-            promotionCode: promoApplied ? promoCode.toUpperCase() : null
-          })
-        )
-      )
+      await axiosClient.post('/bookings', {
+        ticketTypeId: item.ticketTypeId,
+        quantity: item.quantity,
+        promotionCode: null
+      })
       
-      setIsProcessing(false)
-      setIsSuccess(true)
-      clearCart()
+      setSuccessIds(prev => [...prev, item.id])
+      setProcessingId(null)
+      fetchWallet() // Refresh wallet balance
       
-      // Navigate to tickets after 3 seconds
+      // Remove from cart after 2 seconds
       setTimeout(() => {
-        navigate('/attendee/tickets')
-      }, 3000)
+        removeItem(item.id)
+      }, 2000)
     } catch (err: any) {
       console.error('Checkout error:', err)
-      alert(err.response?.data?.message || 'Failed to place booking. Please check category availability or try again.')
-      setIsProcessing(false)
+      alert(err.response?.data?.message || 'Failed to place booking. Please check wallet balance and try again.')
+      setProcessingId(null)
     }
   }
 
-  if (items.length === 0 && !isSuccess) {
+  if (items.length === 0) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6">
+      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-6 text-center">
         <Ticket className="w-16 h-16 text-text-muted mb-4" />
-        <h1 className="text-2xl font-bold text-text-primary mb-2">Your cart is empty</h1>
-        <p className="text-text-muted mb-6">Add some events before checking out.</p>
-        <Button onClick={() => navigate('/events')} variant="primary" className="rounded-xl px-8">
-          Browse Events
-        </Button>
+        <h1 className="text-3xl font-display font-bold text-text-primary mb-2">No pending reservations</h1>
+        <p className="text-text-muted mb-8 max-w-md">You have completed all your reservations or no tickets are selected.</p>
+        <div className="flex gap-4">
+          <Button onClick={() => navigate('/events')} variant="primary" className="rounded-xl px-8">
+            Browse Events
+          </Button>
+          <Button onClick={() => navigate('/attendee/tickets')} variant="outline" className="rounded-xl px-8 border-border">
+            View My Tickets
+          </Button>
+        </div>
       </div>
     )
   }
-
-  if (isSuccess) {
-    return (
-      <div className="min-h-screen bg-surface flex flex-col items-center justify-center p-6 text-center">
-        <motion.div 
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          className="bg-white p-10 rounded-3xl border border-border shadow-xl max-w-md w-full"
-        >
-          <div className="w-20 h-20 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-6">
-            <CheckCircle className="w-10 h-10" />
-          </div>
-          <h1 className="text-3xl font-display font-bold text-text-primary mb-2">Payment Successful!</h1>
-          <p className="text-text-muted mb-8 leading-relaxed">
-            Your tickets have been issued and sent to your email. Get ready for an amazing experience.
-          </p>
-          
-          <div className="w-full h-32 bg-gray-100 rounded-xl mb-6 flex items-center justify-center border-2 border-dashed border-gray-300 relative overflow-hidden">
-             {/* Simulated Barcode */}
-             <div className="absolute inset-0 opacity-50" style={{ backgroundImage: 'linear-gradient(90deg, #000 2px, transparent 2px, transparent 6px, #000 6px, #000 10px, transparent 10px, transparent 12px, #000 12px, #000 16px, transparent 16px)', backgroundSize: '20px 100%' }} />
-             <span className="relative bg-white px-4 py-1 rounded-md text-xs font-bold text-text-muted z-10 border border-border">Generating secure ticket...</span>
-          </div>
-          
-          <p className="text-sm font-bold text-primary animate-pulse">Redirecting to your tickets...</p>
-        </motion.div>
-      </div>
-    )
-  }
-
-  const finalTotal = total - discount
 
   return (
     <div className="min-h-screen bg-[#FDFBF7] py-12 px-4 sm:px-6">
-      <div className="max-w-6xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         <div className="mb-8">
           <Link to="/events" className="inline-flex items-center gap-2 text-text-muted hover:text-text-primary font-bold text-sm transition-colors uppercase tracking-widest">
             <ChevronLeft className="w-4 h-4" /> Keep Browsing
           </Link>
         </div>
         
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-          
-          {/* Left: Payment Form */}
-          <div className="lg:col-span-7 space-y-8">
+        <div className="mb-10">
+          <h1 className="text-4xl font-display font-bold text-text-primary tracking-tight">Complete Reservations</h1>
+          <p className="text-text-muted mt-2">Pay for your selected tickets individually below.</p>
+        </div>
+
+        {/* Digital Wallet Header */}
+        <div className="bg-white rounded-3xl border border-border p-6 shadow-sm mb-10 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+              <Wallet className="w-6 h-6 text-primary" />
+            </div>
             <div>
-              <h1 className="text-4xl font-display font-bold text-text-primary tracking-tight">Checkout</h1>
-              <p className="text-text-muted mt-2">Complete your order securely.</p>
-            </div>
-
-            <form onSubmit={handlePayment} className="bg-white rounded-3xl border border-border p-8 shadow-sm space-y-8 relative overflow-hidden">
-              {/* Glassmorphism subtle background element */}
-              <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/5 rounded-full blur-3xl pointer-events-none" />
-              
-              <div className="space-y-4">
-                <h3 className="text-lg font-bold text-text-primary flex items-center gap-2">
-                  <ShieldCheck className="w-5 h-5 text-primary" /> Contact Information
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Input label="First Name" required />
-                  <Input label="Last Name" required />
-                  <Input label="Email Address" type="email" required className="md:col-span-2" />
-                </div>
-              </div>
-
-              <div className="space-y-4">
-                <h3 className="text-lg font-bold text-text-primary flex items-center gap-2">
-                  <Ticket className="w-5 h-5 text-primary" /> Payment Method
-                </h3>
-                
-                {/* Simulated Credit Card Box */}
-                <div className="p-6 rounded-2xl border border-border bg-gray-50/50 space-y-4">
-                  <Input label="Card Number" placeholder="0000 0000 0000 0000" required />
-                  <div className="grid grid-cols-2 gap-4">
-                    <Input label="Expiry Date" placeholder="MM/YY" required />
-                    <Input label="CVC" placeholder="123" required />
-                  </div>
-                  <Input label="Name on Card" required />
-                </div>
-              </div>
-
-              <Button 
-                type="submit" 
-                variant="primary" 
-                className="w-full rounded-2xl py-6 text-lg font-bold shadow-xl shadow-primary/20 relative"
-                disabled={isProcessing}
-              >
-                {isProcessing ? (
-                  <div className="flex items-center gap-2">
-                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    Processing Payment...
-                  </div>
-                ) : (
-                  `Pay ${formatCurrency(finalTotal)}`
-                )}
-              </Button>
-              <p className="text-center text-xs text-text-muted font-medium flex items-center justify-center gap-1.5">
-                <ShieldCheck className="w-3.5 h-3.5" /> Payments are secure and encrypted
-              </p>
-            </form>
-          </div>
-
-          {/* Right: Order Summary */}
-          <div className="lg:col-span-5">
-            <div className="bg-white rounded-3xl border border-border p-8 shadow-sm sticky top-8 space-y-6">
-              <h3 className="text-xl font-display font-bold text-text-primary border-b border-border pb-4">Order Summary</h3>
-              
-              <div className="space-y-4 max-h-[40vh] overflow-y-auto pr-2">
-                {items.map(item => (
-                  <div key={item.id} className="flex gap-4">
-                    <div className="w-16 h-16 bg-surface rounded-xl overflow-hidden flex-shrink-0 border border-border">
-                       {item.eventImage ? (
-                          <img src={getImageUrl(item.eventImage)} alt="Event" className="w-full h-full object-cover" />
-                       ) : (
-                          <div className="w-full h-full bg-primary/10 flex items-center justify-center text-primary text-xs font-bold">TIC</div>
-                       )}
-                    </div>
-                    <div className="flex-1">
-                      <h4 className="font-bold text-sm text-text-primary line-clamp-1">{item.eventTitle}</h4>
-                      <p className="text-xs text-text-muted mt-1">Qty: {item.quantity}</p>
-                    </div>
-                    <div className="font-bold text-text-primary text-sm">
-                      {formatCurrency(item.totalPrice)}
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              {/* Promo Code */}
-              <div className="pt-6 border-t border-border">
-                <div className="flex gap-2">
-                  <input 
-                    type="text" 
-                    placeholder="Promo code (try VIP10)" 
-                    value={promoCode}
-                    onChange={(e) => setPromoCode(e.target.value)}
-                    className="flex-1 border border-border rounded-xl px-4 text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
-                  />
-                  <Button onClick={handleApplyPromo} variant="outline" className="rounded-xl border-border bg-gray-50 text-text-secondary font-bold">Apply</Button>
-                </div>
-              </div>
-
-              {/* Totals */}
-              <div className="pt-6 border-t border-border space-y-3">
-                <div className="flex justify-between text-sm text-text-muted font-medium">
-                  <span>Subtotal</span>
-                  <span>{formatCurrency(total)}</span>
-                </div>
-                {discount > 0 && (
-                  <div className="flex justify-between text-sm text-green-600 font-bold">
-                    <span>Discount</span>
-                    <span>-{formatCurrency(discount)}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-xl font-display font-bold text-text-primary pt-3 border-t border-border">
-                  <span>Total</span>
-                  <span>{formatCurrency(finalTotal)}</span>
-                </div>
-              </div>
-              
+              <p className="text-sm font-bold text-text-muted uppercase tracking-wider">Digital Wallet Balance</p>
+              {loading ? (
+                <div className="w-24 h-6 bg-gray-200 animate-pulse rounded mt-1"></div>
+              ) : (
+                <p className="text-2xl font-display font-bold text-primary">{wallet ? formatCurrency(wallet.balance) : 'Error'}</p>
+              )}
             </div>
           </div>
-          
+          <Link to="/attendee/wallet" className="text-sm font-bold text-text-secondary hover:text-primary underline">
+            Top Up Wallet
+          </Link>
+        </div>
+
+        {/* Individual Items List */}
+        <div className="space-y-6">
+          <AnimatePresence>
+            {items.map(item => {
+              const isProcessing = processingId === item.id
+              const isSuccess = successIds.includes(item.id)
+              const hasInsufficientFunds = wallet ? wallet.balance < item.totalPrice : true
+              
+              return (
+                <motion.div 
+                  key={item.id}
+                  layout
+                  initial={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, height: 0, overflow: 'hidden', marginTop: 0, padding: 0 }}
+                  className="bg-white rounded-3xl border border-border p-6 shadow-sm flex flex-col md:flex-row gap-6 relative overflow-hidden"
+                >
+                  {isSuccess && (
+                    <div className="absolute inset-0 bg-green-50 z-10 flex items-center justify-center">
+                      <div className="flex flex-col items-center gap-2 text-green-700">
+                        <CheckCircle className="w-10 h-10" />
+                        <span className="font-bold text-lg">Reservation Complete!</span>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Left: Event Details (Clickable) */}
+                  <Link to={`/events/${item.eventId}`} className="group flex-shrink-0 relative w-full md:w-48 h-32 rounded-2xl overflow-hidden bg-surface border border-border block">
+                    {item.eventImage ? (
+                      <img src={getImageUrl(item.eventImage)} alt={item.eventTitle} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
+                    ) : (
+                      <div className="w-full h-full bg-primary/10 flex items-center justify-center text-primary text-sm font-bold">EVENT</div>
+                    )}
+                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-300">
+                      <ExternalLink className="w-6 h-6 text-white" />
+                    </div>
+                  </Link>
+
+                  {/* Middle: Info */}
+                  <div className="flex-1 flex flex-col justify-center">
+                    <Link to={`/events/${item.eventId}`} className="group inline-flex items-center gap-2 w-fit">
+                      <h3 className="text-xl font-display font-bold text-text-primary group-hover:text-primary transition-colors">{item.eventTitle}</h3>
+                    </Link>
+                    <p className="text-sm text-text-muted mt-1">{item.ticketTypeName}</p>
+                    
+                    <div className="flex items-center gap-6 mt-4">
+                      <div className="bg-gray-50 px-3 py-1.5 rounded-lg border border-border text-sm">
+                        <span className="text-text-muted">Quantity:</span> <span className="font-bold text-text-primary ml-1">{item.quantity}</span>
+                      </div>
+                      <div className="text-xl font-display font-bold text-primary">
+                        {formatCurrency(item.totalPrice)}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Right: Payment Action */}
+                  <div className="flex flex-col justify-center items-end border-t md:border-t-0 md:border-l border-border pt-4 md:pt-0 md:pl-6 min-w-[200px]">
+                    {hasInsufficientFunds && !isSuccess ? (
+                      <div className="text-center w-full">
+                        <p className="text-red-500 text-xs font-bold mb-2">Insufficient funds</p>
+                        <Button variant="outline" className="w-full rounded-xl opacity-50 cursor-not-allowed border-red-200 text-red-500">
+                          Cannot Pay
+                        </Button>
+                      </div>
+                    ) : (
+                      <Button 
+                        variant="primary" 
+                        onClick={() => handlePayment(item)}
+                        disabled={isProcessing || processingId !== null}
+                        className="w-full rounded-xl py-4 font-bold shadow-lg shadow-primary/20"
+                      >
+                        {isProcessing ? (
+                          <div className="flex items-center gap-2 justify-center">
+                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                            Paying...
+                          </div>
+                        ) : (
+                          `Pay ${formatCurrency(item.totalPrice)}`
+                        )}
+                      </Button>
+                    )}
+                  </div>
+                </motion.div>
+              )
+            })}
+          </AnimatePresence>
         </div>
       </div>
     </div>
@@ -255,3 +191,4 @@ const CheckoutPage = () => {
 }
 
 export default CheckoutPage
+

@@ -24,7 +24,7 @@ const CartSidebar = () => {
         <div className="px-6 py-4 border-b border-border flex items-center justify-between bg-surface/30">
           <div className="flex items-center gap-3">
              <Ticket className="w-5 h-5 text-primary" />
-             <h2 className="text-xl font-display font-bold text-text-primary tracking-tight">Your Cart</h2>
+             <h2 className="text-xl font-display font-bold text-text-primary tracking-tight">Selected Tickets</h2>
           </div>
           <button 
             onClick={closeCart}
@@ -40,7 +40,7 @@ const CartSidebar = () => {
               <div className="w-16 h-16 bg-surface rounded-full flex items-center justify-center border border-border">
                 <Ticket className="w-8 h-8 text-text-muted/50" />
               </div>
-              <p className="text-lg font-bold text-text-primary">Your cart is empty</p>
+              <p className="text-lg font-bold text-text-primary">No tickets selected</p>
               <p className="text-text-muted">Looks like you haven't added any tickets yet.</p>
               <Button 
                 onClick={() => { closeCart(); navigate('/events') }}
@@ -100,7 +100,7 @@ const CartSidebar = () => {
               variant="primary"
               className="w-full rounded-2xl py-6 text-lg font-bold shadow-xl shadow-primary/20"
             >
-              Proceed to Checkout
+              Complete Reservations
             </Button>
           </div>
         )}
