@@ -38,7 +38,7 @@ public class BookingController {
     // POST /api/bookings/cancel
     // cancel a booking
     @PostMapping("/cancel")
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasAnyRole('CLIENT', 'ORGANIZER')")
     public ResponseEntity<BookingResponseDto.Detail> cancelBooking(
             @Valid @RequestBody BookingRequestDto.CancelBooking dto) {
         User currentUser = SecurityUtils.getCurrentUser();
@@ -49,7 +49,7 @@ public class BookingController {
     // GET /api/bookings/my-bookings
     // get all bookings for current user
     @GetMapping("/my-bookings")
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasAnyRole('CLIENT', 'ORGANIZER')")
     public ResponseEntity<List<BookingResponseDto.Summary>> getMyBookings() {
         User currentUser = SecurityUtils.getCurrentUser();
         return ResponseEntity.ok(
@@ -59,7 +59,7 @@ public class BookingController {
     // GET /api/bookings/{bookingId}
     // get booking details by id
     @GetMapping("/{bookingId}")
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasAnyRole('CLIENT', 'ORGANIZER')")
     public ResponseEntity<BookingResponseDto.Detail> getBookingById(
             @PathVariable Long bookingId) {
         User currentUser = SecurityUtils.getCurrentUser();
@@ -70,7 +70,7 @@ public class BookingController {
     // GET /api/bookings/my-bookings/status/{status}
     // get bookings by status for current user
     @GetMapping("/my-bookings/status/{status}")
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasAnyRole('CLIENT', 'ORGANIZER')")
     public ResponseEntity<List<BookingResponseDto.Summary>> getMyBookingsByStatus(
             @PathVariable BookingStatus status) {
         User currentUser = SecurityUtils.getCurrentUser();
