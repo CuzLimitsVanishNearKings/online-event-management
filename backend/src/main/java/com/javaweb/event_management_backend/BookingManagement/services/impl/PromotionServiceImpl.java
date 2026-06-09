@@ -180,11 +180,12 @@ public class PromotionServiceImpl implements PromotionService {
     }
 
     // check all three validity conditions
-    private boolean isPromotionValid(Promotion promotion) {
+    private boolean isPromotionValid(Promotion promotion)
+    {
         LocalDate today = LocalDate.now();
-        return promotion.getEndDate().isAfter(today)
-                && promotion.getStartDate().isBefore(today)
-                || promotion.getStartDate().isEqual(today)
+        return (promotion.getStartDate().isEqual(today)
+                || promotion.getStartDate().isBefore(today))
+                && promotion.getEndDate().isAfter(today)
                 && promotion.getTimesUsed() < promotion.getUsageLimit();
     }
 }

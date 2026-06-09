@@ -227,4 +227,16 @@ public class IssuedTicketServiceImpl implements IssuedTicketService {
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Ticket not found with id: " + issuedTicketId));
     }
+
+    // IssuedTicketServiceImpl.java — inside the CLIENT section
+    @Override
+    @Transactional(readOnly = true)
+    public List<IssuedTicketResponseDto.Response> getMyTickets(User currentUser)
+    {
+        return issuedTicketRepository
+                .findByBookingUserOrderByIssuedAtDesc(currentUser)
+                .stream()
+                .map(issuedTicketMapper::toResponse)
+                .collect(Collectors.toList());
+    }
 }

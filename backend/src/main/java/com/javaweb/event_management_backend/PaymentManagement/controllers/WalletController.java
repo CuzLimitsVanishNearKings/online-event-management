@@ -7,6 +7,7 @@ import com.javaweb.event_management_backend.UserManagement.models.User;
 import com.javaweb.event_management_backend.config.SecurityUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -34,7 +35,7 @@ public class WalletController
     @GetMapping("/transactions")
     @PreAuthorize("hasAnyRole('CLIENT', 'ORGANIZER')")
     public ResponseEntity<WalletResponseDto.WalletWithTransactions>
-    getMyWalletWithTransactions(Pageable pageable)
+    getMyWalletWithTransactions( @ParameterObject Pageable pageable)
     {
         User currentUser = SecurityUtils.getCurrentUser();
         return ResponseEntity.ok(

@@ -8,6 +8,7 @@ import com.javaweb.event_management_backend.UserManagement.models.User;
 import com.javaweb.event_management_backend.config.SecurityUtils;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -29,7 +30,7 @@ public class PaymentController {
     // POST /api/payments/initiate
     // initiate payment for a booking
     @PostMapping("/initiate")
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasAnyRole('CLIENT', 'ORGANIZER')")
     public ResponseEntity<PaymentResponseDto.PaymentResult> initiatePayment(
             @Valid @RequestBody PaymentRequestDto.InitiatePayment dto) {
         User currentUser = SecurityUtils.getCurrentUser();
@@ -40,7 +41,7 @@ public class PaymentController {
     // GET /api/payments/booking/{bookingId}
     // get payment details for a booking
     @GetMapping("/booking/{bookingId}")
-    @PreAuthorize("hasRole('CLIENT')")
+    @PreAuthorize("hasAnyRole('CLIENT', 'ORGANIZER')")
     public ResponseEntity<PaymentResponseDto.PaymentResult> getPaymentByBooking(
             @PathVariable Long bookingId) {
         User currentUser = SecurityUtils.getCurrentUser();
@@ -82,7 +83,9 @@ public class PaymentController {
     @GetMapping("/revenue/range")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Map<String, BigDecimal>> getRevenueBetween(
-            @RequestParam LocalDateTime start,
+            @RequestParam
+            @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
+            LocalDateTime start,
             @RequestParam LocalDateTime end) {
         return ResponseEntity.ok(Map.of(
                 "totalRevenue",

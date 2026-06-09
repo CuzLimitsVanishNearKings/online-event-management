@@ -47,6 +47,7 @@ public class SecurityConfig {
                         // Anyone can browse events
                         .requestMatchers(HttpMethod.GET, "/api/events/**").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/promotions/validate").permitAll()
 
                         // Swagger UI
                         .requestMatchers(
@@ -72,6 +73,7 @@ public class SecurityConfig {
                         .requestMatchers("/api/wallet/**").hasAnyRole("CLIENT", "ORGANIZER")
                         .requestMatchers("/api/payments/**").hasAnyRole("CLIENT", "ORGANIZER")
                         .requestMatchers("/api/top-up-requests/**").hasAnyRole("CLIENT", "ORGANIZER", "ADMIN")
+                        .requestMatchers("/api/planning/**").hasAnyRole("CLIENT", "ORGANIZER")
 
                         // ─── ANY AUTHENTICATED USER ──────────────────────
                         .anyRequest().authenticated()
