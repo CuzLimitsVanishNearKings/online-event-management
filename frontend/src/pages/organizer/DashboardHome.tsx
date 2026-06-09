@@ -131,7 +131,7 @@ export default function DashboardHome() {
     { 
       title: 'Total Revenue', 
       value: `${safeMetrics.totalRevenue.toLocaleString()} FCFA`, 
-      growth: safeMetrics.revenueGrowth, 
+      growth: 0, 
       icon: DollarSign,
       color: 'text-primary',
       bg: 'bg-primary/10'
@@ -139,7 +139,7 @@ export default function DashboardHome() {
     { 
       title: 'Tickets Sold', 
       value: safeMetrics.ticketsSold.toLocaleString(), 
-      growth: safeMetrics.ticketGrowth, 
+      growth: 0, 
       icon: Ticket,
       color: 'text-accent-dark',
       bg: 'bg-accent/10'
@@ -147,19 +147,11 @@ export default function DashboardHome() {
     { 
       title: 'Active Events', 
       value: safeMetrics.activeEvents.toLocaleString(), 
-      growth: safeMetrics.eventsGrowth, 
+      growth: 0, 
       icon: CalendarDays,
       color: 'text-sage',
       bg: 'bg-sage/10'
-    },
-    { 
-      title: 'Page Views', 
-      value: safeMetrics.pageViews.toLocaleString(), 
-      growth: safeMetrics.viewsGrowth, 
-      icon: Eye,
-      color: 'text-terracotta',
-      bg: 'bg-terracotta/10'
-    },
+    }
   ]
 
   return (
@@ -211,118 +203,8 @@ export default function DashboardHome() {
         ))}
       </motion.div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Main Chart Section */}
-        <motion.div variants={itemVariants} className="lg:col-span-2 bg-white rounded-2xl border border-border shadow-sm p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-            <div>
-              <h2 className="text-lg font-bold text-text-primary">Revenue Overview</h2>
-              <p className="text-sm text-text-muted">Ticket sales and revenue trends</p>
-            </div>
-            <div className="flex bg-surface rounded-lg p-1">
-              {['7d', '30d', '90d'].map((range) => (
-                <button
-                  key={range}
-                  onClick={() => setTimeRange(range as any)}
-                  className={cn(
-                    "px-4 py-1.5 text-sm font-bold rounded-md transition-all",
-                    timeRange === range 
-                      ? "bg-white text-text-primary shadow-sm" 
-                      : "text-text-muted hover:text-text-primary"
-                  )}
-                >
-                  {range.toUpperCase()}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div className="h-[350px] w-full">
-            {safeMetrics.revenueData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={safeMetrics.revenueData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#9CA763" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#9CA763" stopOpacity={0}/>
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E8DCC4" opacity={0.5} />
-                  <XAxis 
-                    dataKey="date" 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fill: '#8B7355', fontSize: 12, fontWeight: 500 }}
-                    dy={10}
-                  />
-                  <YAxis 
-                    axisLine={false} 
-                    tickLine={false} 
-                    tick={{ fill: '#8B7355', fontSize: 12, fontWeight: 500 }}
-                    tickFormatter={(value) => `${value} FCFA`}
-                  />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Area 
-                    type="monotone" 
-                    dataKey="revenue" 
-                    stroke="#9CA763" 
-                    strokeWidth={3}
-                    fillOpacity={1} 
-                    fill="url(#colorRevenue)" 
-                  />
-                </AreaChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-border rounded-xl bg-surface/30">
-                <Activity className="w-12 h-12 text-text-muted/30 mb-3" />
-                <p className="text-text-muted font-bold">No revenue data yet</p>
-                <p className="text-sm text-text-muted/70 mt-1">Publish an event to start tracking sales.</p>
-              </div>
-            )}
-          </div>
-        </motion.div>
-
-        {/* Recent Activity Sidebar */}
-        <motion.div variants={itemVariants} className="bg-white rounded-2xl border border-border shadow-sm p-6 flex flex-col">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-bold text-text-primary">Recent Activity</h2>
-            <button className="text-sm font-bold text-primary hover:text-primary-dark transition-colors">
-              View All
-            </button>
-          </div>
-          
-          <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-            {safeMetrics.recentActivities.length > 0 ? (
-              <div className="space-y-6">
-                {safeMetrics.recentActivities.map((activity, i) => (
-                  <div key={activity.id} className="relative pl-6">
-                    {/* Timeline line */}
-                    {i !== safeMetrics.recentActivities.length - 1 && (
-                      <div className="absolute left-[11px] top-7 bottom-[-24px] w-0.5 bg-border/50" />
-                    )}
-                    {/* Timeline dot */}
-                    <div className="absolute left-0 top-1.5 w-6 h-6 rounded-full bg-primary/10 border-2 border-white flex items-center justify-center">
-                      <div className="w-2 h-2 rounded-full bg-primary" />
-                    </div>
-                    
-                    <div>
-                      <p className="text-sm text-text-primary font-medium">
-                        <span className="font-bold">{activity.user}</span> {activity.action} <span className="font-bold">{activity.eventName}</span>
-                      </p>
-                      <p className="text-xs text-text-muted mt-1 font-medium">{activity.time}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="h-full flex flex-col items-center justify-center text-center pb-10">
-                <Clock className="w-10 h-10 text-border mb-3" />
-                <p className="text-text-muted font-bold text-sm">Quiet in here...</p>
-                <p className="text-xs text-text-muted/70 mt-1">Activities will appear as users interact with your events.</p>
-              </div>
-            )}
-          </div>
-        </motion.div>
+      <div className="grid grid-cols-1 gap-8">
+        {/* We removed the dummy revenue timeline and activity logs, keeping only supported features */}
       </div>
 
       {/* Active Events Table */}

@@ -46,14 +46,12 @@ export default function OrganizerSidebar({ onMobileClose }: OrganizerSidebarProp
       title: "Insights",
       items: [
         { path: '/organizer/orders', label: 'Sales & Orders', icon: Receipt },
-        { path: '/organizer/analytics', label: 'Analytics', icon: LineChart },
       ]
     },
     {
       title: "Configuration",
       items: [
         { path: '/organizer/profile', label: 'My Profile', icon: User },
-        { path: '/organizer/settings', label: 'Settings', icon: Settings },
       ]
     }
   ]

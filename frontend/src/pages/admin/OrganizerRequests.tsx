@@ -1,8 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Search, Filter, Check, X, Eye, UserCheck, Mail, Calendar } from 'lucide-react'
 import { Button } from '@/components/ui'
 import { cn } from '@/utils/cn'
+import axiosClient from '@/api/axiosClient'
 
 type RequestTab = 'pending' | 'approved' | 'rejected'
 
@@ -12,8 +13,31 @@ export default function OrganizerRequests() {
   const [approving, setApproving] = useState<string | null>(null)
   const [rejecting, setRejecting] = useState<string | null>(null)
 
-  // No mock data – will be populated from API
-  const requests: any[] = []
+  const [requests, setRequests] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  const fetchOrganizers = async () => {
+    try {
+      const res = await axiosClient.get('/users/organizers')
+      const mapped = res.data.map((org: any) => ({
+        id: org.id,
+        name: org.firstName && org.lastName ? `${org.firstName} ${org.lastName}` : (org.userName || 'Unknown'),
+        organization: org.profile?.companyName || 'N/A',
+        email: org.email,
+        status: org.status === 'PENDING' ? 'pending' : (org.status === 'ACTIVE' ? 'approved' : 'rejected'),
+        submittedAt: new Date().toLocaleDateString() // Mock date since backend doesn't provide createdAt
+      }))
+      setRequests(mapped)
+    } catch (err) {
+      console.error('Failed to fetch organizers', err)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  useEffect(() => {
+    fetchOrganizers()
+  }, [])
 
   const filteredRequests = requests.filter((r) => {
     const query = searchQuery.toLowerCase()
@@ -24,14 +48,28 @@ export default function OrganizerRequests() {
     return matchesSearch && matchesTab
   })
 
-  const handleApprove = (id: string) => {
+  const handleApprove = async (id: string) => {
     setApproving(id)
-    setTimeout(() => setApproving(null), 1500)
+    try {
+      await axiosClient.patch(`/users/${id}/activate`)
+      fetchOrganizers()
+    } catch (err) {
+      console.error('Failed to approve organizer', err)
+    } finally {
+      setApproving(null)
+    }
   }
 
-  const handleReject = (id: string) => {
+  const handleReject = async (id: string) => {
     setRejecting(id)
-    setTimeout(() => setRejecting(null), 1500)
+    try {
+      await axiosClient.patch(`/users/${id}/suspend`)
+      fetchOrganizers()
+    } catch (err) {
+      console.error('Failed to reject organizer', err)
+    } finally {
+      setRejecting(null)
+    }
   }
 
   return (
@@ -82,7 +120,9 @@ export default function OrganizerRequests() {
         </div>
 
         {/* Content */}
-        {filteredRequests.length > 0 ? (
+        {loading ? (
+          <div className="p-12 flex justify-center"><div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" /></div>
+        ) : filteredRequests.length > 0 ? (
           <div className="divide-y divide-border">
             {filteredRequests.map((req) => (
               <div key={req.id} className="p-6 hover:bg-gray-50 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4">

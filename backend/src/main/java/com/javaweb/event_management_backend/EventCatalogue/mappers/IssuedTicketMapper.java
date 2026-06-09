@@ -17,6 +17,9 @@ public class IssuedTicketMapper {
                 .issuedAt(issuedTicket.getIssuedAt())
                 .ticketTypeName(issuedTicket.getTicketType().getName())
                 .ticketTypePrice(issuedTicket.getTicketType().getPrice())
+                .attendeeName(issuedTicket.getBooking().getUser().getFirstName() + " " + issuedTicket.getBooking().getUser().getLastName())
+                .attendeeEmail(issuedTicket.getBooking().getUser().getEmail())
+                .eventTitle(issuedTicket.getTicketType().getEvent().getTitle())
                 .build();
     }
 

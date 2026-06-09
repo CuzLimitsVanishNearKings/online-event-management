@@ -47,7 +47,6 @@ export default function AttendeeSidebar({ onMobileClose }: AttendeeSidebarProps 
       title: "Configuration",
       items: [
         { path: '/attendee/profile', label: 'My Profile', icon: User },
-        { path: '/attendee/settings', label: 'Settings', icon: Settings },
       ]
     }
   ]

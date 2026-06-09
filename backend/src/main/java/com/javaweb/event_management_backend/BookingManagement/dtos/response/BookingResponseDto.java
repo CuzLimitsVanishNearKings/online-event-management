@@ -26,6 +26,8 @@ public class BookingResponseDto {
         private String eventVenue;
         private LocalDateTime eventStartDateTime;
         private Integer ticketCount;
+        private String buyerName;
+        private String buyerEmail;
     }
 
     // Used when viewing a specific booking

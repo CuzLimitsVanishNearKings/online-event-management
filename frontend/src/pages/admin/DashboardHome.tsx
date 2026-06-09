@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import {
@@ -8,24 +8,14 @@ import {
   BarChart3,
   TrendingUp,
   TrendingDown,
-  Activity,
-  Clock,
   ArrowUpRight,
   MoreVertical,
   ShieldAlert
 } from 'lucide-react'
-import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer
-} from 'recharts'
 import { Button } from '@/components/ui'
 import { useAuthStore } from '@/store/authStore'
 import { cn } from '@/utils/cn'
+import axiosClient from '@/api/axiosClient'
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -36,34 +26,10 @@ const itemVariants = {
   visible: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 300, damping: 24 } }
 }
 
-const CustomTooltip = ({ active, payload, label }: any) => {
-  if (active && payload && payload.length) {
-    return (
-      <div className="bg-white p-4 border border-border rounded-xl shadow-card">
-        <p className="text-sm font-semibold text-text-muted mb-2">{label}</p>
-        <div className="flex items-center gap-4">
-          <div>
-            <p className="text-xs text-text-muted uppercase font-bold tracking-wider mb-1">Revenue</p>
-            <p className="text-lg font-bold text-primary">{payload[0].value} FCFA</p>
-          </div>
-          <div className="w-px h-8 bg-border" />
-          <div>
-            <p className="text-xs text-text-muted uppercase font-bold tracking-wider mb-1">Users</p>
-            <p className="text-lg font-bold text-text-primary">{payload[0].payload.users}</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
-  return null
-}
-
 export default function DashboardHome() {
   const { user } = useAuthStore()
-  const [timeRange, setTimeRange] = useState<'7d' | '30d' | '90d'>('30d')
 
-  // Platform metrics – all zero until backend is connected
-  const platformMetrics = {
+  const [platformMetrics, setPlatformMetrics] = useState({
     totalUsers: 0,
     totalOrganizers: 0,
     activeEvents: 0,
@@ -72,10 +38,50 @@ export default function DashboardHome() {
     organizersGrowth: 0,
     eventsGrowth: 0,
     revenueGrowth: 0,
-    revenueData: [] as any[],
-    recentActivity: [] as any[],
     pendingOrganizers: [] as any[]
-  }
+  })
+
+  useEffect(() => {
+    const fetchMetrics = async () => {
+      try {
+        const [usersRes, orgsRes, eventsRes, revRes] = await Promise.all([
+          axiosClient.get('/users'),
+          axiosClient.get('/users/organizers'),
+          axiosClient.get('/events/admin/all'),
+          axiosClient.get('/payments/revenue')
+        ])
+
+        const users = usersRes.data || []
+        const organizers = orgsRes.data || []
+        const events = eventsRes.data || []
+        const revenue = revRes.data?.totalRevenue || 0
+
+        // Process pending organizers
+        const pendingOrgs = organizers
+          .filter((org: any) => org.status === 'PENDING')
+          .map((org: any) => ({
+            id: org.id,
+            name: org.fullName || org.username,
+            organization: org.companyName || 'N/A',
+            submitted: new Date().toLocaleDateString(),
+            status: org.status
+          }))
+
+        setPlatformMetrics(prev => ({
+          ...prev,
+          totalUsers: users.length,
+          totalOrganizers: organizers.length,
+          activeEvents: events.length,
+          totalRevenue: revenue,
+          pendingOrganizers: pendingOrgs
+        }))
+      } catch (error) {
+        console.error('Error fetching admin dashboard metrics', error)
+      }
+    }
+
+    fetchMetrics()
+  }, [])
 
   const statCards = [
     {
@@ -160,93 +166,6 @@ export default function DashboardHome() {
           </div>
         ))}
       </motion.div>
-
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Revenue Chart */}
-        <motion.div variants={itemVariants} className="lg:col-span-2 bg-white rounded-2xl border border-border shadow-sm p-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-            <div>
-              <h2 className="text-lg font-bold text-text-primary">Platform Revenue</h2>
-              <p className="text-sm text-text-muted">Ticket sales and transaction trends</p>
-            </div>
-            <div className="flex bg-surface rounded-lg p-1">
-              {(['7d', '30d', '90d'] as const).map((range) => (
-                <button
-                  key={range}
-                  onClick={() => setTimeRange(range)}
-                  className={cn(
-                    'px-4 py-1.5 text-sm font-bold rounded-md transition-all',
-                    timeRange === range ? 'bg-white text-text-primary shadow-sm' : 'text-text-muted hover:text-text-primary'
-                  )}
-                >
-                  {range.toUpperCase()}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div className="h-[300px] w-full">
-            {platformMetrics.revenueData.length > 0 ? (
-              <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={platformMetrics.revenueData} margin={{ top: 10, right: 0, left: -20, bottom: 0 }}>
-                  <defs>
-                    <linearGradient id="colorRevenue" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#9CA763" stopOpacity={0.3} />
-                      <stop offset="95%" stopColor="#9CA763" stopOpacity={0} />
-                    </linearGradient>
-                  </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E8DCC4" opacity={0.5} />
-                  <XAxis dataKey="date" axisLine={false} tickLine={false} tick={{ fill: '#8B7355', fontSize: 12, fontWeight: 500 }} dy={10} />
-                  <YAxis axisLine={false} tickLine={false} tick={{ fill: '#8B7355', fontSize: 12, fontWeight: 500 }} tickFormatter={(v) => `${v} FCFA`} />
-                  <Tooltip content={<CustomTooltip />} />
-                  <Area type="monotone" dataKey="revenue" stroke="#9CA763" strokeWidth={3} fillOpacity={1} fill="url(#colorRevenue)" />
-                </AreaChart>
-              </ResponsiveContainer>
-            ) : (
-              <div className="w-full h-full flex flex-col items-center justify-center border-2 border-dashed border-border rounded-xl bg-surface/30">
-                <Activity className="w-12 h-12 text-text-muted/30 mb-3" />
-                <p className="text-text-muted font-bold">No revenue data yet</p>
-                <p className="text-sm text-text-muted/70 mt-1">Revenue will appear as events are booked.</p>
-              </div>
-            )}
-          </div>
-        </motion.div>
-
-        {/* Recent Activity */}
-        <motion.div variants={itemVariants} className="bg-white rounded-2xl border border-border shadow-sm p-6 flex flex-col">
-          <div className="flex items-center justify-between mb-6">
-            <h2 className="text-lg font-bold text-text-primary">Recent Activity</h2>
-            <button className="text-sm font-bold text-primary hover:text-primary-dark transition-colors">View All</button>
-          </div>
-          <div className="flex-1 overflow-y-auto pr-2 custom-scrollbar">
-            {platformMetrics.recentActivity.length > 0 ? (
-              <div className="space-y-6">
-                {platformMetrics.recentActivity.map((item: any, i: number) => (
-                  <div key={i} className="relative pl-6">
-                    {i !== platformMetrics.recentActivity.length - 1 && (
-                      <div className="absolute left-[11px] top-7 bottom-[-24px] w-0.5 bg-border/50" />
-                    )}
-                    <div className="absolute left-0 top-1.5 w-6 h-6 rounded-full bg-primary/10 border-2 border-white flex items-center justify-center">
-                      <div className="w-2 h-2 rounded-full bg-primary" />
-                    </div>
-                    <div>
-                      <p className="text-sm text-text-primary font-medium">
-                        <span className="font-bold">{item.user}</span> {item.action}
-                      </p>
-                      <p className="text-xs text-text-muted mt-1 font-medium">{item.time}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            ) : (
-              <div className="h-full flex flex-col items-center justify-center text-center pb-10">
-                <Clock className="w-10 h-10 text-border mb-3" />
-                <p className="text-text-muted font-bold text-sm">Quiet in here...</p>
-                <p className="text-xs text-text-muted/70 mt-1">Activities will appear as users interact with the platform.</p>
-              </div>
-            )}
-          </div>
-        </motion.div>
-      </div>
 
       {/* Pending Organizer Requests Table */}
       <motion.div variants={itemVariants} className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">

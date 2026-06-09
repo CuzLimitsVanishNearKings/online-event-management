@@ -40,6 +40,9 @@ public interface BookingService {
     List<BookingResponseDto.Summary> getBookingsByEvent(Long eventId,
                                                         User currentUser);
 
+    // Get all bookings for an organizer across all events
+    List<BookingResponseDto.Summary> getOrganizerBookings(User currentUser);
+
     // ─── ADMIN ───────────────────────────────────────────────────
 
     // Get all bookings — admin dashboard

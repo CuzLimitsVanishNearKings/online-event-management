@@ -1,10 +1,11 @@
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Ticket, Heart, CalendarDays, Compass, Activity, ArrowUpRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
-import { useAttendeeStore } from '@/store/attendeeStore'
 import { Button } from '@/components/ui'
 import { cn } from '@/utils/cn'
+import axiosClient from '@/api/axiosClient'
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -27,9 +28,66 @@ const itemVariants = {
 
 export default function DashboardHome() {
   const { user } = useAuthStore()
-  const { tickets, favorites } = useAttendeeStore()
+  const [tickets, setTickets] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchTickets = async () => {
+      try {
+        setLoading(true)
+        const res = await axiosClient.get('/bookings/my-bookings')
+        const summaries = res.data
+        
+        const detailedBookings = await Promise.all(
+          summaries.map(async (b: any) => {
+            try {
+              const detailRes = await axiosClient.get(`/bookings/${b.bookingId}`)
+              return detailRes.data
+            } catch {
+              return { ...b, issuedTickets: [] }
+            }
+          })
+        )
+
+        const mappedTickets: any[] = []
+        detailedBookings.forEach((b: any) => {
+          const startDate = new Date(b.eventStartDateTime)
+          const isUpcoming = startDate.getTime() > Date.now() && b.status === 'CONFIRMED'
+          
+          if (b.issuedTickets && b.issuedTickets.length > 0) {
+            b.issuedTickets.forEach((t: any) => {
+              mappedTickets.push({
+                id: `${b.bookingId}-${t.issuedTicketId}`,
+                eventName: b.eventTitle,
+                date: startDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }),
+                ticketType: t.ticketTypeName,
+                price: t.ticketTypePrice,
+                qrCodeData: t.qrCode || `TICKET-${t.issuedTicketId}`,
+                status: isUpcoming ? 'upcoming' : 'past'
+              })
+            })
+          } else {
+            mappedTickets.push({
+              id: b.bookingId.toString(),
+              eventName: b.eventTitle,
+              date: startDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }),
+              ticketType: 'General Admission',
+              price: b.totalAmount,
+              qrCodeData: `BOOKING-${b.bookingId}`,
+              status: isUpcoming ? 'upcoming' : 'past'
+            })
+          }
+        })
+        setTickets(mappedTickets)
+      } catch (err) {
+        console.error('Failed to load tickets', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchTickets()
+  }, [])
   
-  // Real or derived metrics based on the store
   const upcomingEvents = tickets.filter(t => t.status === 'upcoming')
   const pastEventsCount = tickets.filter(t => t.status === 'past').length
   const totalSpent = tickets.reduce((acc, curr) => acc + curr.price, 0)
@@ -37,22 +95,21 @@ export default function DashboardHome() {
   const statCards = [
     { 
       title: 'Upcoming Events', 
-      value: upcomingEvents.length.toString(), 
+      value: loading ? '-' : upcomingEvents.length.toString(), 
       icon: CalendarDays,
       color: 'text-primary',
       bg: 'bg-primary/10'
     },
     { 
       title: 'Events Attended', 
-      value: pastEventsCount.toString(), 
+      value: loading ? '-' : pastEventsCount.toString(), 
       icon: Ticket,
       color: 'text-accent-dark',
       bg: 'bg-accent/10'
     },
-
     { 
       title: 'Total Spent', 
-      value: `${totalSpent.toLocaleString()} FCFA`, 
+      value: loading ? '-' : `${totalSpent.toLocaleString()} FCFA`, 
       icon: Activity,
       color: 'text-terracotta',
       bg: 'bg-terracotta/10'

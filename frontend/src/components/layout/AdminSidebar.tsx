@@ -47,14 +47,9 @@ export default function AdminSidebar({ onMobileClose }: AdminSidebarProps = {}) 
     ]},
     { group: "Transactions", items: [
       { path: '/admin/bookings', label: 'Bookings', icon: BookOpen },
-      { path: '/admin/tickets', label: 'Tickets', icon: Ticket },
       { path: '/admin/promotions', label: 'Promotions', icon: Tag },
       { path: '/admin/payments', label: 'Payments', icon: CreditCard },
       { path: '/admin/top-up-requests', label: 'Top-Up Requests', icon: Wallet },
-    ]},
-    { group: "System", items: [
-      { path: '/admin/notifications', label: 'Notifications', icon: Bell },
-      { path: '/admin/settings', label: 'Settings', icon: Settings },
     ]}
   ]
 

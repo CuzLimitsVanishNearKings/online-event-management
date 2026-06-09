@@ -13,7 +13,9 @@ import com.javaweb.event_management_backend.EventCatalogue.repository.EventRepos
 import com.javaweb.event_management_backend.EventCatalogue.repository.IssuedTicketRepository;
 import com.javaweb.event_management_backend.EventCatalogue.repository.TicketTypeRepository;
 import com.javaweb.event_management_backend.EventCatalogue.services.interfaces.IssuedTicketService;
+import com.javaweb.event_management_backend.UserManagement.models.OrganizerProfile;
 import com.javaweb.event_management_backend.UserManagement.models.User;
+import com.javaweb.event_management_backend.UserManagement.repository.OrganizerRepository;
 import com.javaweb.event_management_backend.exceptions.ResourceNotFoundException;
 import com.javaweb.event_management_backend.exceptions.UnauthorizedAccessException;
 import lombok.RequiredArgsConstructor;
@@ -33,6 +35,7 @@ public class IssuedTicketServiceImpl implements IssuedTicketService {
     private final BookingRepository bookingRepository;
     private final TicketTypeRepository ticketTypeRepository;
     private final EventRepository eventRepository;
+    private final OrganizerRepository organizerRepository;
     private final IssuedTicketMapper issuedTicketMapper;
 
     // ─── CLIENT ──────────────────────────────────────────────────
@@ -121,6 +124,18 @@ public class IssuedTicketServiceImpl implements IssuedTicketService {
                 .stream()
                 .flatMap(tt -> issuedTicketRepository
                         .findByTicketType(tt).stream())
+                .map(issuedTicketMapper::toResponse)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<IssuedTicketResponseDto.Response> getOrganizerTickets(User currentUser) {
+        OrganizerProfile organizer = organizerRepository.findByUser(currentUser)
+                .orElseThrow(() -> new ResourceNotFoundException("Organizer profile not found"));
+
+        return issuedTicketRepository.findByOrganizer(organizer)
+                .stream()
                 .map(issuedTicketMapper::toResponse)
                 .collect(Collectors.toList());
     }

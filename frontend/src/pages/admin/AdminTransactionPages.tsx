@@ -4,6 +4,7 @@ import { Search, Filter, Download, Check, Receipt, Ticket, CreditCard, Wallet, U
 import { Button } from '@/components/ui'
 import { cn } from '@/utils/cn'
 import { useAdminWallet, AdminTopUpRequest } from '@/hooks/useAdminWallet'
+import axiosClient from '@/api/axiosClient'
 
 type BookingTab = 'all' | 'confirmed' | 'pending' | 'cancelled'
 
@@ -13,7 +14,29 @@ export function Bookings() {
   const [activeTab, setActiveTab] = useState<BookingTab>('all')
   const [isExporting, setIsExporting] = useState(false)
   const [exported, setExported] = useState(false)
-  const bookings: any[] = []
+  const [bookings, setBookings] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        const res = await axiosClient.get('/bookings')
+        const mapped = res.data.map((b: any) => ({
+          id: b.bookingId,
+          user: b.clientName,
+          event: b.eventTitle,
+          status: b.status === 'CONFIRMED' ? 'confirmed' : (b.status === 'PENDING' ? 'pending' : 'cancelled'),
+          date: new Date(b.createdAt || new Date()).toLocaleDateString()
+        }))
+        setBookings(mapped)
+      } catch (err) {
+        console.error('Failed to fetch bookings', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchBookings()
+  }, [])
 
   const handleExport = () => {
     setIsExporting(true)
@@ -62,13 +85,49 @@ export function Bookings() {
           </div>
         </div>
         <div className="flex-1 min-h-[400px] flex flex-col items-center justify-center p-12 text-center m-6 border-2 border-dashed border-border rounded-2xl bg-surface/30">
-          <div className="w-16 h-16 bg-white border border-border shadow-sm rounded-2xl flex items-center justify-center mb-4">
-            <Receipt className="w-8 h-8 text-text-muted/50" />
-          </div>
-          <h3 className="text-lg font-bold text-text-primary">No bookings found</h3>
-          <p className="text-text-muted mt-2 max-w-md">
-            {searchQuery ? `No results for "${searchQuery}".` : "Ticket bookings will appear here once users start purchasing."}
-          </p>
+          {loading ? (
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          ) : filteredBookings.length > 0 ? (
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-gray-50 border-b border-border text-xs uppercase tracking-wider text-text-muted font-bold">
+                  <th className="p-4">User</th>
+                  <th className="p-4">Event</th>
+                  <th className="p-4">Date</th>
+                  <th className="p-4">Status</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {filteredBookings.map((b) => (
+                  <tr key={b.id} className="hover:bg-gray-50/50 transition-colors">
+                    <td className="p-4 font-bold text-text-primary">{b.user}</td>
+                    <td className="p-4 text-text-secondary">{b.event}</td>
+                    <td className="p-4 text-sm text-text-muted">{b.date}</td>
+                    <td className="p-4">
+                      <span className={cn(
+                        "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest",
+                        b.status === 'confirmed' ? "bg-green-100 text-green-700" :
+                        b.status === 'cancelled' ? "bg-red-100 text-red-700" :
+                        "bg-yellow-100 text-yellow-700"
+                      )}>
+                        {b.status}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <>
+              <div className="w-16 h-16 bg-white border border-border shadow-sm rounded-2xl flex items-center justify-center mb-4">
+                <Receipt className="w-8 h-8 text-text-muted/50" />
+              </div>
+              <h3 className="text-lg font-bold text-text-primary">No bookings found</h3>
+              <p className="text-text-muted mt-2 max-w-md">
+                {searchQuery ? `No results for "${searchQuery}".` : "Ticket bookings will appear here once users start purchasing."}
+              </p>
+            </>
+          )}
         </div>
       </div>
     </motion.div>
@@ -143,7 +202,30 @@ export function Payments() {
   const [activeTab, setActiveTab] = useState<PaymentTab>('all')
   const [isExporting, setIsExporting] = useState(false)
   const [exported, setExported] = useState(false)
-  const payments: any[] = []
+  const [payments, setPayments] = useState<any[]>([])
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    const fetchPayments = async () => {
+      try {
+        const res = await axiosClient.get('/payments')
+        const mapped = res.data.map((p: any) => ({
+          id: p.paymentId,
+          reference: p.providerTransactionId || `PAY-${p.paymentId}`,
+          user: p.booking?.clientName || 'Unknown',
+          amount: p.amount,
+          status: p.status === 'SUCCESS' ? 'completed' : (p.status === 'PENDING' ? 'pending' : 'refunded'),
+          date: new Date(p.createdAt || new Date()).toLocaleDateString()
+        }))
+        setPayments(mapped)
+      } catch (err) {
+        console.error('Failed to fetch payments', err)
+      } finally {
+        setLoading(false)
+      }
+    }
+    fetchPayments()
+  }, [])
 
   const handleExport = () => {
     setIsExporting(true)
@@ -185,13 +267,51 @@ export function Payments() {
           </div>
         </div>
         <div className="flex-1 min-h-[400px] flex flex-col items-center justify-center p-12 text-center m-6 border-2 border-dashed border-border rounded-2xl bg-surface/30">
-          <div className="w-16 h-16 bg-white border border-border shadow-sm rounded-2xl flex items-center justify-center mb-4">
-            <CreditCard className="w-8 h-8 text-text-muted/50" />
-          </div>
-          <h3 className="text-lg font-bold text-text-primary">No transactions yet</h3>
-          <p className="text-text-muted mt-2 max-w-md">
-            {searchQuery ? `No results for "${searchQuery}".` : "Payment records will appear here as users complete transactions."}
-          </p>
+          {loading ? (
+            <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          ) : payments.length > 0 ? (
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-gray-50 border-b border-border text-xs uppercase tracking-wider text-text-muted font-bold">
+                  <th className="p-4">Reference</th>
+                  <th className="p-4">User</th>
+                  <th className="p-4">Amount</th>
+                  <th className="p-4">Status</th>
+                  <th className="p-4">Date</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {payments.map((p) => (
+                  <tr key={p.id} className="hover:bg-gray-50/50 transition-colors">
+                    <td className="p-4 font-bold text-text-primary">{p.reference}</td>
+                    <td className="p-4 text-text-secondary">{p.user}</td>
+                    <td className="p-4 font-bold text-text-primary">{p.amount.toLocaleString()} FCFA</td>
+                    <td className="p-4">
+                      <span className={cn(
+                        "px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest",
+                        p.status === 'completed' ? "bg-green-100 text-green-700" :
+                        p.status === 'refunded' ? "bg-red-100 text-red-700" :
+                        "bg-yellow-100 text-yellow-700"
+                      )}>
+                        {p.status}
+                      </span>
+                    </td>
+                    <td className="p-4 text-sm text-text-muted">{p.date}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          ) : (
+            <>
+              <div className="w-16 h-16 bg-white border border-border shadow-sm rounded-2xl flex items-center justify-center mb-4">
+                <CreditCard className="w-8 h-8 text-text-muted/50" />
+              </div>
+              <h3 className="text-lg font-bold text-text-primary">No transactions yet</h3>
+              <p className="text-text-muted mt-2 max-w-md">
+                {searchQuery ? `No results for "${searchQuery}".` : "Payment records will appear here as users complete transactions."}
+              </p>
+            </>
+          )}
         </div>
       </div>
     </motion.div>

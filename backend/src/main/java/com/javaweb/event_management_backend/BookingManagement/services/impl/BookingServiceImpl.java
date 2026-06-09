@@ -238,6 +238,18 @@ public class BookingServiceImpl implements BookingService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    @Transactional(readOnly = true)
+    public List<BookingResponseDto.Summary> getOrganizerBookings(User currentUser) {
+        OrganizerProfile organizer = organizerRepository.findByUser(currentUser)
+                .orElseThrow(() -> new ResourceNotFoundException("Organizer profile not found"));
+
+        return bookingRepository.findByOrganizer(organizer)
+                .stream()
+                .map(bookingMapper::toSummary)
+                .collect(Collectors.toList());
+    }
+
     // ─── ADMIN ───────────────────────────────────────────────────
 
     @Override

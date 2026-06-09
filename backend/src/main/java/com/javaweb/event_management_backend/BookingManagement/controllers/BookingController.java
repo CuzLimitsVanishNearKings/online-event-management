@@ -91,6 +91,16 @@ public class BookingController {
                 bookingService.getBookingsByEvent(eventId, currentUser));
     }
 
+    // GET /api/bookings/organizer
+    // get all bookings across all events for the organizer
+    @GetMapping("/organizer")
+    @PreAuthorize("hasRole('ORGANIZER')")
+    public ResponseEntity<List<BookingResponseDto.Summary>> getOrganizerBookings() {
+        User currentUser = SecurityUtils.getCurrentUser();
+        return ResponseEntity.ok(
+                bookingService.getOrganizerBookings(currentUser));
+    }
+
     // ─── ADMIN ───────────────────────────────────────────────────
 
     // GET /api/bookings

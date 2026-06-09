@@ -9,6 +9,7 @@ import { usePagination } from '@/hooks/usePagination'
 type UserTab = 'all' | 'attendees' | 'organizers' | 'admins'
 
 interface UserSummary {
+  id: number
   firstName: string
   lastName: string
   email: string
@@ -58,6 +59,20 @@ export default function UserManagement() {
       setError(err.response?.data?.message || 'Failed to fetch platform users.')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleToggleStatus = async (userId: number, currentStatus: string) => {
+    try {
+      if (currentStatus === 'SUSPENDED') {
+        await axiosClient.patch(`/users/${userId}/activate`)
+      } else {
+        await axiosClient.patch(`/users/${userId}/suspend`)
+      }
+      fetchUsers()
+    } catch (err) {
+      console.error('Failed to toggle user status', err)
+      alert('Failed to change user status.')
     }
   }
 
@@ -264,6 +279,7 @@ export default function UserManagement() {
                     <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-muted border-b border-border">Username</th>
                     <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-muted border-b border-border">Role</th>
                     <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-muted border-b border-border">Status</th>
+                    <th className="py-4 px-6 text-xs font-bold uppercase tracking-wider text-text-muted border-b border-border text-right">Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -302,6 +318,16 @@ export default function UserManagement() {
                           u.status === 'PENDING' ? 'bg-amber-100 text-amber-700' :
                           'bg-red-100 text-red-700'
                         )}>{u.status}</span>
+                      </td>
+                      <td className="py-4 px-6 text-right">
+                        {u.role !== 'ADMIN' && (
+                          <button 
+                            onClick={() => handleToggleStatus(u.id, u.status)}
+                            className="px-3 py-1.5 text-xs font-bold bg-white border border-border hover:border-primary rounded-lg transition-colors"
+                          >
+                            {u.status === 'SUSPENDED' ? 'Activate' : 'Suspend'}
+                          </button>
+                        )}
                       </td>
                     </tr>
                   ))}

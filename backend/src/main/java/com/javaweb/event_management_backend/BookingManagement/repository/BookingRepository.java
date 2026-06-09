@@ -9,6 +9,10 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import com.javaweb.event_management_backend.UserManagement.models.OrganizerProfile;
+
 @Repository
 public interface BookingRepository extends JpaRepository<Booking, Long> {
 
@@ -36,4 +40,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
 
     // Count total bookings by user
     long countByUser(User user);
+
+    // Find all bookings for an organizer's events
+    @Query("SELECT DISTINCT b FROM Booking b JOIN b.issuedTickets it JOIN it.ticketType tt JOIN tt.event e WHERE e.organizer = :organizer ORDER BY b.bookingDate DESC")
+    List<Booking> findByOrganizer(@Param("organizer") OrganizerProfile organizer);
 }
