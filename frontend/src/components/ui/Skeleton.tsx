@@ -13,7 +13,7 @@ export function CardSkeleton() {
   return (
     <div className="bg-white p-6 rounded-3xl border border-slate-200 shadow-sm space-y-4">
       <div className="flex justify-between items-start">
-        <Skeleton className="w-12 h-12 rounded-2xl" />
+        <Skeleton className="w-12 h-12 rounded-lg" />
         <Skeleton className="w-20 h-4" />
       </div>
       <div className="space-y-2">
@@ -28,8 +28,8 @@ export function TableSkeleton() {
   return (
     <div className="space-y-4 w-full">
       <div className="flex items-center justify-between">
-        <Skeleton className="h-10 w-64 rounded-xl" />
-        <Skeleton className="h-10 w-32 rounded-xl" />
+        <Skeleton className="h-10 w-64 rounded-md" />
+        <Skeleton className="h-10 w-32 rounded-md" />
       </div>
       <div className="border border-slate-200 rounded-3xl overflow-hidden bg-white">
         <div className="p-4 bg-slate-50 flex gap-4">

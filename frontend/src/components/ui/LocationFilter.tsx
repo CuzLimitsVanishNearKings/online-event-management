@@ -107,7 +107,7 @@ const LocationFilter = ({ className = '', showFlag = false, compact = false }: L
       </button>
 
       {isOpen && (
-        <div className="absolute top-full left-0 mt-2 w-80 bg-card border border-border rounded-xl shadow-xl z-50 max-h-96 overflow-hidden">
+        <div className="absolute top-full left-0 mt-2 w-80 bg-card border border-border rounded-md shadow-xl z-50 max-h-96 overflow-hidden">
           {/* Tabs */}
           <div className="flex border-b border-border">
             <button

@@ -87,7 +87,7 @@ if (isAuthenticated) {
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
               required
-              className="transition-colors rounded-2xl bg-surface/50 border-border focus:bg-white"
+              className="transition-colors rounded-lg bg-surface/50 border-border focus:bg-white"
             />
             <Input
               label="Last Name"
@@ -96,7 +96,7 @@ if (isAuthenticated) {
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
               required
-              className="transition-colors rounded-2xl bg-surface/50 border-border focus:bg-white"
+              className="transition-colors rounded-lg bg-surface/50 border-border focus:bg-white"
             />
          </motion.div>
 
@@ -109,7 +109,7 @@ if (isAuthenticated) {
                value={organizationName}
                onChange={(e) => setOrganizationName(e.target.value)}
                required
-               className="transition-colors rounded-2xl bg-surface/50 border-border focus:bg-white"
+               className="transition-colors rounded-lg bg-surface/50 border-border focus:bg-white"
              />
            </motion.div>
          )}
@@ -122,7 +122,7 @@ if (isAuthenticated) {
              value={email}
              onChange={(e) => setEmail(e.target.value)}
              required
-             className="transition-colors rounded-2xl bg-surface/50 border-border focus:bg-white"
+             className="transition-colors rounded-lg bg-surface/50 border-border focus:bg-white"
            />
          </motion.div>
 
@@ -134,7 +134,7 @@ if (isAuthenticated) {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               required
-              className="transition-colors rounded-2xl bg-surface/50 border-border focus:bg-white"
+              className="transition-colors rounded-lg bg-surface/50 border-border focus:bg-white"
             />
             <button
               type="button"
@@ -153,7 +153,7 @@ if (isAuthenticated) {
             <motion.div 
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="flex items-center gap-3 p-4 text-red-600 border border-red-100 bg-red-50 rounded-2xl"
+              className="flex items-center gap-3 p-4 text-red-600 border border-red-100 bg-red-50 rounded-lg"
             >
                <AlertCircle className="flex-shrink-0 w-5 h-5" />
                <p className="text-sm font-bold">{error}</p>
@@ -165,7 +165,7 @@ if (isAuthenticated) {
              type="submit"
              variant="primary"
              size="lg"
-             className="w-full text-lg font-bold transition-shadow shadow-xl rounded-2xl py-7 shadow-primary/20 hover:shadow-primary/30"
+             className="w-full text-lg font-bold transition-shadow shadow-xl rounded-lg py-7 shadow-primary/20 hover:shadow-primary/30"
              loading={isLoading}
            >
              {isLoading ? 'Creating account...' : 'Create Account'}
@@ -182,11 +182,11 @@ if (isAuthenticated) {
          </motion.div>
 
          <motion.div variants={itemVariants} className="grid grid-cols-2 gap-4">
-            <button type="button" className="flex items-center justify-center gap-3 px-6 py-4 text-sm font-bold transition-all border-2 border-border/60 rounded-2xl hover:bg-surface hover:border-border text-text-primary">
+            <button type="button" className="flex items-center justify-center gap-3 px-6 py-4 text-sm font-bold transition-all border-2 border-border/60 rounded-lg hover:bg-surface hover:border-border text-text-primary">
                <Github className="w-5 h-5" />
                GitHub
             </button>
-            <button type="button" className="flex items-center justify-center gap-3 px-6 py-4 text-sm font-bold transition-all border-2 border-border/60 rounded-2xl hover:bg-surface hover:border-border text-text-primary">
+            <button type="button" className="flex items-center justify-center gap-3 px-6 py-4 text-sm font-bold transition-all border-2 border-border/60 rounded-lg hover:bg-surface hover:border-border text-text-primary">
                <Globe className="w-5 h-5" />
                Google
             </button>

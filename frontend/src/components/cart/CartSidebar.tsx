@@ -45,7 +45,7 @@ const CartSidebar = () => {
               <Button 
                 onClick={() => { closeCart(); navigate('/events') }}
                 variant="outline"
-                className="mt-4 rounded-xl border-border font-bold text-text-secondary"
+                className="mt-4 rounded-md border-border font-bold text-text-secondary"
               >
                 Browse Events
               </Button>
@@ -53,8 +53,8 @@ const CartSidebar = () => {
           ) : (
             <div className="space-y-6">
               {plannedEvents.map((item) => (
-                <div key={item.planningId} className="flex gap-4 p-4 rounded-2xl border border-border bg-gray-50/50">
-                  <div className="w-20 h-20 bg-gray-200 rounded-xl overflow-hidden flex-shrink-0">
+                <div key={item.planningId} className="flex gap-4 p-4 rounded-lg border border-border bg-gray-50/50">
+                  <div className="w-20 h-20 bg-gray-200 rounded-md overflow-hidden flex-shrink-0">
                     {item.coverImage ? (
                       <img src={item.coverImage} alt={item.eventTitle} className="w-full h-full object-cover" />
                     ) : (
@@ -85,7 +85,7 @@ const CartSidebar = () => {
             <Button 
               onClick={() => { closeCart(); navigate('/checkout') }}
               variant="primary"
-              className="w-full rounded-2xl py-6 text-lg font-bold shadow-xl shadow-primary/20"
+              className="w-full rounded-lg py-6 text-lg font-bold shadow-xl shadow-primary/20"
             >
               Complete Reservations
             </Button>

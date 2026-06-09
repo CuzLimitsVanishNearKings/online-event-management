@@ -69,7 +69,7 @@ const Pagination = ({
         <button
           onClick={handlePrev}
           disabled={currentPage === 1}
-          className="w-10 h-10 flex items-center justify-center rounded-xl border border-border hover:border-primary hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+          className="w-10 h-10 flex items-center justify-center rounded-md border border-border hover:border-primary hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-all"
         >
           <ChevronLeft className="w-4 h-4" />
         </button>
@@ -87,7 +87,7 @@ const Pagination = ({
                   key={page}
                   onClick={() => handlePage(page as number)}
                   className={cn(
-                    'w-10 h-10 rounded-xl text-sm font-semibold transition-all',
+                    'w-10 h-10 rounded-md text-sm font-semibold transition-all',
                     currentPage === page
                       ? 'bg-primary text-white shadow-lg shadow-primary/25'
                       : 'border border-border hover:border-primary hover:text-primary text-text-secondary'
@@ -107,7 +107,7 @@ const Pagination = ({
         <button
           onClick={handleNext}
           disabled={currentPage === totalPages}
-          className="w-10 h-10 flex items-center justify-center rounded-xl border border-border hover:border-primary hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+          className="w-10 h-10 flex items-center justify-center rounded-md border border-border hover:border-primary hover:text-primary disabled:opacity-40 disabled:cursor-not-allowed transition-all"
         >
           <ChevronRight className="w-4 h-4" />
         </button>

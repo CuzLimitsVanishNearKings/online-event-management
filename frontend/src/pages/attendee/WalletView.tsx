@@ -69,7 +69,7 @@ export default function WalletView() {
       </div>
 
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 flex items-center gap-3 text-sm font-semibold">
+        <div className="p-4 bg-red-50 border border-red-200 rounded-md text-red-700 flex items-center gap-3 text-sm font-semibold">
           <AlertCircle className="w-5 h-5 flex-shrink-0" />
           <span>{error}</span>
         </div>
@@ -97,7 +97,7 @@ export default function WalletView() {
           
           <Button 
             onClick={() => setIsTopUpModalOpen(true)}
-            className="bg-white text-primary hover:bg-white/90 rounded-xl font-bold shadow-lg gap-2 py-3 px-6 shrink-0"
+            className="bg-white text-primary hover:bg-white/90 rounded-md font-bold shadow-lg gap-2 py-3 px-6 shrink-0"
           >
             <Plus className="w-5 h-5" /> Top Up Balance
           </Button>
@@ -106,7 +106,7 @@ export default function WalletView() {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
         {/* Transaction History */}
-        <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden flex flex-col max-h-[600px]">
+        <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden flex flex-col max-h-[600px]">
           <div className="p-6 border-b border-border bg-surface/30">
             <h2 className="text-lg font-bold text-text-primary flex items-center gap-2">
               <Clock className="w-5 h-5 text-text-muted" /> Transaction History
@@ -127,7 +127,7 @@ export default function WalletView() {
             ) : (
               <div className="space-y-2 p-4">
                 {wallet.transactions.map((tx) => (
-                  <div key={tx.transactionId} className="flex items-center justify-between p-4 rounded-xl hover:bg-gray-50 border border-transparent hover:border-border transition-colors">
+                  <div key={tx.transactionId} className="flex items-center justify-between p-4 rounded-md hover:bg-gray-50 border border-transparent hover:border-border transition-colors">
                     <div className="flex items-center gap-4">
                       <div className={cn(
                         "w-10 h-10 rounded-full flex items-center justify-center",
@@ -155,7 +155,7 @@ export default function WalletView() {
         </div>
 
         {/* Top-Up Requests */}
-        <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden flex flex-col max-h-[600px]">
+        <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden flex flex-col max-h-[600px]">
           <div className="p-6 border-b border-border bg-surface/30">
             <h2 className="text-lg font-bold text-text-primary flex items-center gap-2">
               <ArrowUpRight className="w-5 h-5 text-text-muted" /> Top-Up Requests
@@ -176,7 +176,7 @@ export default function WalletView() {
             ) : (
               <div className="space-y-3 p-4">
                 {topUpRequests.map((req) => (
-                  <div key={req.requestId} className="p-4 rounded-xl border border-border bg-gray-50/50">
+                  <div key={req.requestId} className="p-4 rounded-md border border-border bg-gray-50/50">
                     <div className="flex items-start justify-between mb-3">
                       <div>
                         <p className="text-lg font-bold text-text-primary">{req.amount} FCFA</p>
@@ -224,7 +224,7 @@ export default function WalletView() {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.95, y: 20 }}
                 onClick={(e) => e.stopPropagation()}
-                className="bg-white rounded-2xl shadow-xl border border-border w-full max-w-md overflow-hidden relative"
+                className="bg-white rounded-lg shadow-xl border border-border w-full max-w-md overflow-hidden relative"
               >
                 {/* Header */}
                 <div className="p-6 border-b border-border flex items-center justify-between bg-surface/30">
@@ -271,7 +271,7 @@ export default function WalletView() {
                       variant="outline" 
                       onClick={() => setIsTopUpModalOpen(false)}
                       disabled={isSubmitting}
-                      className="rounded-xl font-bold"
+                      className="rounded-md font-bold"
                     >
                       Cancel
                     </Button>
@@ -279,7 +279,7 @@ export default function WalletView() {
                       type="submit" 
                       variant="primary"
                       disabled={isSubmitting || formSuccess}
-                      className="rounded-xl font-bold min-w-[120px]"
+                      className="rounded-md font-bold min-w-[120px]"
                     >
                       {isSubmitting ? (
                         <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />

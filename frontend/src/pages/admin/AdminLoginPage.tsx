@@ -50,7 +50,7 @@ export default function AdminLoginPage() {
         className="max-w-md w-full"
       >
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-primary/10 mb-4">
+          <div className="inline-flex items-center justify-center w-16 h-16 rounded-lg bg-primary/10 mb-4">
             <ShieldCheck className="w-8 h-8 text-primary" />
           </div>
           <h1 className="text-3xl font-display font-bold text-text-primary tracking-tight">Admin Portal</h1>
@@ -60,7 +60,7 @@ export default function AdminLoginPage() {
         <div className="bg-white border border-border p-8 rounded-[32px] shadow-sm">
           <form onSubmit={handleSubmit} className="space-y-6">
             {error && (
-              <div className="bg-error/10 border border-error/20 p-4 rounded-xl flex items-start gap-3">
+              <div className="bg-error/10 border border-error/20 p-4 rounded-md flex items-start gap-3">
                 <AlertCircle className="w-5 h-5 text-error shrink-0 mt-0.5" />
                 <p className="text-sm font-medium text-error">{error}</p>
               </div>
@@ -77,7 +77,7 @@ export default function AdminLoginPage() {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full pl-11 pr-4 py-3 bg-surface border border-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
+                  className="block w-full pl-11 pr-4 py-3 bg-surface border border-border rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
                   placeholder="admin@example.com"
                 />
               </div>
@@ -94,7 +94,7 @@ export default function AdminLoginPage() {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="block w-full pl-11 pr-4 py-3 bg-surface border border-border rounded-xl text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
+                  className="block w-full pl-11 pr-4 py-3 bg-surface border border-border rounded-md text-text-primary focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all font-medium"
                   placeholder="••••••••"
                 />
               </div>
@@ -103,7 +103,7 @@ export default function AdminLoginPage() {
             <Button
               type="submit"
               disabled={isLoading}
-              className="w-full py-6 bg-primary hover:bg-primary-dark text-white rounded-xl font-bold transition-all disabled:opacity-50"
+              className="w-full py-6 bg-primary hover:bg-primary-dark text-white rounded-md font-bold transition-all disabled:opacity-50"
             >
               {isLoading ? (
                 <div className="flex items-center gap-2">

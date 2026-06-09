@@ -167,10 +167,10 @@ const CheckoutPage = () => {
         <h1 className="text-3xl font-display font-bold text-text-primary mb-2">No pending reservations</h1>
         <p className="text-text-muted mb-8 max-w-md">You have completed all your reservations or no tickets are selected.</p>
         <div className="flex gap-4">
-          <Button onClick={() => navigate('/events')} variant="primary" className="rounded-xl px-8">
+          <Button onClick={() => navigate('/events')} variant="primary" className="rounded-md px-8">
             Browse Events
           </Button>
-          <Button onClick={() => navigate('/attendee/tickets')} variant="outline" className="rounded-xl px-8 border-border">
+          <Button onClick={() => navigate('/attendee/tickets')} variant="outline" className="rounded-md px-8 border-border">
             View My Tickets
           </Button>
         </div>
@@ -274,7 +274,7 @@ const CheckoutPage = () => {
 
                   <div className="flex flex-col md:flex-row gap-6">
                     {/* Left: Event Details (Clickable) */}
-                    <Link to={`/events/${item.eventId}`} className="group flex-shrink-0 relative w-full md:w-48 h-32 rounded-2xl overflow-hidden bg-surface border border-border block">
+                    <Link to={`/events/${item.eventId}`} className="group flex-shrink-0 relative w-full md:w-48 h-32 rounded-lg overflow-hidden bg-surface border border-border block">
                       {(item.eventImage || item.coverImage) ? (
                         <img src={getImageUrl(item.eventImage || item.coverImage)} alt={item.eventTitle} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                       ) : (
@@ -304,7 +304,7 @@ const CheckoutPage = () => {
                           <div className="space-y-1">
                             <label className="text-[10px] uppercase font-bold text-text-muted tracking-widest">Select Ticket</label>
                             <select 
-                              className="w-48 h-10 px-3 bg-gray-50 border border-border rounded-xl text-sm font-bold text-text-primary focus:outline-none focus:border-primary"
+                              className="w-48 h-10 px-3 bg-gray-50 border border-border rounded-md text-sm font-bold text-text-primary focus:outline-none focus:border-primary"
                               value={selections[item.eventId]?.ticketTypeId || ''}
                               onChange={(e) => {
                                 const tId = Number(e.target.value)
@@ -329,7 +329,7 @@ const CheckoutPage = () => {
                               max="10"
                               value={selections[item.eventId]?.quantity || 1}
                               onChange={(e) => handleUpdateSelection(item.eventId, 'quantity', Math.max(1, parseInt(e.target.value) || 1))}
-                              className="w-20 h-10 px-3 bg-gray-50 border border-border rounded-xl text-sm font-bold text-center text-text-primary focus:outline-none focus:border-primary"
+                              className="w-20 h-10 px-3 bg-gray-50 border border-border rounded-md text-sm font-bold text-center text-text-primary focus:outline-none focus:border-primary"
                             />
                           </div>
                         </div>
@@ -366,7 +366,7 @@ const CheckoutPage = () => {
                       {currentTotalPrice > 0 && !isSuccess && (
                         <div className="w-full mb-4">
                           {appliedPromo ? (
-                            <div className="flex items-center justify-between bg-green-50 px-3 py-2 rounded-xl border border-green-200">
+                            <div className="flex items-center justify-between bg-green-50 px-3 py-2 rounded-md border border-green-200">
                               <div className="flex flex-col">
                                 <span className="text-xs font-bold text-green-700 uppercase flex items-center gap-1">
                                   <Tag className="w-3 h-3" /> {appliedPromo.code} Applied
@@ -388,13 +388,13 @@ const CheckoutPage = () => {
                                   placeholder="Promo code" 
                                   value={promoInputs[itemIdStr] || ''}
                                   onChange={(e) => setPromoInputs(prev => ({ ...prev, [itemIdStr]: e.target.value.toUpperCase() }))}
-                                  className="w-full pl-9 pr-3 py-2 bg-gray-50 border border-border rounded-xl text-sm font-bold text-text-primary focus:outline-none focus:border-primary"
+                                  className="w-full pl-9 pr-3 py-2 bg-gray-50 border border-border rounded-md text-sm font-bold text-text-primary focus:outline-none focus:border-primary"
                                 />
                                 <Button 
                                   variant="outline" 
                                   onClick={() => handleApplyPromo(itemIdStr)}
                                   disabled={!promoInputs[itemIdStr] || isApplyingPromo[itemIdStr]}
-                                  className="rounded-xl px-4 py-2 border-border text-xs"
+                                  className="rounded-md px-4 py-2 border-border text-xs"
                                 >
                                   {isApplyingPromo[itemIdStr] ? '...' : 'Apply'}
                                 </Button>
@@ -411,7 +411,7 @@ const CheckoutPage = () => {
                       {hasInsufficientFunds && !isSuccess && finalPrice > 0 ? (
                         <div className="text-center w-full">
                           <p className="text-red-500 text-xs font-bold mb-2">Insufficient funds</p>
-                          <Button variant="outline" className="w-full rounded-xl opacity-50 cursor-not-allowed border-red-200 text-red-500">
+                          <Button variant="outline" className="w-full rounded-md opacity-50 cursor-not-allowed border-red-200 text-red-500">
                             Cannot Pay
                           </Button>
                         </div>
@@ -420,7 +420,7 @@ const CheckoutPage = () => {
                           variant="primary" 
                           onClick={() => handlePayment(item, isSingle)}
                           disabled={isProcessing || processingId !== null || (!isSingle && !selections[item.eventId])}
-                          className="w-full rounded-xl py-4 font-bold shadow-lg shadow-primary/20"
+                          className="w-full rounded-md py-4 font-bold shadow-lg shadow-primary/20"
                         >
                           {isProcessing ? (
                             <div className="flex items-center gap-2 justify-center">

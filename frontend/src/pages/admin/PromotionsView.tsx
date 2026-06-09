@@ -120,13 +120,13 @@ export default function PromotionsView() {
           <h1 className="text-3xl font-display font-bold text-text-primary tracking-tight">Promotions & Discounts</h1>
           <p className="text-text-muted mt-1">Manage promo codes available for ticket purchases.</p>
         </div>
-        <Button onClick={() => handleOpenModal()} variant="primary" className="rounded-xl font-bold shadow-md shadow-primary/20 gap-2">
+        <Button onClick={() => handleOpenModal()} variant="primary" className="rounded-md font-bold shadow-md shadow-primary/20 gap-2">
           <Plus className="w-4 h-4" /> Create Promo Code
         </Button>
       </div>
 
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 flex items-center gap-3 text-sm font-semibold">
+        <div className="p-4 bg-red-50 border border-red-200 rounded-md text-red-700 flex items-center gap-3 text-sm font-semibold">
           <AlertCircle className="w-5 h-5 flex-shrink-0" />
           <span>{error}</span>
         </div>
@@ -137,18 +137,18 @@ export default function PromotionsView() {
           <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
         </div>
       ) : promotions.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-border p-12 text-center shadow-sm">
+        <div className="bg-white rounded-lg border border-border p-12 text-center shadow-sm">
           <div className="w-16 h-16 bg-surface rounded-full flex items-center justify-center mx-auto mb-4">
             <Tag className="w-8 h-8 text-primary/60" />
           </div>
           <h3 className="text-xl font-bold text-text-primary mb-2">No promotions found</h3>
           <p className="text-text-muted mb-6">You haven't created any promotional codes yet.</p>
-          <Button onClick={() => handleOpenModal()} variant="outline" className="rounded-xl">
+          <Button onClick={() => handleOpenModal()} variant="outline" className="rounded-md">
             Create Your First Code
           </Button>
         </div>
       ) : (
-        <div className="bg-white border border-border rounded-2xl shadow-sm overflow-hidden">
+        <div className="bg-white border border-border rounded-lg shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
               <thead>
@@ -242,7 +242,7 @@ export default function PromotionsView() {
                     <div className="space-y-1">
                       <label className="text-sm font-bold text-text-primary">Discount Type</label>
                       <select 
-                        className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm font-bold bg-white"
+                        className="w-full px-4 py-3 border border-border rounded-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm font-bold bg-white"
                         value={discountType}
                         onChange={(e) => setDiscountType(e.target.value as any)}
                         required
@@ -292,10 +292,10 @@ export default function PromotionsView() {
                 </div>
                 
                 <div className="flex items-center justify-end gap-3 pt-6 border-t border-border mt-6">
-                  <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)} className="rounded-xl">
+                  <Button type="button" variant="outline" onClick={() => setIsModalOpen(false)} className="rounded-md">
                     Cancel
                   </Button>
-                  <Button type="submit" variant="primary" disabled={isSubmitting} className="rounded-xl">
+                  <Button type="submit" variant="primary" disabled={isSubmitting} className="rounded-md">
                     {isSubmitting ? 'Saving...' : 'Save Code'}
                   </Button>
                 </div>

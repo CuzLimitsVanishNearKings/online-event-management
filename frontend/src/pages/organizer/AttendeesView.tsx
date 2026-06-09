@@ -79,12 +79,12 @@ export default function AttendeesView() {
           <p className="text-text-muted mt-1 font-medium">Manage your guest lists and communicate with attendees across all your events.</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3 mt-4 md:mt-0">
-          <Button onClick={handleEmail} variant="outline" className="rounded-xl border-border font-bold text-text-secondary bg-white gap-2" disabled={isEmailing || attendees.length === 0}>
+          <Button onClick={handleEmail} variant="outline" className="rounded-md border-border font-bold text-text-secondary bg-white gap-2" disabled={isEmailing || attendees.length === 0}>
             {isEmailing ? <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" /> : 
              emailed ? <Check className="w-4 h-4 text-green-600" /> : <Mail className="w-4 h-4" />}
             {emailed ? 'Sent!' : 'Email All'}
           </Button>
-          <Button onClick={handleExport} variant="outline" className="rounded-xl border-border font-bold text-text-secondary bg-white gap-2" disabled={isExporting || attendees.length === 0}>
+          <Button onClick={handleExport} variant="outline" className="rounded-md border-border font-bold text-text-secondary bg-white gap-2" disabled={isExporting || attendees.length === 0}>
             {isExporting ? <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" /> : 
              exported ? <Check className="w-4 h-4 text-green-600" /> : <Download className="w-4 h-4" />}
             {exported ? 'Exported!' : 'Export List'}
@@ -92,7 +92,7 @@ export default function AttendeesView() {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden flex flex-col">
+      <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden flex flex-col">
         {/* Toolbar */}
         <div className="p-4 border-b border-border flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gray-50/30">
           <div className="flex items-center gap-3 w-full md:w-auto">
@@ -103,7 +103,7 @@ export default function AttendeesView() {
                 placeholder="Search by name, email or event..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-4 py-2 border border-border rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 w-full md:w-80"
+                className="pl-9 pr-4 py-2 border border-border rounded-md text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 w-full md:w-80"
               />
             </div>
           </div>
@@ -167,8 +167,8 @@ export default function AttendeesView() {
             </table>
           </div>
         ) : (
-          <div className="flex-1 min-h-[400px] flex flex-col items-center justify-center p-12 text-center m-6 border-2 border-dashed border-border rounded-2xl bg-surface/30">
-            <div className="w-16 h-16 bg-white border border-border shadow-sm rounded-2xl flex items-center justify-center mb-4">
+          <div className="flex-1 min-h-[400px] flex flex-col items-center justify-center p-12 text-center m-6 border-2 border-dashed border-border rounded-lg bg-surface/30">
+            <div className="w-16 h-16 bg-white border border-border shadow-sm rounded-lg flex items-center justify-center mb-4">
               <Users className="w-8 h-8 text-text-muted/50" />
             </div>
             <h3 className="text-lg font-bold text-text-primary">No attendees found</h3>

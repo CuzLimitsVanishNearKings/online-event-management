@@ -112,7 +112,7 @@ const EventDetailPage = () => {
             The event you're looking for might have moved or is no longer available.
           </p>
           <Link to="/events">
-            <Button variant="primary" size="lg" className="rounded-2xl px-10">
+            <Button variant="primary" size="lg" className="rounded-lg px-10">
               Explore other events
             </Button>
           </Link>
@@ -181,13 +181,13 @@ const EventDetailPage = () => {
                 <TicketSelector event={event} fullEvent={event} />
                 
                 {/* Location Map Placeholder/Action */}
-                <div className="bg-[#FDFBF7] border border-border rounded-xl overflow-hidden p-6 space-y-6">
+                <div className="bg-[#FDFBF7] border border-border rounded-md overflow-hidden p-6 space-y-6">
                    <div className="space-y-2">
                       <h3 className="font-display font-bold text-xl text-text-primary">Location</h3>
                       <p className="text-text-muted text-sm leading-relaxed">{event.location}</p>
                    </div>
                    <div className="block group">
-                      <div className="relative aspect-video rounded-2xl overflow-hidden bg-surface/50 mb-4 border border-border/50">
+                      <div className="relative aspect-video rounded-lg overflow-hidden bg-surface/50 mb-4 border border-border/50">
                          <iframe
                            title="Event Location"
                            width="100%"
@@ -205,7 +205,7 @@ const EventDetailPage = () => {
                         target="_blank"
                         rel="noopener noreferrer"
                       >
-                        <Button variant="outline" className="w-full rounded-xl gap-2 font-bold uppercase tracking-widest text-xs py-5">
+                        <Button variant="outline" className="w-full rounded-md gap-2 font-bold uppercase tracking-widest text-xs py-5">
                            Get Directions <ExternalLink className="w-3 h-3" />
                         </Button>
                       </a>
@@ -213,7 +213,7 @@ const EventDetailPage = () => {
                 </div>
 
                 {/* Social Sharing */}
-                <div className="bg-surface/30 border border-border rounded-xl p-6">
+                <div className="bg-surface/30 border border-border rounded-md p-6">
                    <h3 className="font-display font-bold text-lg text-text-primary mb-4 text-center">Share with friends</h3>
                    <div className="flex items-center justify-center gap-4">
                      <button className="w-12 h-12 rounded-full bg-white border border-border flex items-center justify-center text-[#1877F2] hover:bg-[#1877F2] hover:text-white hover:border-[#1877F2] shadow-sm transition-all duration-300 hover:-translate-y-1">

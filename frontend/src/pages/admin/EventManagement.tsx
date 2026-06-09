@@ -107,7 +107,7 @@ export default function EventManagement() {
           variant="outline" 
           onClick={() => setActiveTab('flagged')} 
           className={cn(
-            'rounded-xl border-border font-bold bg-white gap-2 transition-colors',
+            'rounded-md border-border font-bold bg-white gap-2 transition-colors',
             activeTab === 'flagged' ? 'border-red-200 text-red-600 bg-red-50 hover:bg-red-50' : 'text-text-secondary'
           )}
         >
@@ -116,7 +116,7 @@ export default function EventManagement() {
         </Button>
       </div>
 
-      <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden flex flex-col">
+      <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden flex flex-col">
         {/* Toolbar */}
         <div className="p-4 border-b border-border flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gray-50/30">
           <div className="flex gap-2 bg-surface/50 p-1 rounded-lg overflow-x-auto">
@@ -141,7 +141,7 @@ export default function EventManagement() {
                 placeholder="Search events or organizer..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-4 py-2 border border-border rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 w-full md:w-72"
+                className="pl-9 pr-4 py-2 border border-border rounded-md text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 w-full md:w-72"
               />
             </div>
           </div>
@@ -151,14 +151,14 @@ export default function EventManagement() {
         {loading ? (
           <div className="p-12 space-y-6">
             <div className="flex items-center gap-4 animate-pulse">
-              <div className="w-16 h-16 bg-gray-100 rounded-xl" />
+              <div className="w-16 h-16 bg-gray-100 rounded-md" />
               <div className="space-y-2 flex-1">
                 <div className="h-5 bg-gray-100 rounded w-1/3" />
                 <div className="h-4 bg-gray-50 rounded w-1/2" />
               </div>
             </div>
             <div className="flex items-center gap-4 animate-pulse">
-              <div className="w-16 h-16 bg-gray-100 rounded-xl" />
+              <div className="w-16 h-16 bg-gray-100 rounded-md" />
               <div className="space-y-2 flex-1">
                 <div className="h-5 bg-gray-100 rounded w-1/4" />
                 <div className="h-4 bg-gray-50 rounded w-2/3" />
@@ -169,7 +169,7 @@ export default function EventManagement() {
           <div className="p-12 text-center text-red-600 font-bold flex flex-col items-center justify-center gap-3">
             <AlertCircle className="w-12 h-12" />
             <p>{error}</p>
-            <Button variant="outline" onClick={fetchEvents} className="rounded-xl border-red-200 mt-2 text-red-700 hover:bg-red-50">Retry</Button>
+            <Button variant="outline" onClick={fetchEvents} className="rounded-md border-red-200 mt-2 text-red-700 hover:bg-red-50">Retry</Button>
           </div>
         ) : filteredEvents.length > 0 ? (
           <div className="p-4">
@@ -177,9 +177,9 @@ export default function EventManagement() {
               {paginatedData.map((event) => (
                 <div key={event.eventId} className="p-6 hover:bg-gray-50 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4">
                   <div className="flex items-start gap-4">
-                    <div className="w-16 h-16 bg-primary/10 rounded-xl flex items-center justify-center flex-shrink-0 border border-primary/10">
+                    <div className="w-16 h-16 bg-primary/10 rounded-md flex items-center justify-center flex-shrink-0 border border-primary/10">
                       {event.coverImage ? (
-                        <img src={getImageUrl(event.coverImage)} alt={event.title} className="w-full h-full object-cover rounded-xl" />
+                        <img src={getImageUrl(event.coverImage)} alt={event.title} className="w-full h-full object-cover rounded-md" />
                       ) : (
                         <CalendarDays className="w-6 h-6 text-primary" />
                       )}
@@ -208,7 +208,7 @@ export default function EventManagement() {
                     <Button 
                       variant="outline" 
                       onClick={() => navigate(`/event/${event.eventId}`)}
-                      className="rounded-xl px-4 py-2 border-border text-sm font-bold text-text-secondary gap-1.5 hover:bg-gray-50 bg-white"
+                      className="rounded-md px-4 py-2 border-border text-sm font-bold text-text-secondary gap-1.5 hover:bg-gray-50 bg-white"
                     >
                       <Eye className="w-4 h-4" /> View
                     </Button>
@@ -227,8 +227,8 @@ export default function EventManagement() {
             />
           </div>
         ) : (
-          <div className="flex-1 min-h-[400px] flex flex-col items-center justify-center p-12 text-center m-6 border-2 border-dashed border-border rounded-2xl bg-surface/30">
-            <div className="w-16 h-16 bg-white border border-border shadow-sm rounded-2xl flex items-center justify-center mb-4">
+          <div className="flex-1 min-h-[400px] flex flex-col items-center justify-center p-12 text-center m-6 border-2 border-dashed border-border rounded-lg bg-surface/30">
+            <div className="w-16 h-16 bg-white border border-border shadow-sm rounded-lg flex items-center justify-center mb-4">
               <CalendarDays className="w-8 h-8 text-text-muted/50" />
             </div>
             <h3 className="text-xl font-display font-bold text-text-primary">No events found</h3>

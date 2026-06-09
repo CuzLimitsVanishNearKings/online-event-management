@@ -56,14 +56,14 @@ export function Bookings() {
           <h1 className="text-3xl font-display font-bold text-text-primary tracking-tight">Bookings</h1>
           <p className="text-text-muted mt-1 font-medium">Monitor all platform-wide ticket reservations and orders.</p>
         </div>
-        <Button onClick={handleExport} variant="outline" className="rounded-xl border-border font-bold text-text-secondary bg-white gap-2" disabled={isExporting}>
+        <Button onClick={handleExport} variant="outline" className="rounded-md border-border font-bold text-text-secondary bg-white gap-2" disabled={isExporting}>
           {isExporting ? <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" /> :
            exported ? <Check className="w-4 h-4 text-green-600" /> : <Download className="w-4 h-4" />}
           {exported ? 'Exported!' : 'Export CSV'}
         </Button>
       </div>
 
-      <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden flex flex-col">
+      <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden flex flex-col">
         <div className="p-4 border-b border-border flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gray-50/30">
           <div className="flex gap-2 bg-surface/50 p-1 rounded-lg">
             {(['all', 'confirmed', 'pending', 'cancelled'] as BookingTab[]).map((tab) => (
@@ -79,12 +79,12 @@ export function Bookings() {
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
               <input type="text" placeholder="Search by user or event..." value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-4 py-2 border border-border rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 w-full md:w-80" />
+                className="pl-9 pr-4 py-2 border border-border rounded-md text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 w-full md:w-80" />
             </div>
-            <Button variant="outline" className="rounded-xl px-3 py-2 border-border text-text-secondary"><Filter className="w-4 h-4" /></Button>
+            <Button variant="outline" className="rounded-md px-3 py-2 border-border text-text-secondary"><Filter className="w-4 h-4" /></Button>
           </div>
         </div>
-        <div className="flex-1 min-h-[400px] flex flex-col items-center justify-center p-12 text-center m-6 border-2 border-dashed border-border rounded-2xl bg-surface/30">
+        <div className="flex-1 min-h-[400px] flex flex-col items-center justify-center p-12 text-center m-6 border-2 border-dashed border-border rounded-lg bg-surface/30">
           {loading ? (
             <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
           ) : filteredBookings.length > 0 ? (
@@ -119,7 +119,7 @@ export function Bookings() {
             </table>
           ) : (
             <>
-              <div className="w-16 h-16 bg-white border border-border shadow-sm rounded-2xl flex items-center justify-center mb-4">
+              <div className="w-16 h-16 bg-white border border-border shadow-sm rounded-lg flex items-center justify-center mb-4">
                 <Receipt className="w-8 h-8 text-text-muted/50" />
               </div>
               <h3 className="text-lg font-bold text-text-primary">No bookings found</h3>
@@ -155,11 +155,11 @@ export function Tickets() {
           <h1 className="text-3xl font-display font-bold text-text-primary tracking-tight">Tickets</h1>
           <p className="text-text-muted mt-1 font-medium">Track and verify all digital ticket issuance across the platform.</p>
         </div>
-        <Button variant="outline" className="rounded-xl border-border font-bold text-text-secondary bg-white gap-2">
+        <Button variant="outline" className="rounded-md border-border font-bold text-text-secondary bg-white gap-2">
           <Download className="w-4 h-4" /> Export
         </Button>
       </div>
-      <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden flex flex-col">
+      <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden flex flex-col">
         <div className="p-4 border-b border-border flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gray-50/30">
           <div className="flex gap-2 bg-surface/50 p-1 rounded-lg">
             {(['all', 'active', 'used', 'cancelled'] as TicketTab[]).map((tab) => (
@@ -175,13 +175,13 @@ export function Tickets() {
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
               <input type="text" placeholder="Search by holder or code..." value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-4 py-2 border border-border rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 w-72" />
+                className="pl-9 pr-4 py-2 border border-border rounded-md text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 w-72" />
             </div>
-            <Button variant="outline" className="rounded-xl px-3 py-2 border-border text-text-secondary"><Filter className="w-4 h-4" /></Button>
+            <Button variant="outline" className="rounded-md px-3 py-2 border-border text-text-secondary"><Filter className="w-4 h-4" /></Button>
           </div>
         </div>
-        <div className="flex-1 min-h-[400px] flex flex-col items-center justify-center p-12 text-center m-6 border-2 border-dashed border-border rounded-2xl bg-surface/30">
-          <div className="w-16 h-16 bg-white border border-border shadow-sm rounded-2xl flex items-center justify-center mb-4">
+        <div className="flex-1 min-h-[400px] flex flex-col items-center justify-center p-12 text-center m-6 border-2 border-dashed border-border rounded-lg bg-surface/30">
+          <div className="w-16 h-16 bg-white border border-border shadow-sm rounded-lg flex items-center justify-center mb-4">
             <Ticket className="w-8 h-8 text-text-muted/50" />
           </div>
           <h3 className="text-lg font-bold text-text-primary">No tickets found</h3>
@@ -239,13 +239,13 @@ export function Payments() {
           <h1 className="text-3xl font-display font-bold text-text-primary tracking-tight">Payments</h1>
           <p className="text-text-muted mt-1 font-medium">Financial transaction logs and platform revenue overview.</p>
         </div>
-        <Button onClick={handleExport} variant="outline" className="rounded-xl border-border font-bold text-text-secondary bg-white gap-2" disabled={isExporting}>
+        <Button onClick={handleExport} variant="outline" className="rounded-md border-border font-bold text-text-secondary bg-white gap-2" disabled={isExporting}>
           {isExporting ? <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" /> :
            exported ? <Check className="w-4 h-4 text-green-600" /> : <Download className="w-4 h-4" />}
           {exported ? 'Exported!' : 'Export CSV'}
         </Button>
       </div>
-      <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden flex flex-col">
+      <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden flex flex-col">
         <div className="p-4 border-b border-border flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gray-50/30">
           <div className="flex gap-2 bg-surface/50 p-1 rounded-lg">
             {(['all', 'completed', 'pending', 'refunded'] as PaymentTab[]).map((tab) => (
@@ -261,12 +261,12 @@ export function Payments() {
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
               <input type="text" placeholder="Search by reference or user..." value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-4 py-2 border border-border rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 w-72" />
+                className="pl-9 pr-4 py-2 border border-border rounded-md text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 w-72" />
             </div>
-            <Button variant="outline" className="rounded-xl px-3 py-2 border-border text-text-secondary"><Filter className="w-4 h-4" /></Button>
+            <Button variant="outline" className="rounded-md px-3 py-2 border-border text-text-secondary"><Filter className="w-4 h-4" /></Button>
           </div>
         </div>
-        <div className="flex-1 min-h-[400px] flex flex-col items-center justify-center p-12 text-center m-6 border-2 border-dashed border-border rounded-2xl bg-surface/30">
+        <div className="flex-1 min-h-[400px] flex flex-col items-center justify-center p-12 text-center m-6 border-2 border-dashed border-border rounded-lg bg-surface/30">
           {loading ? (
             <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
           ) : payments.length > 0 ? (
@@ -303,7 +303,7 @@ export function Payments() {
             </table>
           ) : (
             <>
-              <div className="w-16 h-16 bg-white border border-border shadow-sm rounded-2xl flex items-center justify-center mb-4">
+              <div className="w-16 h-16 bg-white border border-border shadow-sm rounded-lg flex items-center justify-center mb-4">
                 <CreditCard className="w-8 h-8 text-text-muted/50" />
               </div>
               <h3 className="text-lg font-bold text-text-primary">No transactions yet</h3>
@@ -370,7 +370,7 @@ export function TopUpRequests() {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden flex flex-col">
+      <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden flex flex-col">
         <div className="p-4 border-b border-border flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gray-50/30">
           <div className="flex gap-2 bg-surface/50 p-1 rounded-lg">
             {(['ALL', 'PENDING', 'APPROVED', 'REJECTED'] as const).map((tab) => (
@@ -386,9 +386,9 @@ export function TopUpRequests() {
               <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-text-muted" />
               <input type="text" placeholder="Search requester..." value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-4 py-2 border border-border rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 w-72" />
+                className="pl-9 pr-4 py-2 border border-border rounded-md text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 w-72" />
             </div>
-            <Button variant="outline" className="rounded-xl px-3 py-2 border-border text-text-secondary"><Filter className="w-4 h-4" /></Button>
+            <Button variant="outline" className="rounded-md px-3 py-2 border-border text-text-secondary"><Filter className="w-4 h-4" /></Button>
           </div>
         </div>
 
@@ -396,8 +396,8 @@ export function TopUpRequests() {
           {loading && requests.length === 0 ? (
             <div className="p-12 text-center text-text-muted font-bold">Loading requests...</div>
           ) : filteredRequests.length === 0 ? (
-            <div className="flex flex-col items-center justify-center p-12 text-center m-6 border-2 border-dashed border-border rounded-2xl bg-surface/30">
-              <div className="w-16 h-16 bg-white border border-border shadow-sm rounded-2xl flex items-center justify-center mb-4">
+            <div className="flex flex-col items-center justify-center p-12 text-center m-6 border-2 border-dashed border-border rounded-lg bg-surface/30">
+              <div className="w-16 h-16 bg-white border border-border shadow-sm rounded-lg flex items-center justify-center mb-4">
                 <Wallet className="w-8 h-8 text-text-muted/50" />
               </div>
               <h3 className="text-lg font-bold text-text-primary">No requests found</h3>
@@ -446,7 +446,7 @@ export function TopUpRequests() {
                     </td>
                     <td className="p-4">
                       {req.status === 'PENDING' ? (
-                        <Button onClick={() => setSelectedRequest(req)} size="sm" variant="primary" className="rounded-xl font-bold text-xs h-8">
+                        <Button onClick={() => setSelectedRequest(req)} size="sm" variant="primary" className="rounded-md font-bold text-xs h-8">
                           Review
                         </Button>
                       ) : (
@@ -466,7 +466,7 @@ export function TopUpRequests() {
         <div className="fixed inset-0 bg-gray-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
           <motion.div 
             initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }}
-            className="bg-white rounded-2xl shadow-xl w-full max-w-md overflow-hidden relative border border-border"
+            className="bg-white rounded-lg shadow-xl w-full max-w-md overflow-hidden relative border border-border"
           >
             <div className="p-6 border-b border-border flex justify-between items-center bg-surface/30">
               <h3 className="font-bold text-xl text-text-primary">Review Request</h3>
@@ -475,7 +475,7 @@ export function TopUpRequests() {
               </button>
             </div>
             <div className="p-6 space-y-6">
-              <div className="flex flex-col items-center justify-center text-center p-6 bg-gray-50 rounded-xl border border-border">
+              <div className="flex flex-col items-center justify-center text-center p-6 bg-gray-50 rounded-md border border-border">
                 <p className="text-sm font-bold text-text-muted uppercase tracking-wider mb-1">Requested Amount</p>
                 <h2 className="text-4xl font-display font-bold text-primary">{selectedRequest.amount.toLocaleString()} FCFA</h2>
                 <p className="text-sm text-text-secondary mt-2">by <strong>{selectedRequest.requesterName}</strong></p>
@@ -487,7 +487,7 @@ export function TopUpRequests() {
                 <textarea 
                   value={adminNote} onChange={(e) => setAdminNote(e.target.value)}
                   placeholder="Leave a note explaining your decision..."
-                  className="w-full px-4 py-3 border border-border rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 min-h-[100px] resize-none"
+                  className="w-full px-4 py-3 border border-border rounded-md text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 min-h-[100px] resize-none"
                   disabled={isSubmitting}
                 />
               </div>
@@ -495,13 +495,13 @@ export function TopUpRequests() {
               <div className="flex gap-3 pt-2">
                 <Button 
                   onClick={() => handleReview(false)} disabled={isSubmitting} variant="outline" 
-                  className="flex-1 rounded-xl font-bold border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
+                  className="flex-1 rounded-md font-bold border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700"
                 >
                   {isSubmitting ? '...' : 'Reject'}
                 </Button>
                 <Button 
                   onClick={() => handleReview(true)} disabled={isSubmitting} variant="primary" 
-                  className="flex-1 rounded-xl font-bold bg-green-600 hover:bg-green-700 shadow-lg shadow-green-600/20"
+                  className="flex-1 rounded-md font-bold bg-green-600 hover:bg-green-700 shadow-lg shadow-green-600/20"
                 >
                   {isSubmitting ? '...' : 'Approve'}
                 </Button>

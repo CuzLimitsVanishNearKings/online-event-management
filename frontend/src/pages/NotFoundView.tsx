@@ -33,14 +33,14 @@ export default function NotFoundView() {
           <Button
             onClick={() => navigate(-1)}
             variant="outline"
-            className="rounded-xl border-border font-bold text-text-secondary bg-white gap-2"
+            className="rounded-md border-border font-bold text-text-secondary bg-white gap-2"
           >
             <ArrowLeft className="w-4 h-4" />
             Go Back
           </Button>
           <Button
             onClick={() => navigate('/')}
-            className="rounded-xl font-bold gap-2"
+            className="rounded-md font-bold gap-2"
           >
             <Home className="w-4 h-4" />
             Back to Home

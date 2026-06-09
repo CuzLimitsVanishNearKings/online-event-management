@@ -80,9 +80,9 @@ export default function OrganizerSidebar({ onMobileClose }: OrganizerSidebarProp
       </button>
 
       <div className={cn("p-6 border-b border-border flex items-center", isCollapsed ? "justify-center px-0" : "justify-center")}>
-        <Link to="/" className="flex items-center gap-2 transition-transform hover:scale-105">
+        <Link to="/" className="flex items-center gap-2 transition-transform ">
           {isCollapsed ? (
-            <div className="w-8 h-8 bg-primary rounded-xl flex items-center justify-center p-1.5">
+            <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center p-1.5">
               <img src="/04_evento-icon-white.svg" alt="Evento Icon" className="w-full h-full object-contain" />
             </div>
           ) : (
@@ -113,7 +113,7 @@ export default function OrganizerSidebar({ onMobileClose }: OrganizerSidebarProp
                   onClick={() => onMobileClose?.()}
                   title={isCollapsed ? item.label : undefined}
                   className={cn(
-                    "w-full flex items-center rounded-xl font-bold text-sm transition-all duration-200",
+                    "w-full flex items-center rounded-md font-bold text-sm transition-all duration-200",
                     isCollapsed ? "justify-center py-3 px-0" : "gap-3 px-4 py-2.5",
                     isActive
                       ? "bg-primary/10 text-primary shadow-sm"
@@ -140,7 +140,7 @@ export default function OrganizerSidebar({ onMobileClose }: OrganizerSidebarProp
           }}
           title={isCollapsed ? "Sign Out" : undefined}
           className={cn(
-            "w-full flex items-center rounded-xl text-text-muted hover:text-error hover:bg-error/10 transition-colors font-bold text-sm group",
+            "w-full flex items-center rounded-md text-text-muted hover:text-error hover:bg-error/10 transition-colors font-bold text-sm group",
             isCollapsed ? "justify-center py-3 px-0" : "gap-3 px-4 py-3"
           )}
         >

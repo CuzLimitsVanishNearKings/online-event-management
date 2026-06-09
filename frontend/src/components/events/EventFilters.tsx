@@ -67,7 +67,7 @@ const EventFiltersComponent = ({
     }`
 
   return (
-    <div className="bg-white border border-border/50 rounded-xl shadow-sm w-full">
+    <div className="bg-white border border-border/50 rounded-md shadow-sm w-full">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border/50">
         <div className="flex items-center space-x-2">

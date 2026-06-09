@@ -35,8 +35,8 @@ const TicketSelector = ({ event, fullEvent }: TicketSelectorProps) => {
 
   if (ticketTypes.length === 0 || !selectedTicketType) {
     return (
-      <div className="bg-gray-50 border border-border rounded-xl p-8 text-center space-y-4">
-        <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto border-2 border-dashed border-border">
+      <div className="bg-gray-50 border border-border rounded-md p-8 text-center space-y-4">
+        <div className="w-16 h-16 bg-gray-50 rounded-lg flex items-center justify-center mx-auto border-2 border-dashed border-border">
           <Ticket className="w-8 h-8 text-text-muted/50" />
         </div>
         <h3 className="text-xl font-display font-bold text-text-primary">Tickets Unavailable</h3>
@@ -80,21 +80,21 @@ const TicketSelector = ({ event, fullEvent }: TicketSelectorProps) => {
 
   if (isSoldOut) {
     return (
-      <div className="bg-gray-50 border border-border rounded-xl p-8 text-center space-y-4">
-        <div className="w-16 h-16 bg-gray-50 rounded-2xl flex items-center justify-center mx-auto">
+      <div className="bg-gray-50 border border-border rounded-md p-8 text-center space-y-4">
+        <div className="w-16 h-16 bg-gray-50 rounded-lg flex items-center justify-center mx-auto">
           <AlertCircle className="w-8 h-8 text-text-muted" />
         </div>
         <h3 className="text-2xl font-display font-bold text-text-primary">Sold Out</h3>
         <p className="text-text-muted leading-relaxed">
           The selected ticket category is fully booked. Join the waitlist or browse similar events.
         </p>
-        <Button variant="outline" className="w-full rounded-2xl font-bold">Browse Similar</Button>
+        <Button variant="outline" className="w-full rounded-lg font-bold">Browse Similar</Button>
       </div>
     )
   }
 
   return (
-    <div className="bg-white border border-border rounded-xl p-6 md:p-8 shadow-card space-y-6 md:space-y-8">
+    <div className="bg-white border border-border rounded-md p-6 md:p-8 shadow-card space-y-6 md:space-y-8">
       {/* Header */}
       <div className="space-y-1">
         <h3 className="text-2xl font-display font-bold text-text-primary">Book Tickets</h3>
@@ -122,7 +122,7 @@ const TicketSelector = ({ event, fullEvent }: TicketSelectorProps) => {
                     setQuantity(1);
                   }}
                   className={cn(
-                    "w-full rounded-xl border flex items-center justify-between p-4 transition-all duration-300 text-left",
+                    "w-full rounded-md border flex items-center justify-between p-4 transition-all duration-300 text-left",
                     isSelected 
                       ? "bg-[#1E1B18] border-[#1E1B18] shadow-lg scale-[1.02] z-10" 
                       : "bg-white border-border hover:border-primary/30 hover:bg-gray-50",
@@ -173,12 +173,12 @@ const TicketSelector = ({ event, fullEvent }: TicketSelectorProps) => {
               </p>
            </div>
            
-           <div className="flex items-center gap-4 bg-gray-100 p-2 rounded-2xl border border-border/50">
+           <div className="flex items-center gap-4 bg-gray-100 p-2 rounded-lg border border-border/50">
               <button
                 type="button"
                 onClick={() => handleQuantityChange(quantity - 1)}
                 disabled={quantity <= 1}
-                className="w-10 h-10 rounded-xl bg-white border border-border flex items-center justify-center hover:bg-primary/5 hover:text-primary hover:border-primary/20 disabled:opacity-50 transition-all shadow-sm"
+                className="w-10 h-10 rounded-md bg-white border border-border flex items-center justify-center hover:bg-primary/5 hover:text-primary hover:border-primary/20 disabled:opacity-50 transition-all shadow-sm"
               >
                 <Minus className="w-4 h-4" />
               </button>
@@ -189,7 +189,7 @@ const TicketSelector = ({ event, fullEvent }: TicketSelectorProps) => {
                 type="button"
                 onClick={() => handleQuantityChange(quantity + 1)}
                 disabled={quantity >= maxTickets}
-                className="w-10 h-10 rounded-xl bg-white border border-border flex items-center justify-center hover:bg-primary/5 hover:text-primary hover:border-primary/20 disabled:opacity-50 transition-all shadow-sm"
+                className="w-10 h-10 rounded-md bg-white border border-border flex items-center justify-center hover:bg-primary/5 hover:text-primary hover:border-primary/20 disabled:opacity-50 transition-all shadow-sm"
               >
                 <Plus className="w-4 h-4" />
               </button>
@@ -209,7 +209,7 @@ const TicketSelector = ({ event, fullEvent }: TicketSelectorProps) => {
              variant="primary"
              size="lg"
              onClick={handleReserveNow}
-             className="w-full rounded-2xl py-7 text-lg font-bold shadow-xl shadow-primary/10"
+             className="w-full rounded-lg py-7 text-lg font-bold shadow-xl shadow-primary/10"
            >
              {selectedTicketType.price === 0 
                ? 'Register Now' 

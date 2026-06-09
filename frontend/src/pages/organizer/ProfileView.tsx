@@ -137,14 +137,14 @@ export default function ProfileView() {
       </div>
 
       {isError && (
-        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-xl text-sm font-bold flex items-center gap-2">
+        <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-md text-sm font-bold flex items-center gap-2">
           <Activity className="w-4 h-4" />
           Could not sync with server. Showing cached profile data. Backend returned error.
         </div>
       )}
 
       {/* Profile Details */}
-      <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
+      <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
         <div className="p-6 md:p-8 flex flex-col md:flex-row gap-8 items-start">
           <div className="flex flex-col items-center space-y-4">
             <div className="w-32 h-32 rounded-full bg-primary/10 border-4 border-white shadow-md flex items-center justify-center relative group overflow-hidden">
@@ -203,13 +203,13 @@ export default function ProfileView() {
                    value={bio}
                    onChange={(e) => setBio(e.target.value)}
                    rows={4}
-                   className="w-full px-4 py-3 rounded-xl border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none text-sm font-medium"
+                   className="w-full px-4 py-3 rounded-md border border-border focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none text-sm font-medium"
                  />
               </div>
             </div>
 
             <div className="pt-6 border-t border-border flex justify-end">
-              <Button onClick={handleSave} variant="primary" className="rounded-xl px-8 font-bold gap-2">
+              <Button onClick={handleSave} variant="primary" className="rounded-md px-8 font-bold gap-2">
                 <Save className="w-4 h-4" />
                 {isSaved ? 'Saved!' : 'Save Details'}
               </Button>
@@ -219,7 +219,7 @@ export default function ProfileView() {
       </div>
 
       {/* Password Section */}
-      <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
+      <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
         <div className="p-6 border-b border-border flex items-center gap-3 bg-gray-50/30">
           <Shield className="w-5 h-5 text-text-muted" />
           <h2 className="text-lg font-bold text-text-primary">Security & Password</h2>
@@ -248,7 +248,7 @@ export default function ProfileView() {
           </div>
           
           <div className="pt-2 flex justify-end">
-            <Button onClick={handlePasswordUpdate} variant="outline" className="rounded-xl px-8 font-bold border-border bg-white text-text-secondary hover:text-text-primary">
+            <Button onClick={handlePasswordUpdate} variant="outline" className="rounded-md px-8 font-bold border-border bg-white text-text-secondary hover:text-text-primary">
               {isPasswordSaved ? 'Password Updated!' : 'Update Password'}
             </Button>
           </div>

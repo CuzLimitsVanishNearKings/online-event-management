@@ -306,14 +306,14 @@ export default function EditEventView() {
       </div>
 
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 flex items-center gap-3 text-sm font-semibold animate-in fade-in duration-300">
+        <div className="p-4 bg-red-50 border border-red-200 rounded-md text-red-700 flex items-center gap-3 text-sm font-semibold animate-in fade-in duration-300">
           <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
+        <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
           <div className="bg-surface/30 px-8 py-6 border-b border-border">
             <h2 className="text-xl font-bold text-text-primary">Basic Information</h2>
           </div>
@@ -330,7 +330,7 @@ export default function EditEventView() {
               <div className="space-y-1">
                 <label className="text-sm font-bold text-text-primary block mb-2">Category</label>
                 <select 
-                  className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm bg-white font-bold"
+                  className="w-full px-4 py-3 border border-border rounded-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm bg-white font-bold"
                   value={selectedCategoryId}
                   onChange={(e) => setSelectedCategoryId(e.target.value)}
                   required
@@ -351,7 +351,7 @@ export default function EditEventView() {
               <div className="space-y-1">
                 <label className="text-sm font-bold text-text-primary">Event Description</label>
                 <textarea 
-                  className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm min-h-[120px] resize-y"
+                  className="w-full px-4 py-3 border border-border rounded-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm min-h-[120px] resize-y"
                   placeholder="Describe your event..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
@@ -371,10 +371,10 @@ export default function EditEventView() {
                 />
 
                 {imagePreview ? (
-                  <div className="border border-border rounded-2xl overflow-hidden relative group max-h-[300px]">
+                  <div className="border border-border rounded-lg overflow-hidden relative group max-h-[300px]">
                     <img src={imagePreview} alt="Banner Preview" className="w-full h-full object-cover max-h-[298px]" />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
-                      <Button type="button" onClick={handleUploadContainerClick} variant="outline" className="bg-white text-text-primary hover:bg-gray-100 border-none font-bold rounded-xl">
+                      <Button type="button" onClick={handleUploadContainerClick} variant="outline" className="bg-white text-text-primary hover:bg-gray-100 border-none font-bold rounded-md">
                         Change Image
                       </Button>
                     </div>
@@ -387,7 +387,7 @@ export default function EditEventView() {
                 ) : (
                   <div 
                     onClick={handleUploadContainerClick}
-                    className="border-2 border-dashed border-border rounded-2xl p-8 flex flex-col items-center justify-center text-center bg-gray-50/50 hover:bg-gray-50 transition-colors cursor-pointer"
+                    className="border-2 border-dashed border-border rounded-lg p-8 flex flex-col items-center justify-center text-center bg-gray-50/50 hover:bg-gray-50 transition-colors cursor-pointer"
                   >
                     <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mb-4 border border-border">
                       <Upload className="w-5 h-5 text-text-muted" />
@@ -401,7 +401,7 @@ export default function EditEventView() {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
+        <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
           <div className="bg-surface/30 px-8 py-6 border-b border-border">
             <h2 className="text-xl font-bold text-text-primary">Date & Location</h2>
           </div>
@@ -438,7 +438,7 @@ export default function EditEventView() {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
+        <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
           <div className="bg-surface/30 px-8 py-6 border-b border-border flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold text-text-primary">Tickets & Capacity</h2>
@@ -448,7 +448,7 @@ export default function EditEventView() {
               type="button" 
               onClick={handleAddTier} 
               variant="outline" 
-              className="bg-white text-primary border-border hover:bg-surface rounded-xl font-bold gap-2 text-sm px-4 py-2"
+              className="bg-white text-primary border-border hover:bg-surface rounded-md font-bold gap-2 text-sm px-4 py-2"
             >
               <Plus className="w-4 h-4" /> Add Ticket Tier
             </Button>
@@ -475,7 +475,7 @@ export default function EditEventView() {
               <div className="space-y-4 border-t border-border pt-6">
                 <h3 className="font-bold text-text-primary text-sm uppercase tracking-wider mb-4">Ticket Tiers</h3>
                 {ticketTiers.map((tier) => (
-                  <div key={tier.id} className="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 border border-border rounded-xl bg-gray-50/50 relative group">
+                  <div key={tier.id} className="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 border border-border rounded-md bg-gray-50/50 relative group">
                   <div className="md:col-span-5">
                     <Input 
                       label="Ticket Name" 
@@ -526,13 +526,13 @@ export default function EditEventView() {
         </div>
 
         <div className="flex justify-end gap-4 pt-4">
-          <Button type="button" onClick={() => navigate('/organizer/events')} variant="outline" className="rounded-xl font-bold px-8">
+          <Button type="button" onClick={() => navigate('/organizer/events')} variant="outline" className="rounded-md font-bold px-8">
             Cancel
           </Button>
           <Button 
             type="submit" 
             variant="primary" 
-            className={`rounded-xl font-bold px-10 gap-2 ${isSuccess ? 'bg-green-600 hover:bg-green-700 text-white border-green-600' : ''}`}
+            className={`rounded-md font-bold px-10 gap-2 ${isSuccess ? 'bg-green-600 hover:bg-green-700 text-white border-green-600' : ''}`}
             disabled={isSubmitting || isSuccess}
           >
             {isSubmitting ? (

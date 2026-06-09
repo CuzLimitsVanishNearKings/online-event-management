@@ -136,7 +136,7 @@ export default function CalendarView() {
       <motion.div 
         initial={{ opacity: 0, x: -20 }}
         animate={{ opacity: 1, x: 0 }}
-        className="flex-1 flex flex-col bg-white rounded-2xl border border-border shadow-sm overflow-hidden"
+        className="flex-1 flex flex-col bg-white rounded-lg border border-border shadow-sm overflow-hidden"
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-border bg-white z-10">
@@ -144,10 +144,10 @@ export default function CalendarView() {
             {format(currentDate, "MMMM yyyy")}
           </h1>
           <div className="flex items-center gap-3">
-            <Button variant="outline" onClick={goToday} className="rounded-xl px-4 text-sm font-bold h-10 border-border">
+            <Button variant="outline" onClick={goToday} className="rounded-md px-4 text-sm font-bold h-10 border-border">
               Today
             </Button>
-            <div className="flex items-center rounded-xl border border-border overflow-hidden h-10 bg-white">
+            <div className="flex items-center rounded-md border border-border overflow-hidden h-10 bg-white">
               <button onClick={prevMonth} className="px-3 h-full hover:bg-gray-50 border-r border-border transition-colors">
                 <ChevronLeft className="w-5 h-5 text-text-muted" />
               </button>
@@ -188,7 +188,7 @@ export default function CalendarView() {
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
           exit={{ opacity: 0, x: 20 }}
-          className="w-full md:w-80 h-full bg-white rounded-2xl border border-border shadow-sm overflow-hidden flex flex-col flex-shrink-0"
+          className="w-full md:w-80 h-full bg-white rounded-lg border border-border shadow-sm overflow-hidden flex flex-col flex-shrink-0"
         >
           {selectedDate && (
             <>
@@ -212,7 +212,7 @@ export default function CalendarView() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       key={event.id} 
-                      className="bg-white border border-border rounded-xl p-4 shadow-sm hover:border-primary/30 hover:shadow-md transition-all group"
+                      className="bg-white border border-border rounded-md p-4 shadow-sm hover:border-primary/30 hover:shadow-md transition-all group"
                     >
                       <h3 className="font-bold text-text-primary mb-3 line-clamp-2 leading-tight">{event.title}</h3>
                       <div className="space-y-2 mb-5">

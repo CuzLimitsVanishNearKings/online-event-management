@@ -66,7 +66,7 @@ export const TicketReceipt: React.FC<TicketReceiptProps> = ({ id, ticket }) => {
               
               <div className="space-y-6">
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
                     <Calendar className="w-6 h-6 text-primary" />
                   </div>
                   <div>
@@ -76,7 +76,7 @@ export const TicketReceipt: React.FC<TicketReceiptProps> = ({ id, ticket }) => {
                 </div>
 
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
                     <Clock className="w-6 h-6 text-primary" />
                   </div>
                   <div>
@@ -86,7 +86,7 @@ export const TicketReceipt: React.FC<TicketReceiptProps> = ({ id, ticket }) => {
                 </div>
 
                 <div className="flex items-start gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-gray-100 flex items-center justify-center flex-shrink-0">
+                  <div className="w-12 h-12 rounded-lg bg-gray-100 flex items-center justify-center flex-shrink-0">
                     <MapPin className="w-6 h-6 text-primary" />
                   </div>
                   <div>
@@ -120,7 +120,7 @@ export const TicketReceipt: React.FC<TicketReceiptProps> = ({ id, ticket }) => {
                 {qrCodeUrl ? (
                   <img src={qrCodeUrl} alt="Ticket QR Code" className="w-full h-full object-contain" />
                 ) : (
-                  <div className="w-full h-full bg-gray-200 animate-pulse rounded-2xl" />
+                  <div className="w-full h-full bg-gray-200 animate-pulse rounded-lg" />
                 )}
               </div>
               

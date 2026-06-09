@@ -210,19 +210,19 @@ export default function UserManagement() {
           <p className="text-text-muted mt-1 font-medium">Manage all platform participants and their roles.</p>
         </div>
         <div className="flex flex-col sm:flex-row gap-3">
-          <Button onClick={handleExport} variant="outline" className="rounded-xl border-border font-bold text-text-secondary bg-white gap-2" disabled={isExporting || users.length === 0}>
+          <Button onClick={handleExport} variant="outline" className="rounded-md border-border font-bold text-text-secondary bg-white gap-2" disabled={isExporting || users.length === 0}>
             {isExporting ? <div className="w-4 h-4 border-2 border-primary border-t-transparent rounded-full animate-spin" /> :
              exported ? <Check className="w-4 h-4 text-green-600" /> : <Download className="w-4 h-4" />}
             {exported ? 'Exported!' : 'Export CSV'}
           </Button>
-          <Button onClick={() => setIsAddModalOpen(true)} variant="primary" className="rounded-xl gap-2 font-bold shadow-md shadow-primary/20">
+          <Button onClick={() => setIsAddModalOpen(true)} variant="primary" className="rounded-md gap-2 font-bold shadow-md shadow-primary/20">
             <UserPlus className="w-5 h-5" />
             Add User
           </Button>
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden flex flex-col">
+      <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden flex flex-col">
         {/* Toolbar */}
         <div className="p-4 border-b border-border flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gray-50/30">
           <div className="flex gap-2 bg-surface/50 p-1 rounded-lg">
@@ -247,7 +247,7 @@ export default function UserManagement() {
                 placeholder="Search users by name, username or email..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-4 py-2 border border-border rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 w-full md:w-80"
+                className="pl-9 pr-4 py-2 border border-border rounded-md text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 w-full md:w-80"
               />
             </div>
           </div>
@@ -259,7 +259,7 @@ export default function UserManagement() {
             <div className="h-6 bg-gray-100 rounded-lg w-1/4 animate-pulse" />
             <div className="space-y-3">
               {[1, 2, 3, 4, 5].map((i) => (
-                <div key={i} className="h-12 bg-gray-50 rounded-xl animate-pulse" />
+                <div key={i} className="h-12 bg-gray-50 rounded-md animate-pulse" />
               ))}
             </div>
           </div>
@@ -267,7 +267,7 @@ export default function UserManagement() {
           <div className="p-12 text-center text-red-600 font-bold flex flex-col items-center justify-center gap-3">
             <AlertCircle className="w-12 h-12" />
             <p>{error}</p>
-            <Button variant="outline" onClick={fetchUsers} className="rounded-xl border-red-200 mt-2 text-red-700 hover:bg-red-50">Retry</Button>
+            <Button variant="outline" onClick={fetchUsers} className="rounded-md border-red-200 mt-2 text-red-700 hover:bg-red-50">Retry</Button>
           </div>
         ) : filteredUsers.length > 0 ? (
           <div className="p-4">
@@ -287,7 +287,7 @@ export default function UserManagement() {
                     <tr key={u.email} className="group hover:bg-gray-50/50 transition-colors border-b border-border/50 last:border-0">
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-3">
-                          <div className="w-9 h-9 rounded-xl bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
+                          <div className="w-9 h-9 rounded-md bg-primary/10 flex items-center justify-center text-primary font-bold text-sm">
                             {(u.firstName || u.userName || 'U').charAt(0).toUpperCase()}
                           </div>
                           <div>
@@ -346,8 +346,8 @@ export default function UserManagement() {
             />
           </div>
         ) : (
-          <div className="flex-1 min-h-[400px] flex flex-col items-center justify-center p-12 text-center m-6 border-2 border-dashed border-border rounded-2xl bg-surface/30">
-            <div className="w-16 h-16 bg-white border border-border shadow-sm rounded-2xl flex items-center justify-center mb-4">
+          <div className="flex-1 min-h-[400px] flex flex-col items-center justify-center p-12 text-center m-6 border-2 border-dashed border-border rounded-lg bg-surface/30">
+            <div className="w-16 h-16 bg-white border border-border shadow-sm rounded-lg flex items-center justify-center mb-4">
               <Users className="w-8 h-8 text-text-muted/50" />
             </div>
             <h3 className="text-xl font-display font-bold text-text-primary">No users found</h3>
@@ -365,7 +365,7 @@ export default function UserManagement() {
         {isAddModalOpen && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setIsAddModalOpen(false)} />
-            <motion.div initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 10 }} className="bg-white rounded-2xl border border-border shadow-2xl w-full max-w-2xl overflow-hidden relative z-10 flex flex-col max-h-[90vh]">
+            <motion.div initial={{ opacity: 0, scale: 0.95, y: 10 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.95, y: 10 }} className="bg-white rounded-lg border border-border shadow-2xl w-full max-w-2xl overflow-hidden relative z-10 flex flex-col max-h-[90vh]">
               <div className="p-6 border-b border-border bg-gray-50/50 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <UserPlus className="w-5 h-5 text-primary" />
@@ -378,7 +378,7 @@ export default function UserManagement() {
 
               <form onSubmit={handleAddUser} className="overflow-y-auto p-6 space-y-6 flex-1">
                 {submissionError && (
-                  <div className="flex items-center gap-3 p-4 text-red-600 border border-red-100 bg-red-50 rounded-xl">
+                  <div className="flex items-center gap-3 p-4 text-red-600 border border-red-100 bg-red-50 rounded-md">
                     <AlertCircle className="w-5 h-5 flex-shrink-0" />
                     <p className="text-sm font-bold">{submissionError}</p>
                   </div>
@@ -387,10 +387,10 @@ export default function UserManagement() {
                 <div className="space-y-2">
                   <label className="block text-sm font-bold text-text-primary">Select Role</label>
                   <div className="flex gap-3">
-                    <button type="button" onClick={() => setFormRole('CLIENT')} className={cn('flex-1 py-3 px-4 rounded-xl border-2 font-bold text-sm text-center transition-all', formRole === 'CLIENT' ? 'border-primary bg-primary/5 text-primary' : 'border-border text-text-secondary hover:bg-surface')}>
+                    <button type="button" onClick={() => setFormRole('CLIENT')} className={cn('flex-1 py-3 px-4 rounded-md border-2 font-bold text-sm text-center transition-all', formRole === 'CLIENT' ? 'border-primary bg-primary/5 text-primary' : 'border-border text-text-secondary hover:bg-surface')}>
                       Attendee / Client
                     </button>
-                    <button type="button" onClick={() => setFormRole('ORGANIZER')} className={cn('flex-1 py-3 px-4 rounded-xl border-2 font-bold text-sm text-center transition-all', formRole === 'ORGANIZER' ? 'border-primary bg-primary/5 text-primary' : 'border-border text-text-secondary hover:bg-surface')}>
+                    <button type="button" onClick={() => setFormRole('ORGANIZER')} className={cn('flex-1 py-3 px-4 rounded-md border-2 font-bold text-sm text-center transition-all', formRole === 'ORGANIZER' ? 'border-primary bg-primary/5 text-primary' : 'border-border text-text-secondary hover:bg-surface')}>
                       Organizer
                     </button>
                   </div>
@@ -415,7 +415,7 @@ export default function UserManagement() {
                       </div>
                       <div className="md:col-span-2 space-y-1">
                         <label className="text-sm font-bold text-text-primary">Description</label>
-                        <textarea className="w-full px-4 py-2.5 border border-border rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm min-h-[80px]" placeholder="Brief info about the organization..." value={description} onChange={(e) => setDescription(e.target.value)} />
+                        <textarea className="w-full px-4 py-2.5 border border-border rounded-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm min-h-[80px]" placeholder="Brief info about the organization..." value={description} onChange={(e) => setDescription(e.target.value)} />
                       </div>
                       <Input label="Location" placeholder="e.g. Douala, Cameroon" value={location} onChange={(e) => setLocation(e.target.value)} />
                       <Input label="Website" placeholder="e.g. https://acmeevents.com" value={website} onChange={(e) => setWebsite(e.target.value)} />
@@ -424,10 +424,10 @@ export default function UserManagement() {
                 )}
 
                 <div className="flex justify-end gap-3 pt-6 border-t border-border">
-                  <Button type="button" variant="outline" className="rounded-xl font-bold" onClick={() => setIsAddModalOpen(false)}>
+                  <Button type="button" variant="outline" className="rounded-md font-bold" onClick={() => setIsAddModalOpen(false)}>
                     Cancel
                   </Button>
-                  <Button type="submit" variant="primary" className="rounded-xl font-bold px-8" disabled={submittingUser || submissionSuccess}>
+                  <Button type="submit" variant="primary" className="rounded-md font-bold px-8" disabled={submittingUser || submissionSuccess}>
                     {submittingUser ? (
                       <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
                     ) : submissionSuccess ? (

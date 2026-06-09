@@ -114,7 +114,7 @@ const EventsListPage = () => {
               {filters.category && (
                 <button
                   onClick={() => handleFiltersChange({ ...filters, category: '' })}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-primary/10 text-primary border border-primary/20 rounded-2xl text-xs font-bold uppercase tracking-wider hover:bg-primary/20 transition-all"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-primary/10 text-primary border border-primary/20 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-primary/20 transition-all"
                 >
                   {filters.category} <X className="w-3.5 h-3.5" />
                 </button>
@@ -122,7 +122,7 @@ const EventsListPage = () => {
               {filters.city && (
                 <button
                   onClick={() => handleFiltersChange({ ...filters, city: '' })}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-accent/10 text-accent border border-accent/20 rounded-2xl text-xs font-bold uppercase tracking-wider hover:bg-accent/20 transition-all"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-accent/10 text-accent border border-accent/20 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-accent/20 transition-all"
                 >
                   📍 {filters.city} <X className="w-3.5 h-3.5" />
                 </button>
@@ -130,7 +130,7 @@ const EventsListPage = () => {
               {filters.search && (
                 <button
                   onClick={() => handleFiltersChange({ ...filters, search: '' })}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-green-50 text-green-700 border border-green-200 rounded-2xl text-xs font-bold uppercase tracking-wider hover:bg-green-100 transition-all"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-green-50 text-green-700 border border-green-200 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-green-100 transition-all"
                 >
                   🔍 "{filters.search}" <X className="w-3.5 h-3.5" />
                 </button>
@@ -138,7 +138,7 @@ const EventsListPage = () => {
               {filters.date && (
                 <button
                   onClick={() => handleFiltersChange({ ...filters, date: '' })}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-purple-50 text-purple-700 border border-purple-200 rounded-2xl text-xs font-bold uppercase tracking-wider hover:bg-purple-100 transition-all"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-purple-50 text-purple-700 border border-purple-200 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-purple-100 transition-all"
                 >
                   📅 {filters.date} <X className="w-3.5 h-3.5" />
                 </button>
@@ -186,7 +186,7 @@ const EventsListPage = () => {
             </div>
 
             {sorted.length === 0 && !loading ? (
-              <div className="flex flex-col items-center justify-center py-32 text-center bg-white border border-border rounded-xl shadow-card px-8">
+              <div className="flex flex-col items-center justify-center py-32 text-center bg-white border border-border rounded-md shadow-card px-8">
                 <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-8">
                   <Search className="w-10 h-10 text-text-muted" />
                 </div>
@@ -194,7 +194,7 @@ const EventsListPage = () => {
                 <p className="text-text-muted max-w-md mx-auto mb-10 text-lg">
                   We couldn't find any events matching your filters. Try broadening your search.
                 </p>
-                <Button variant="primary" size="lg" className="rounded-2xl px-10 shadow-xl shadow-primary/20" onClick={clearFilters}>
+                <Button variant="primary" size="lg" className="rounded-lg px-10 shadow-xl shadow-primary/20" onClick={clearFilters}>
                   Clear all filters
                 </Button>
               </div>

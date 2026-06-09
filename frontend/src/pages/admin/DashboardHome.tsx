@@ -131,10 +131,10 @@ export default function DashboardHome() {
           </p>
         </div>
         <div className="flex gap-3">
-          <Button variant="outline" className="rounded-xl font-bold border-border bg-white">
+          <Button variant="outline" className="rounded-md font-bold border-border bg-white">
             Export Report
           </Button>
-          <Button variant="primary" className="rounded-xl gap-2 font-bold shadow-md shadow-primary/20">
+          <Button variant="primary" className="rounded-md gap-2 font-bold shadow-md shadow-primary/20">
             <ShieldAlert className="w-5 h-5" />
             Manage Platform
           </Button>
@@ -144,9 +144,9 @@ export default function DashboardHome() {
       {/* Metrics Grid */}
       <motion.div variants={itemVariants} className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {statCards.map((stat, idx) => (
-          <div key={idx} className="bg-white p-6 rounded-2xl border border-border shadow-sm hover:shadow-card-hover transition-all duration-300">
+          <div key={idx} className="bg-white p-6 rounded-lg border border-border shadow-sm hover:shadow-card-hover transition-all duration-300">
             <div className="flex justify-between items-start">
-              <div className={cn('w-12 h-12 rounded-xl flex items-center justify-center', stat.bg)}>
+              <div className={cn('w-12 h-12 rounded-md flex items-center justify-center', stat.bg)}>
                 <stat.icon className={cn('w-6 h-6', stat.color)} />
               </div>
               {stat.growth !== 0 && (
@@ -168,14 +168,14 @@ export default function DashboardHome() {
       </motion.div>
 
       {/* Pending Organizer Requests Table */}
-      <motion.div variants={itemVariants} className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
+      <motion.div variants={itemVariants} className="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
         <div className="p-6 border-b border-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h2 className="text-lg font-bold text-text-primary">Pending Organizer Requests</h2>
             <p className="text-sm text-text-muted">Review and approve new organizer applications</p>
           </div>
           <Link to="/admin/organizers/requests">
-            <Button variant="outline" className="rounded-xl border-border hover:bg-surface font-bold text-sm">
+            <Button variant="outline" className="rounded-md border-border hover:bg-surface font-bold text-sm">
               View All Requests <ArrowUpRight className="w-4 h-4 ml-2" />
             </Button>
           </Link>

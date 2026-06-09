@@ -61,19 +61,28 @@ const EventCard = ({ event }: EventCardProps) => {
     formattedDate = event.date || event.startDateTime || 'TBD'
   }
   
-  const image = getImageUrl(event.thumbnail || event.coverImage) || `https://picsum.photos/seed/${event.id}/600/400.jpg`
+  const hasImage = !!(event.thumbnail || event.coverImage)
+  const image = hasImage ? getImageUrl(event.thumbnail || event.coverImage) : ''
   const isFree = !event.price || event.price === 0
 
   return (
     <Link to={`/event/${event.id}`} className="group block">
-      <div className="bg-white rounded-xl border border-border overflow-hidden shadow-card hover:shadow-card-hover transition-shadow duration-300">
+      <div className="bg-white rounded-md border border-border overflow-hidden shadow-card hover:shadow-card-hover transition-shadow duration-300">
         {/* Image */}
-        <div className="relative aspect-[16/10] overflow-hidden">
-          <img
-            src={image}
-            alt={event.title}
-            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-          />
+        <div className="relative aspect-[16/10] overflow-hidden bg-surface/30">
+          {hasImage ? (
+            <img
+              src={image!}
+              alt={event.title}
+              className="w-full h-full object-cover transition-transform duration-500"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-primary/10 to-accent/10 flex items-center justify-center">
+              <span className="font-display font-bold text-4xl text-primary/20 uppercase">
+                {event.title ? event.title.charAt(0) : 'E'}
+              </span>
+            </div>
+          )}
 
 
           {/* Badges */}

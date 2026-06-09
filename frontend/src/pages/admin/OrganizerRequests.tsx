@@ -79,13 +79,13 @@ export default function OrganizerRequests() {
           <h1 className="text-3xl font-display font-bold text-text-primary tracking-tight">Organizer Requests</h1>
           <p className="text-text-muted mt-1 font-medium">Review and approve new organizer account applications.</p>
         </div>
-        <Button variant="outline" className="rounded-xl border-border font-bold text-text-secondary bg-white gap-2">
+        <Button variant="outline" className="rounded-md border-border font-bold text-text-secondary bg-white gap-2">
           <Mail className="w-4 h-4" />
           Email All Pending
         </Button>
       </div>
 
-      <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden flex flex-col">
+      <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden flex flex-col">
         {/* Toolbar */}
         <div className="p-4 border-b border-border flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gray-50/30">
           <div className="flex gap-2 bg-surface/50 p-1 rounded-lg">
@@ -110,10 +110,10 @@ export default function OrganizerRequests() {
                 placeholder="Search applicants..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-9 pr-4 py-2 border border-border rounded-xl text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 w-full md:w-72"
+                className="pl-9 pr-4 py-2 border border-border rounded-md text-sm focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 w-full md:w-72"
               />
             </div>
-            <Button variant="outline" className="rounded-xl px-3 py-2 border-border text-text-secondary">
+            <Button variant="outline" className="rounded-md px-3 py-2 border-border text-text-secondary">
               <Filter className="w-4 h-4" />
             </Button>
           </div>
@@ -127,7 +127,7 @@ export default function OrganizerRequests() {
             {filteredRequests.map((req) => (
               <div key={req.id} className="p-6 hover:bg-gray-50 transition-colors flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div className="flex items-start gap-4">
-                  <div className="w-14 h-14 bg-surface rounded-xl flex items-center justify-center flex-shrink-0 border border-primary/20 text-primary font-bold text-lg">
+                  <div className="w-14 h-14 bg-surface rounded-md flex items-center justify-center flex-shrink-0 border border-primary/20 text-primary font-bold text-lg">
                     {req.name?.charAt(0)}
                   </div>
                   <div>
@@ -149,13 +149,13 @@ export default function OrganizerRequests() {
                 </div>
                 {activeTab === 'pending' && (
                   <div className="flex items-center gap-2 self-end md:self-auto">
-                    <Button variant="outline" className="rounded-xl px-4 py-2 border-border text-sm font-bold text-text-secondary gap-1.5">
+                    <Button variant="outline" className="rounded-md px-4 py-2 border-border text-sm font-bold text-text-secondary gap-1.5">
                       <Eye className="w-4 h-4" /> View
                     </Button>
                     <Button
                       onClick={() => handleReject(req.id)}
                       variant="outline"
-                      className="rounded-xl px-4 py-2 border-red-200 text-sm font-bold text-red-600 hover:bg-red-50 gap-1.5"
+                      className="rounded-md px-4 py-2 border-red-200 text-sm font-bold text-red-600 hover:bg-red-50 gap-1.5"
                       disabled={rejecting === req.id}
                     >
                       {rejecting === req.id ? <div className="w-4 h-4 border-2 border-red-400 border-t-transparent rounded-full animate-spin" /> : <X className="w-4 h-4" />}
@@ -164,7 +164,7 @@ export default function OrganizerRequests() {
                     <Button
                       onClick={() => handleApprove(req.id)}
                       variant="primary"
-                      className="rounded-xl px-4 py-2 text-sm font-bold shadow-md shadow-primary/20 gap-1.5"
+                      className="rounded-md px-4 py-2 text-sm font-bold shadow-md shadow-primary/20 gap-1.5"
                       disabled={approving === req.id}
                     >
                       {approving === req.id ? <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" /> : <Check className="w-4 h-4" />}
@@ -176,8 +176,8 @@ export default function OrganizerRequests() {
             ))}
           </div>
         ) : (
-          <div className="flex-1 min-h-[400px] flex flex-col items-center justify-center p-12 text-center m-6 border-2 border-dashed border-border rounded-2xl bg-surface/30">
-            <div className="w-16 h-16 bg-white border border-border shadow-sm rounded-2xl flex items-center justify-center mb-4">
+          <div className="flex-1 min-h-[400px] flex flex-col items-center justify-center p-12 text-center m-6 border-2 border-dashed border-border rounded-lg bg-surface/30">
+            <div className="w-16 h-16 bg-white border border-border shadow-sm rounded-lg flex items-center justify-center mb-4">
               <UserCheck className="w-8 h-8 text-text-muted/50" />
             </div>
             <h3 className="text-lg font-bold text-text-primary">
