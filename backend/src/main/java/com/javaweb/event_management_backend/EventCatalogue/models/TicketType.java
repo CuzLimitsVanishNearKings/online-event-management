@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "ticket_type")
+@Table(name = "ticket_type", indexes = {
+    @Index(name = "idx_ticket_type_event", columnList = "event_id")
+})
 @Getter
 @Setter
 @Builder
@@ -38,7 +40,8 @@ public class TicketType
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
-
+    @Version
+    private Long version;
 
 
     @ManyToOne(fetch = FetchType.LAZY)

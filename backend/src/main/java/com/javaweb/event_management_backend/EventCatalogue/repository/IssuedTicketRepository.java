@@ -11,6 +11,10 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 import java.util.Optional;
 
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
+import com.javaweb.event_management_backend.UserManagement.models.OrganizerProfile;
+
 @Repository
 public interface IssuedTicketRepository extends JpaRepository<IssuedTicket, Long> {
 
@@ -54,4 +58,8 @@ public interface IssuedTicketRepository extends JpaRepository<IssuedTicket, Long
     // Count tickets by ticket type and multiple statuses
 // used to calculate total sold (VALID + USED)
     long countByTicketTypeAndStatusIn(TicketType ticketType, List<IssuedTicketStatus> statuses);
+
+    // Find all tickets for an organizer's events
+    @Query("SELECT it FROM IssuedTicket it JOIN it.ticketType tt JOIN tt.event e WHERE e.organizer = :organizer ORDER BY it.issuedAt DESC")
+    List<IssuedTicket> findByOrganizer(@Param("organizer") OrganizerProfile organizer);
 }

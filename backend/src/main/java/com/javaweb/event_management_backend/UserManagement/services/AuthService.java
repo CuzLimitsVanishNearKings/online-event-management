@@ -30,6 +30,8 @@ public class AuthService
     private final AuthenticationManager authenticationManager;
     private final UserMappers userMappers;
     private final WalletService walletService;
+    private final com.javaweb.event_management_backend.UserManagement.repository.PasswordResetTokenRepository passwordResetTokenRepository;
+    private final com.javaweb.event_management_backend.UserManagement.services.interfaces.EmailService emailService;
 
     // Regular user signup
     @Transactional
@@ -104,5 +106,48 @@ public class AuthService
                         "User not found with email: " + dto.getEmail()));
 
         return jwtService.generateToken(user);
+    }
+
+    @Transactional
+    public void forgotPassword(UserAuthRequestDto.ForgotPassword dto) {
+        User user = userRepository.findByEmail(dto.getEmail())
+                .orElseThrow(() -> new UserNotFoundException(
+                        "User not found with email: " + dto.getEmail()));
+
+        // Remove old token if exists
+        passwordResetTokenRepository.deleteByUser(user);
+
+        // Generate new token
+        String token = java.util.UUID.randomUUID().toString();
+        com.javaweb.event_management_backend.UserManagement.models.PasswordResetToken resetToken = 
+            com.javaweb.event_management_backend.UserManagement.models.PasswordResetToken.builder()
+                .user(user)
+                .token(token)
+                .expiryDate(java.time.LocalDateTime.now().plusMinutes(15))
+                .build();
+
+        passwordResetTokenRepository.save(resetToken);
+
+        // Send email
+        emailService.sendPasswordResetEmail(user.getEmail(), token);
+    }
+
+    @Transactional
+    public void resetPassword(UserAuthRequestDto.ResetPassword dto) {
+        com.javaweb.event_management_backend.UserManagement.models.PasswordResetToken resetToken = 
+            passwordResetTokenRepository.findByToken(dto.getToken())
+                .orElseThrow(() -> new IllegalArgumentException("Invalid password reset token"));
+
+        if (resetToken.isExpired()) {
+            passwordResetTokenRepository.delete(resetToken);
+            throw new IllegalArgumentException("Password reset token has expired");
+        }
+
+        User user = resetToken.getUser();
+        user.setPasswordHash(passwordEncoder.encode(dto.getNewPassword()));
+        userRepository.save(user);
+
+        // Invalidate token after successful reset
+        passwordResetTokenRepository.delete(resetToken);
     }
 }

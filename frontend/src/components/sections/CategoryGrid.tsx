@@ -14,22 +14,9 @@ const CategoryGrid = () => {
 
   const { categories, loading } = useCategories()
   
-  const defaultCategories = [
-    { id: 'music', name: 'Music', icon: <Music className="w-4 h-4" /> },
-    { id: 'sports', name: 'Sports', icon: <Trophy className="w-4 h-4" /> },
-    { id: 'tech', name: 'Tech', icon: <Monitor className="w-4 h-4" /> },
-    { id: 'business', name: 'Business', icon: <Briefcase className="w-4 h-4" /> },
-    { id: 'arts', name: 'Arts', icon: <Palette className="w-4 h-4" /> },
-    { id: 'food', name: 'Food & Drink', icon: <Utensils className="w-4 h-4" /> },
-    { id: 'learn', name: 'Education', icon: <GraduationCap className="w-4 h-4" /> },
-    { id: 'fun', name: 'Entertainment', icon: <Theater className="w-4 h-4" /> },
-    { id: 'wellness', name: 'Wellness', icon: <HeartPulse className="w-4 h-4" /> },
-    { id: 'social', name: 'Community', icon: <Users className="w-4 h-4" /> },
-  ]
-
   const displayCategories = categories.length > 0 
     ? categories.map(c => ({ id: c.id, name: c.name, icon: <span className="text-sm">{c.icon || '📌'}</span> }))
-    : defaultCategories
+    : []
 
   const scroll = (direction: 'left' | 'right') => {
     if (scrollRef.current) {

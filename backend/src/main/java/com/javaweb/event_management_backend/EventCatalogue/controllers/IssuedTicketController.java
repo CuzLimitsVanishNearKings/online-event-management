@@ -95,4 +95,14 @@ public class IssuedTicketController
         return ResponseEntity.ok(
                 issuedTicketService.getTicketsByEvent(eventId, currentUser));
     }
+
+    // GET /api/tickets/organizer
+    // get all tickets across all events for the organizer
+    @GetMapping("/organizer")
+    @PreAuthorize("hasRole('ORGANIZER')")
+    public ResponseEntity<List<IssuedTicketResponseDto.Response>> getOrganizerTickets() {
+        User currentUser = SecurityUtils.getCurrentUser();
+        return ResponseEntity.ok(
+                issuedTicketService.getOrganizerTickets(currentUser));
+    }
 }

@@ -73,13 +73,13 @@ export default function AnalyticsView() {
           { label: 'Avg Order Value', value: '0 FCFA', desc: 'Per transaction', icon: Activity },
           { label: 'Cart Abandonment', value: '0.0%', desc: 'Dropped at checkout', icon: Users }
         ].map((kpi, idx) => (
-          <div key={idx} className="bg-white p-6 rounded-2xl border border-border shadow-sm flex items-start justify-between">
+          <div key={idx} className="bg-white p-6 rounded-lg border border-border shadow-sm flex items-start justify-between">
             <div>
               <p className="text-xs font-bold text-text-muted uppercase tracking-wider">{kpi.label}</p>
               <h3 className="text-2xl font-display font-bold text-text-primary mt-1">{kpi.value}</h3>
               <p className="text-xs font-medium text-text-muted mt-1">{kpi.desc}</p>
             </div>
-            <div className="w-10 h-10 rounded-xl bg-surface/50 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-md bg-surface/50 flex items-center justify-center">
               <kpi.icon className="w-5 h-5 text-text-muted" />
             </div>
           </div>
@@ -89,13 +89,13 @@ export default function AnalyticsView() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         
         {/* Sales Funnel Chart */}
-        <div className="bg-white rounded-2xl border border-border shadow-sm p-6 flex flex-col min-h-[380px]">
+        <div className="bg-white rounded-lg border border-border shadow-sm p-6 flex flex-col min-h-[380px]">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-lg font-bold text-text-primary">Sales Funnel</h2>
               <p className="text-sm text-text-muted">Track where users drop off</p>
             </div>
-            <Button variant="outline" className="rounded-xl px-3 py-2 border-border text-text-secondary">
+            <Button variant="outline" className="rounded-md px-3 py-2 border-border text-text-secondary">
               <Filter className="w-4 h-4" />
             </Button>
           </div>
@@ -112,7 +112,7 @@ export default function AnalyticsView() {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-center bg-gray-50/30 rounded-xl border-2 border-dashed border-border/50">
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-center bg-gray-50/30 rounded-md border-2 border-dashed border-border/50">
                 <BarChart3 className="w-10 h-10 text-text-muted/40 mb-3" />
                 <p className="font-bold text-text-primary">Funnel Data Unavailable</p>
                 <p className="text-sm text-text-muted mt-1 max-w-xs">Publish your first event and drive traffic to see conversion insights.</p>
@@ -122,7 +122,7 @@ export default function AnalyticsView() {
         </div>
 
         {/* Attendee Geolocalisation */}
-        <div className="bg-white rounded-2xl border border-border shadow-sm p-6 flex flex-col min-h-[380px]">
+        <div className="bg-white rounded-lg border border-border shadow-sm p-6 flex flex-col min-h-[380px]">
           <div className="flex items-center justify-between mb-6">
             <div>
               <h2 className="text-lg font-bold text-text-primary">Top Attendee Locations</h2>
@@ -149,7 +149,7 @@ export default function AnalyticsView() {
                 </BarChart>
               </ResponsiveContainer>
             ) : (
-              <div className="absolute inset-0 flex flex-col items-center justify-center text-center bg-gray-50/30 rounded-xl border-2 border-dashed border-border/50">
+              <div className="absolute inset-0 flex flex-col items-center justify-center text-center bg-gray-50/30 rounded-md border-2 border-dashed border-border/50">
                 <PieChartIcon className="w-10 h-10 text-text-muted/40 mb-3" />
                 <p className="font-bold text-text-primary">No Tracking Data</p>
                 <p className="text-sm text-text-muted mt-1 max-w-xs">Location data is unavailable. Sell more tickets to unlock geographic insights.</p>

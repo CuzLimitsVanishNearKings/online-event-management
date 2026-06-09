@@ -1,7 +1,7 @@
 import { useState, useRef } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { ArrowLeft, Upload, Check, Calendar as CalendarIcon, Clock, MapPin, Tag, AlertCircle, Plus, Trash2 } from 'lucide-react'
+import { ArrowLeft, Check, Calendar as CalendarIcon, Clock, MapPin, Tag, AlertCircle, Plus, Trash2, Upload } from 'lucide-react'
 import { Button, Input } from '@/components/ui'
 import { useCategories } from '@/hooks/useCategories'
 import axiosClient from '@/api/axiosClient'
@@ -80,9 +80,46 @@ export default function CreateEventView() {
     const reader = new FileReader()
     reader.onload = (event) => {
       if (event.target?.result) {
-        const base64String = event.target.result as string
-        setCoverImage(base64String)
-        setImagePreview(base64String)
+        const img = new Image()
+        img.onload = () => {
+          const canvas = document.createElement('canvas')
+          const MAX_WIDTH = 1200
+          const MAX_HEIGHT = 800
+          let width = img.width
+          let height = img.height
+
+          if (width > height) {
+            if (width > MAX_WIDTH) {
+              height *= MAX_WIDTH / width
+              width = MAX_WIDTH
+            }
+          } else {
+            if (height > MAX_HEIGHT) {
+              width *= MAX_HEIGHT / height
+              height = MAX_HEIGHT
+            }
+          }
+
+          canvas.width = width
+          canvas.height = height
+          const ctx = canvas.getContext('2d')
+          
+          // Fill background with white in case of transparent PNG
+          if (ctx) {
+            ctx.fillStyle = '#FFFFFF'
+            ctx.fillRect(0, 0, width, height)
+            ctx.drawImage(img, 0, 0, width, height)
+          }
+
+          // Compress to JPEG with 0.7 quality
+          const base64String = canvas.toDataURL('image/jpeg', 0.7)
+          setCoverImage(base64String)
+          setImagePreview(base64String)
+        }
+        img.onerror = () => {
+          setError('Failed to process the image.')
+        }
+        img.src = event.target.result as string
       }
     }
     reader.onerror = () => {
@@ -103,12 +140,25 @@ export default function CreateEventView() {
       return
     }
 
-    // Validate ticket tiers
+    // Calculate total capacity
+    const totalGlobalCapacity = parseInt(capacity) || 0
+    if (totalGlobalCapacity <= 0) {
+      setError('Total event capacity must be greater than 0.')
+      return
+    }
+
+    let totalTiersCapacity = 0
     for (const tier of ticketTiers) {
       if (!tier.name.trim() || tier.price === '' || tier.capacity === '') {
         setError('Please fill out all fields for every ticket tier.')
         return
       }
+      totalTiersCapacity += parseInt(tier.capacity) || 0
+    }
+
+    if (ticketTiers.length > 0 && totalTiersCapacity > totalGlobalCapacity) {
+      setError(`Ticket tiers capacity (${totalTiersCapacity}) cannot exceed total event capacity (${totalGlobalCapacity}).`)
+      return
     }
 
     setIsSubmitting(true)
@@ -130,15 +180,6 @@ export default function CreateEventView() {
       const startDateTimeStr = formatLocalDateTime(start)
       const endDateTimeStr = formatLocalDateTime(end)
 
-      // Calculate total capacity
-      const totalCapacity = ticketTiers.length > 0 
-        ? ticketTiers.reduce((sum, tier) => sum + (parseInt(tier.capacity) || 0), 0)
-        : parseInt(capacity)
-
-      if (!totalCapacity || totalCapacity <= 0) {
-        throw new Error('Total event capacity must be greater than 0.')
-      }
-
       // Step 1: Create the Event (Status DRAFT)
       const eventPayload = {
         title,
@@ -146,7 +187,7 @@ export default function CreateEventView() {
         venue: location,
         startDateTime: startDateTimeStr,
         endDateTime: endDateTimeStr,
-        capacity: totalCapacity,
+        capacity: totalGlobalCapacity,
         coverImage,
         categoryId: parseInt(selectedCategoryId)
       }
@@ -158,13 +199,23 @@ export default function CreateEventView() {
       }
 
       // Step 2: Add all Ticket Types
-      for (const tier of ticketTiers) {
-        const ticketPayload = {
-          name: tier.name,
-          price: parseFloat(tier.price),
-          quantity: parseInt(tier.capacity)
+      if (ticketTiers.length > 0) {
+        for (const tier of ticketTiers) {
+          const ticketPayload = {
+            name: tier.name,
+            price: parseFloat(tier.price),
+            quantity: parseInt(tier.capacity)
+          }
+          await axiosClient.post(`/events/${eventId}/ticket-types`, ticketPayload)
         }
-        await axiosClient.post(`/events/${eventId}/ticket-types`, ticketPayload)
+      } else {
+        // Create a default ticket tier so the event can be published
+        const defaultTicketPayload = {
+          name: 'General Admission',
+          price: 0,
+          quantity: totalGlobalCapacity
+        }
+        await axiosClient.post(`/events/${eventId}/ticket-types`, defaultTicketPayload)
       }
 
       // Step 3: Publish the Event
@@ -177,7 +228,8 @@ export default function CreateEventView() {
 
     } catch (err: any) {
       console.error('Multi-step event creation sequence failed:', err)
-      setError(err.response?.data?.message || err.message || 'An error occurred while publishing the event.')
+      const apiErrorMessage = err.response?.data?.message || err.response?.data?.error || err.message || 'An unexpected error occurred while publishing the event.'
+      setError(`Error: ${apiErrorMessage}`)
       setIsSubmitting(false)
     }
   }
@@ -202,14 +254,14 @@ export default function CreateEventView() {
       </div>
 
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-xl text-red-700 flex items-center gap-3 text-sm font-semibold animate-in fade-in duration-300">
+        <div className="p-4 bg-red-50 border border-red-200 rounded-md text-red-700 flex items-center gap-3 text-sm font-semibold animate-in fade-in duration-300">
           <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
           <span>{error}</span>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
+        <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
           <div className="bg-surface/30 px-8 py-6 border-b border-border">
             <h2 className="text-xl font-bold text-text-primary">Basic Information</h2>
           </div>
@@ -226,7 +278,7 @@ export default function CreateEventView() {
               <div className="space-y-1">
                 <label className="text-sm font-bold text-text-primary block mb-2">Category</label>
                 <select 
-                  className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm bg-white font-bold"
+                  className="w-full px-4 py-3 border border-border rounded-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm bg-white font-bold"
                   value={selectedCategoryId}
                   onChange={(e) => setSelectedCategoryId(e.target.value)}
                   required
@@ -247,7 +299,7 @@ export default function CreateEventView() {
               <div className="space-y-1">
                 <label className="text-sm font-bold text-text-primary">Event Description</label>
                 <textarea 
-                  className="w-full px-4 py-3 border border-border rounded-xl focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm min-h-[120px] resize-y"
+                  className="w-full px-4 py-3 border border-border rounded-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm min-h-[120px] resize-y"
                   placeholder="Describe your event..."
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
@@ -267,13 +319,13 @@ export default function CreateEventView() {
                 />
 
                 {imagePreview ? (
-                  <div className="border border-border rounded-2xl overflow-hidden relative group max-h-[300px]">
+                  <div className="border border-border rounded-lg overflow-hidden relative group max-h-[300px]">
                     <img src={imagePreview} alt="Banner Preview" className="w-full h-full object-cover max-h-[298px]" />
                     <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
-                      <Button type="button" onClick={handleUploadContainerClick} variant="outline" className="bg-white text-text-primary hover:bg-gray-100 border-none font-bold rounded-xl">
+                      <Button type="button" onClick={handleUploadContainerClick} variant="outline" className="bg-white text-text-primary hover:bg-gray-100 border-none font-bold rounded-md">
                         Change Image
                       </Button>
-                      <Button type="button" onClick={() => { setCoverImage(''); setImagePreview(''); setImageFileName(''); }} variant="outline" className="bg-red-600 text-white hover:bg-red-700 border-none font-bold rounded-xl">
+                      <Button type="button" onClick={() => { setCoverImage(''); setImagePreview(''); setImageFileName(''); }} variant="outline" className="bg-red-600 text-white hover:bg-red-700 border-none font-bold rounded-md">
                         Remove
                       </Button>
                     </div>
@@ -286,7 +338,7 @@ export default function CreateEventView() {
                 ) : (
                   <div 
                     onClick={handleUploadContainerClick}
-                    className="border-2 border-dashed border-border rounded-2xl p-8 flex flex-col items-center justify-center text-center bg-gray-50/50 hover:bg-gray-50 transition-colors cursor-pointer"
+                    className="border-2 border-dashed border-border rounded-lg p-8 flex flex-col items-center justify-center text-center bg-gray-50/50 hover:bg-gray-50 transition-colors cursor-pointer"
                   >
                     <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mb-4 border border-border">
                       <Upload className="w-5 h-5 text-text-muted" />
@@ -300,7 +352,7 @@ export default function CreateEventView() {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
+        <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
           <div className="bg-surface/30 px-8 py-6 border-b border-border">
             <h2 className="text-xl font-bold text-text-primary">Date & Location</h2>
           </div>
@@ -338,7 +390,7 @@ export default function CreateEventView() {
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
+        <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
           <div className="bg-surface/30 px-8 py-6 border-b border-border flex items-center justify-between">
             <div>
               <h2 className="text-xl font-bold text-text-primary">Tickets & Capacity</h2>
@@ -348,7 +400,7 @@ export default function CreateEventView() {
               type="button" 
               onClick={handleAddTier} 
               variant="outline" 
-              className="bg-white text-primary border-border hover:bg-surface rounded-xl font-bold gap-2 text-sm px-4 py-2"
+              className="bg-white text-primary border-border hover:bg-surface rounded-md font-bold gap-2 text-sm px-4 py-2"
             >
               <Plus className="w-4 h-4" /> Add Ticket Tier
             </Button>
@@ -359,15 +411,14 @@ export default function CreateEventView() {
                 type="number" 
                 label="Total Event Capacity" 
                 placeholder="e.g., 500" 
-                value={ticketTiers.length > 0 ? ticketTiers.reduce((sum, tier) => sum + (parseInt(tier.capacity) || 0), 0).toString() : capacity}
+                value={capacity}
                 onChange={(e) => setCapacity(e.target.value)}
                 min="1"
-                disabled={ticketTiers.length > 0}
                 required
               />
               {ticketTiers.length > 0 && (
                 <p className="text-xs text-text-muted mt-2 font-medium">
-                  Capacity is automatically calculated from your ticket tiers.
+                  Sum of ticket tier capacities must not exceed the total capacity.
                 </p>
               )}
             </div>
@@ -376,7 +427,7 @@ export default function CreateEventView() {
               <div className="space-y-4 border-t border-border pt-6">
                 <h3 className="font-bold text-text-primary text-sm uppercase tracking-wider mb-4">Ticket Tiers</h3>
                 {ticketTiers.map((tier, index) => (
-                  <div key={tier.id} className="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 border border-border rounded-xl bg-gray-50/50 relative group">
+                  <div key={tier.id} className="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 border border-border rounded-md bg-gray-50/50 relative group">
                   <div className="md:col-span-5">
                     <Input 
                       label="Ticket Name" 
@@ -427,13 +478,13 @@ export default function CreateEventView() {
         </div>
 
         <div className="flex justify-end gap-4 pt-4">
-          <Button type="button" onClick={() => navigate('/organizer/events')} variant="outline" className="rounded-xl font-bold px-8">
+          <Button type="button" onClick={() => navigate('/organizer/events')} variant="outline" className="rounded-md font-bold px-8">
             Cancel
           </Button>
           <Button 
             type="submit" 
             variant="primary" 
-            className={`rounded-xl font-bold px-10 gap-2 ${isSuccess ? 'bg-green-600 hover:bg-green-700 text-white border-green-600' : ''}`}
+            className={`rounded-md font-bold px-10 gap-2 ${isSuccess ? 'bg-green-600 hover:bg-green-700 text-white border-green-600' : ''}`}
             disabled={isSubmitting || isSuccess}
           >
             {isSubmitting ? (

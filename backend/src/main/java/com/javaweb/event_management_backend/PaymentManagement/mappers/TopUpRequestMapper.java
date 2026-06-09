@@ -15,6 +15,7 @@ public class TopUpRequestMapper {
                 .status(request.getStatus())
                 .createdAt(request.getCreatedAt())
                 .reviewedAt(request.getReviewedAt())
+                .adminNote(request.getAdminNote())
                 .build();
     }
 

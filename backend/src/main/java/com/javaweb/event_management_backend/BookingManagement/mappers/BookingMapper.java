@@ -41,6 +41,8 @@ public class BookingMapper {
                 .eventVenue(event.getVenue())
                 .eventStartDateTime(event.getStartDateTime())
                 .ticketCount(booking.getIssuedTickets().size())
+                .buyerName(booking.getUser().getFirstName() + " " + booking.getUser().getLastName())
+                .buyerEmail(booking.getUser().getEmail())
                 .build();
     }
 

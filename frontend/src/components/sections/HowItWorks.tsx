@@ -35,7 +35,7 @@ const HowItWorks = () => {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-3xl mx-auto">
           {steps.map((step, index) => (
             <div key={step.title} className="text-center">
-              <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mx-auto mb-4">
+              <div className="w-14 h-14 rounded-md bg-primary/10 flex items-center justify-center mx-auto mb-4">
                 <step.icon className="w-6 h-6 text-primary" />
               </div>
               <div className="text-xs font-bold text-primary mb-1">Step {index + 1}</div>

@@ -51,7 +51,7 @@ const HomePage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {loading ? (
               Array.from({ length: 6 }).map((_, index) => (
-                <div key={index} className="bg-white border border-border rounded-xl overflow-hidden animate-pulse">
+                <div key={index} className="bg-white border border-border rounded-md overflow-hidden animate-pulse">
                   <div className="aspect-[16/10] bg-gray-50" />
                   <div className="p-6 space-y-4">
                     <div className="h-4 bg-gray-50 rounded-full w-1/4" />
@@ -94,12 +94,12 @@ const HomePage = () => {
             </p>
             <div className="flex flex-col sm:flex-row gap-6 justify-center pt-6">
               <Link to="/register">
-                <Button size="lg" className="rounded-xl px-12 py-7 text-lg font-bold shadow-xl shadow-primary/20">
+                <Button size="lg" className="rounded-md px-12 py-7 text-lg font-bold shadow-xl shadow-primary/20">
                   Start Creating Now
                 </Button>
               </Link>
               <Link to="/events">
-                <Button variant="ghost" size="lg" className="text-white hover:bg-white/5 rounded-xl px-12">
+                <Button variant="ghost" size="lg" className="text-white hover:bg-white/5 rounded-md px-12">
                   Explore Events
                 </Button>
               </Link>

@@ -12,7 +12,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "booking")
+@Table(name = "booking", indexes = {
+    @Index(name = "idx_booking_user", columnList = "user_id"),
+    @Index(name = "idx_booking_status", columnList = "status")
+})
 @Getter
 @Setter
 @Builder
@@ -47,7 +50,7 @@ public class Booking
     private List<IssuedTicket> issuedTickets = new ArrayList<>();
 
     // One Booking is paid by One Payment
-    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "booking", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private Payment payment;
 
     // One Booking can optionally have One Promotion applied

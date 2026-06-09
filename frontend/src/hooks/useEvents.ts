@@ -33,21 +33,37 @@ interface UseEventsReturn {
   events: Event[]
   loading: boolean
   error: string | null
-  refetch: () => void
+  refetch: (filters?: Record<string, any>) => void
 }
 
-export const useEvents = (): UseEventsReturn => {
+export const useEvents = (initialFilters?: Record<string, any>): UseEventsReturn => {
   const [events, setEvents] = useState<Event[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchEvents = async () => {
+  const fetchEvents = async (filters?: Record<string, any>) => {
     setLoading(true)
     setError(null)
 
     try {
-      // ✅ correct URL — axiosClient baseURL is already 'http://localhost:8082/api'
-      const response = await axiosClient.get('/events')
+      let endpoint = '/events'
+      const params = new URLSearchParams()
+      
+      if (filters) {
+        endpoint = '/events/filter'
+        if (filters.search) params.append('keyword', filters.search)
+        if (filters.category) params.append('category', filters.category)
+        if (filters.city) params.append('venue', filters.city)
+        if (filters.startDate) params.append('startDate', filters.startDate)
+        if (filters.endDate) params.append('endDate', filters.endDate)
+      }
+      
+      const queryString = params.toString()
+      if (queryString) {
+        endpoint += `?${queryString}`
+      }
+
+      const response = await axiosClient.get(endpoint)
       const data = response.data
 
       const transformedEvents: Event[] = data.map((event: any) => {
@@ -95,8 +111,8 @@ export const useEvents = (): UseEventsReturn => {
   }
 
   useEffect(() => {
-    fetchEvents()
-  }, [])
+    fetchEvents(initialFilters)
+  }, [JSON.stringify(initialFilters)])
 
   return {
     events,

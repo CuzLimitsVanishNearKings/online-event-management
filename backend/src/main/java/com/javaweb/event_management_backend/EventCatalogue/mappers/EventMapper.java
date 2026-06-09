@@ -18,6 +18,14 @@ public class EventMapper {
     // Entity → DTO
 
     public EventResponseDto.Summary toSummary(Event event) {
+        java.math.BigDecimal startingPrice = event.getTicketTypes() != null ? 
+            event.getTicketTypes().stream().map(com.javaweb.event_management_backend.EventCatalogue.models.TicketType::getPrice).min(java.math.BigDecimal::compareTo).orElse(java.math.BigDecimal.ZERO) 
+            : java.math.BigDecimal.ZERO;
+            
+        Integer ticketsSold = event.getTicketTypes() != null ? 
+            event.getTicketTypes().stream().mapToInt(tt -> tt.getQuantity() - tt.getQuantityRemaining()).sum()
+            : 0;
+
         return EventResponseDto.Summary.builder()
                 .eventId(event.getEventId())
                 .title(event.getTitle())
@@ -29,6 +37,8 @@ public class EventMapper {
                 .category(categoryMapper.toSummary(event.getCategory()))
                 .organizerName(event.getOrganizer().getOrganizationName())
                 .organizerLogoUrl(event.getOrganizer().getLogoUrl())
+                .startingPrice(startingPrice)
+                .ticketsSold(ticketsSold)
                 .build();
     }
 

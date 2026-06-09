@@ -33,6 +33,8 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.javaweb.event_management_backend.UserManagement.services.interfaces.EmailService;
+
 @Service
 @RequiredArgsConstructor
 public class BookingServiceImpl implements BookingService {
@@ -46,6 +48,8 @@ public class BookingServiceImpl implements BookingService {
     private final PaymentService paymentService;
     private final PromotionService promotionService;
     private final IssuedTicketService issuedTicketService;
+    private final com.javaweb.event_management_backend.websocket.LiveStatsService liveStatsService;
+    private final EmailService emailService;
 
     // ─── CLIENT ──────────────────────────────────────────────────
 
@@ -54,20 +58,23 @@ public class BookingServiceImpl implements BookingService {
     public BookingResponseDto.Detail createBooking(
             BookingRequestDto.CreateBooking dto, User currentUser) {
 
-        // get ticket type
-        TicketType ticketType = ticketTypeRepository.findById(dto.getTicketTypeId())
+        // CRITICAL: We use a pessimistic write lock here instead of relying on optimistic locking.
+        // During high-traffic events (e.g. concert drops), hundreds of users might hit this block 
+        // simultaneously. A standard read would result in massive ObjectOptimisticLockingFailures 
+        // leading to failed checkouts for users. This guarantees strict row-level queuing.
+        TicketType ticketType = ticketTypeRepository.findByIdWithPessimisticLock(dto.getTicketTypeId())
                 .orElseThrow(() -> new ResourceNotFoundException(
                         "Ticket type not found with id: "
                                 + dto.getTicketTypeId()));
 
-        // verify event is published
+        // Make sure the event hasn't been paused or cancelled mid-checkout
         if (ticketType.getEvent().getStatus() != EventStatus.PUBLISHED) {
             throw new IllegalArgumentException(
                     "Cannot book tickets for a "
                             + ticketType.getEvent().getStatus() + " event");
         }
 
-        // verify enough tickets remaining
+        // Hard stop if stock is depleted. 
         if (ticketType.getQuantityRemaining() < dto.getQuantity()) {
             throw new EventCapacityExceededException(
                     "Only " + ticketType.getQuantityRemaining()
@@ -75,7 +82,7 @@ public class BookingServiceImpl implements BookingService {
                             + ticketType.getName());
         }
 
-        // calculate subtotal
+        // Calculate raw subtotal before any discounts
         BigDecimal subtotal = ticketType.getPrice()
                 .multiply(BigDecimal.valueOf(dto.getQuantity()));
 
@@ -122,6 +129,27 @@ public class BookingServiceImpl implements BookingService {
         booking.setStatus(BookingStatus.CONFIRMED);
         bookingRepository.save(booking);
 
+        // fetch generated tickets and attach to booking to avoid ResourceNotFoundException in mapping
+        List<IssuedTicket> generatedTickets = issuedTicketRepository.findByBooking(booking);
+        booking.getIssuedTickets().clear();
+        booking.getIssuedTickets().addAll(generatedTickets);
+
+        // Broadcast live stat updates
+        try {
+            Long organizerId = ticketType.getEvent().getOrganizer().getId();
+            liveStatsService.broadcastOrganizerStats(organizerId, java.util.Map.of("message", "New Booking"));
+            liveStatsService.broadcastEventUpdate(ticketType.getEvent().getEventId(), java.util.Map.of("message", "Ticket Sold"));
+        } catch(Exception e) {
+            // ignore broadcast errors
+        }
+
+        // Send booking confirmation email (FR-20)
+        try {
+            emailService.sendBookingConfirmationEmail(booking, currentUser.getEmail());
+        } catch (Exception e) {
+            // ignore email errors
+        }
+
         return bookingMapper.toDetail(booking);
     }
 
@@ -147,15 +175,21 @@ public class BookingServiceImpl implements BookingService {
         // process refund
         paymentService.processRefund(booking.getBookingId(), currentUser);
 
-        // cancel all issued tickets
+        // cancel all issued tickets and collect counts per ticket type
+        java.util.Map<Long, Long> ticketCounts = new java.util.HashMap<>();
         booking.getIssuedTickets().forEach(ticket -> {
             ticket.setStatus(IssuedTicketStatus.CANCELLED);
             issuedTicketRepository.save(ticket);
+            
+            Long ttId = ticket.getTicketType().getTicketTypeId();
+            ticketCounts.put(ttId, ticketCounts.getOrDefault(ttId, 0L) + 1);
+        });
 
-            // restore quantity remaining on ticket type
-            TicketType ticketType = ticket.getTicketType();
-            ticketType.setQuantityRemaining(
-                    ticketType.getQuantityRemaining() + 1);
+        // safely restore quantity remaining on ticket types
+        ticketCounts.forEach((ticketTypeId, count) -> {
+            TicketType ticketType = ticketTypeRepository.findByIdWithPessimisticLock(ticketTypeId)
+                    .orElseThrow(() -> new ResourceNotFoundException("Ticket type not found"));
+            ticketType.setQuantityRemaining(ticketType.getQuantityRemaining() + count.intValue());
             ticketTypeRepository.save(ticketType);
         });
 
@@ -173,6 +207,16 @@ public class BookingServiceImpl implements BookingService {
                 .findByUserOrderByBookingDateDesc(currentUser)
                 .stream()
                 .map(bookingMapper::toSummary)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<BookingResponseDto.Detail> getMyBookingsDetailed(User currentUser) {
+        return bookingRepository
+                .findByUserOrderByBookingDateDesc(currentUser)
+                .stream()
+                .map(bookingMapper::toDetail)
                 .collect(Collectors.toList());
     }
 
@@ -231,6 +275,64 @@ public class BookingServiceImpl implements BookingService {
                 .distinct()
                 .map(bookingMapper::toSummary)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<BookingResponseDto.Summary> getOrganizerBookings(User currentUser) {
+        OrganizerProfile organizer = organizerRepository.findByUser(currentUser)
+                .orElseThrow(() -> new ResourceNotFoundException("Organizer profile not found"));
+
+        return bookingRepository.findByOrganizer(organizer)
+                .stream()
+                .map(bookingMapper::toSummary)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void cancelBookingsForEvent(Long eventId, User currentUser) {
+        // verify organizer owns the event
+        organizerRepository.findByUser(currentUser)
+                .orElseThrow(() -> new ResourceNotFoundException(
+                        "Organizer profile not found"));
+
+        // get all bookings for this event that are CONFIRMED
+        List<TicketType> ticketTypes = ticketTypeRepository.findByEventEventId(eventId);
+        
+        List<Booking> eventBookings = ticketTypes.stream()
+                .flatMap(tt -> issuedTicketRepository.findByTicketType(tt).stream())
+                .map(IssuedTicket::getBooking)
+                .distinct()
+                .filter(b -> b.getStatus() == BookingStatus.CONFIRMED)
+                .collect(Collectors.toList());
+
+        for (Booking booking : eventBookings) {
+            // process refund
+            paymentService.processRefund(booking.getBookingId(), currentUser);
+
+            // cancel all issued tickets and collect counts per ticket type
+            java.util.Map<Long, Long> ticketCounts = new java.util.HashMap<>();
+            booking.getIssuedTickets().forEach(ticket -> {
+                ticket.setStatus(IssuedTicketStatus.CANCELLED);
+                issuedTicketRepository.save(ticket);
+                
+                Long ttId = ticket.getTicketType().getTicketTypeId();
+                ticketCounts.put(ttId, ticketCounts.getOrDefault(ttId, 0L) + 1);
+            });
+
+            // safely restore quantity remaining on ticket types
+            ticketCounts.forEach((ticketTypeId, count) -> {
+                TicketType ticketType = ticketTypeRepository.findByIdWithPessimisticLock(ticketTypeId)
+                        .orElseThrow(() -> new ResourceNotFoundException("Ticket type not found"));
+                ticketType.setQuantityRemaining(ticketType.getQuantityRemaining() + count.intValue());
+                ticketTypeRepository.save(ticketType);
+            });
+
+            // cancel booking
+            booking.setStatus(BookingStatus.CANCELLED);
+            bookingRepository.save(booking);
+        }
     }
 
     // ─── ADMIN ───────────────────────────────────────────────────

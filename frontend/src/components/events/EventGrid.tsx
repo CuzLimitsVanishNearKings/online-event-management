@@ -13,7 +13,7 @@ interface EventGridProps {
 }
 
 const EventCardSkeleton = () => (
-  <div className="bg-white border border-border rounded-xl overflow-hidden animate-pulse">
+  <div className="bg-white border border-border rounded-md overflow-hidden animate-pulse">
     <div className="aspect-[16/10] bg-gray-100" />
     <div className="p-4 space-y-3">
       <div className="h-4 bg-gray-100 rounded w-1/3" />
@@ -27,8 +27,8 @@ const EventCardSkeleton = () => (
 )
 
 const EmptyState = ({ onClear }: { onClear: () => void }) => (
-  <div className="flex flex-col items-center justify-center py-16 px-4 text-center bg-gray-50 rounded-xl border border-dashed border-border">
-    <div className="w-14 h-14 bg-white border border-border rounded-xl flex items-center justify-center mb-4">
+  <div className="flex flex-col items-center justify-center py-16 px-4 text-center bg-gray-50 rounded-md border border-dashed border-border">
+    <div className="w-14 h-14 bg-white border border-border rounded-md flex items-center justify-center mb-4">
       <Search className="w-6 h-6 text-text-muted" />
     </div>
     <h3 className="font-display font-bold text-lg text-text-primary mb-1">No events found</h3>

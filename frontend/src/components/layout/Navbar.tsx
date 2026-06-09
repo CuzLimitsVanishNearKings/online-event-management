@@ -16,8 +16,6 @@ import {
   Calendar
 } from '../icons'
 import { cn } from '../../utils/cn'
-import { useCartStore } from '../../store/cartStore'
-import CartSidebar from '../cart/CartSidebar'
 
 const Navbar = () => {
   const { isAuthenticated, user, logout } = useAuth()
@@ -26,12 +24,11 @@ const Navbar = () => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [isScrolled, setIsScrolled] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const { itemCount, toggleCart } = useCartStore()
 
   useEffect(() => {
     const handleScroll = () => setIsScrolled(window.scrollY > 10)
     window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
+    
   }, [])
 
   const handleLogout = () => {
@@ -89,7 +86,7 @@ const Navbar = () => {
           {/* Center Search */}
           <div className="hidden md:flex flex-1 max-w-md mx-8">
             <form onSubmit={handleSearch} className="w-full">
-              <div className="flex items-center bg-gray-50 border border-border rounded-xl px-4 py-2.5 hover:border-primary/40 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10 transition-all">
+              <div className="flex items-center bg-gray-50 border border-border rounded-md px-4 py-2.5 hover:border-primary/40 focus-within:border-primary focus-within:ring-2 focus-within:ring-primary/10 transition-all">
                 <Search className="w-4 h-4 text-text-muted mr-3 flex-shrink-0" />
                 <input
                   type="text"
@@ -106,56 +103,41 @@ const Navbar = () => {
           <div className="flex items-center gap-4">
             {isAuthenticated ? (
               <div className="flex items-center gap-3">
-                <button className="hidden sm:flex p-2.5 text-text-secondary hover:text-primary hover:bg-primary/5 rounded-xl transition-all">
-                  <Heart className="w-5 h-5" />
-                </button>
-                
-                {/* Cart Toggle */}
-                <button 
-                  onClick={toggleCart}
-                  className="relative p-2.5 text-text-secondary hover:text-primary hover:bg-primary/5 rounded-xl transition-all"
-                >
-                  <Ticket className="w-5 h-5" />
-                  {itemCount > 0 && (
-                    <span className="absolute top-0 right-0 w-4 h-4 bg-primary text-white text-[10px] font-bold flex items-center justify-center rounded-full border-2 border-white">
-                      {itemCount}
-                    </span>
-                  )}
-                </button>
+
                 
                 {/* User Menu */}
                 <div className="relative group">
-                  <button className="flex items-center gap-2 p-1.5 rounded-xl hover:bg-gray-50 border border-transparent hover:border-border transition-all">
+                  <button className="flex items-center gap-2 p-1.5 rounded-md hover:bg-gray-50 border border-transparent hover:border-border transition-all">
                     <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-primary to-accent flex items-center justify-center text-white text-xs font-bold shadow-sm">
                       {user?.name?.charAt(0) || 'U'}
                     </div>
                     <ChevronDown className="w-3.5 h-3.5 text-text-muted mr-1" />
                   </button>
                   
-                  <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-border rounded-2xl shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-2 group-hover:translate-y-0 transition-all duration-200 overflow-hidden z-50">
+                  <div className="absolute right-0 top-full mt-2 w-64 bg-white border border-border rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible translate-y-2 group-hover:translate-y-0 transition-all duration-200 overflow-hidden z-50">
                     <div className="px-6 py-5 bg-gray-50/50 border-b border-border">
                       <p className="text-sm font-bold text-text-primary">{user?.name}</p>
                       <p className="text-xs text-text-muted font-medium truncate mt-0.5">{user?.email}</p>
                     </div>
                     <div className="p-2">
                       {user?.role === 'ADMIN' || user?.role === 'admin' || user?.role === 'ROLE_ADMIN' ? (
-                        <Link to="/admin/dashboard" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-text-secondary hover:bg-primary/5 hover:text-primary rounded-xl transition-all">
+                        <Link to="/admin/dashboard" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-text-secondary hover:bg-primary/5 hover:text-primary rounded-md transition-all">
                           <LayoutDashboard className="w-4 h-4" /> Admin Dashboard
                         </Link>
                       ) : (user?.role === 'ORGANIZER' || user?.role === 'organizer' || user?.role === 'ROLE_ORGANIZER') ? (
-                        <Link to="/organizer/dashboard" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-text-secondary hover:bg-primary/5 hover:text-primary rounded-xl transition-all">
+                        <Link to="/organizer/dashboard" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-text-secondary hover:bg-primary/5 hover:text-primary rounded-md transition-all">
                           <LayoutDashboard className="w-4 h-4" /> Organizer Dashboard
                         </Link>
                       ) : (
-                        <Link to="/attendee/dashboard" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-text-secondary hover:bg-primary/5 hover:text-primary rounded-xl transition-all">
+                        <Link to="/attendee/dashboard" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-text-secondary hover:bg-primary/5 hover:text-primary rounded-md transition-all">
                           <LayoutDashboard className="w-4 h-4" /> Attendee Dashboard
                         </Link>
                       )}
-                      <Link to="/events" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-text-secondary hover:bg-primary/5 hover:text-primary rounded-xl transition-all">
+                      <Link to="/events" className="flex items-center gap-3 px-4 py-3 text-sm font-bold text-text-secondary hover:bg-primary/5 hover:text-primary rounded-md transition-all">
                         <Calendar className="w-4 h-4" /> Discover Events
                       </Link>
                       <div className="border-t border-border my-2 mx-2" />
-                      <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 rounded-xl transition-all">
+                      <button onClick={handleLogout} className="w-full flex items-center gap-3 px-4 py-3 text-sm font-bold text-red-500 hover:bg-red-50 rounded-md transition-all">
                         <LogOut className="w-4 h-4" /> Sign Out
                       </button>
                     </div>
@@ -168,7 +150,7 @@ const Navbar = () => {
                   Log In
                 </Link>
                 <Link to="/register">
-                  <Button variant="primary" size="md" className="font-bold rounded-xl px-6">
+                  <Button variant="primary" size="md" className="font-bold rounded-md px-6">
                     Sign Up
                   </Button>
                 </Link>
@@ -226,8 +208,7 @@ const Navbar = () => {
         </div>
       )}
       
-      {/* Cart Sidebar Rendered Here */}
-      <CartSidebar />
+
     </nav>
   )
 }

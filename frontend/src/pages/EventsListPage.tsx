@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { useSearchParams } from 'react-router-dom'
 import EventFilters, { EventFilters as EventFiltersType } from '../components/events/EventFilters'
 import EventGrid from '../components/events/EventGrid'
@@ -8,95 +8,78 @@ import { Button, Pagination } from '../components/ui'
 
 const ITEMS_PER_PAGE = 9
 
-type SortKey = 'newest' | 'price-asc' | 'price-desc' | 'title-asc'
-
-const matchesDate = (eventDate: string, filter: string): boolean => {
-  if (!filter) return true
-  const now = new Date()
-  const start = new Date(eventDate)
-  const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
-
-  if (filter === 'Today') {
-    return start >= today && start < new Date(today.getTime() + 86400000)
-  }
-  if (filter === 'Tomorrow') {
-    const tom = new Date(today.getTime() + 86400000)
-    return start >= tom && start < new Date(tom.getTime() + 86400000)
-  }
-  if (filter === 'This Weekend') {
-    const day = now.getDay()
-    const sat = new Date(today.getTime() + (6 - day) * 86400000)
-    const sun = new Date(sat.getTime() + 86400000)
-    return start >= sat && start <= new Date(sun.getTime() + 86400000)
-  }
-  if (filter === 'Next Week') {
-    const day = now.getDay()
-    const nextMon = new Date(today.getTime() + (8 - day) * 86400000)
-    const nextSun = new Date(nextMon.getTime() + 7 * 86400000)
-    return start >= nextMon && start <= nextSun
-  }
-  return true
-}
+type SortKey = 'newest' | 'title-asc'
 
 const EventsListPage = () => {
-  const { events: allEvents, loading } = useEvents()
   const [searchParams, setSearchParams] = useSearchParams()
   const [filters, setFilters] = useState<EventFiltersType>({
-    search: '',
-    category: '',
-    city: '',
-    minPrice: 0,
-    maxPrice: 100000,
-    tags: [],
-    date: '',
-    format: ''
+    search: searchParams.get('search') || '',
+    category: searchParams.get('category') || '',
+    city: searchParams.get('city') || '',
+    date: searchParams.get('date') || ''
   })
+  
   const [currentPage, setCurrentPage] = useState(1)
   const [sortKey, setSortKey] = useState<SortKey>('newest')
 
-  // Sync URL → filters on mount
-  useEffect(() => {
-    setFilters(prev => ({
-      ...prev,
-      category: searchParams.get('category') || '',
-      city: searchParams.get('city') || '',
-      search: searchParams.get('search') || ''
-    }))
-    window.scrollTo(0, 0)
-  }, [])
+  // Calculate API filters from UI state
+  const apiFilters = useMemo(() => {
+    const apiF: Record<string, any> = {
+      search: filters.search,
+      category: filters.category,
+      city: filters.city
+    }
 
-  // Apply all filters
-  const filtered = (allEvents || []).filter((event: any) => {
-    const q = filters.search.toLowerCase()
-    const matchSearch = !q || 
-      event.title?.toLowerCase().includes(q) || 
-      event.location?.toLowerCase().includes(q) ||
-      event.categoryName?.toLowerCase().includes(q)
+    if (filters.date) {
+      const now = new Date()
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+      
+      if (filters.date === 'Today') {
+        apiF.startDate = today.toISOString()
+        apiF.endDate = new Date(today.getTime() + 86400000).toISOString()
+      } else if (filters.date === 'Tomorrow') {
+        const tom = new Date(today.getTime() + 86400000)
+        apiF.startDate = tom.toISOString()
+        apiF.endDate = new Date(tom.getTime() + 86400000).toISOString()
+      } else if (filters.date === 'This Weekend') {
+        const day = now.getDay()
+        const sat = new Date(today.getTime() + (6 - day) * 86400000)
+        const sun = new Date(sat.getTime() + 86400000)
+        apiF.startDate = sat.toISOString()
+        apiF.endDate = new Date(sun.getTime() + 86400000).toISOString() // end of sunday
+      } else if (filters.date === 'Next Week') {
+        const day = now.getDay()
+        const nextMon = new Date(today.getTime() + (8 - day) * 86400000)
+        const nextSun = new Date(nextMon.getTime() + 7 * 86400000)
+        apiF.startDate = nextMon.toISOString()
+        apiF.endDate = nextSun.toISOString()
+      }
+    }
+    
+    return apiF
+  }, [filters])
 
-    const matchCategory = !filters.category || 
-      event.categoryName?.toLowerCase() === filters.category.toLowerCase()
+  // Fetch from backend using the derived API filters
+  const { events: allEvents, loading } = useEvents(apiFilters)
 
-    const matchCity = !filters.city || 
-      event.location?.toLowerCase().includes(filters.city.toLowerCase())
+  // Sync URL when filters change
+  const handleFiltersChange = (newFilters: EventFiltersType) => {
+    setFilters(newFilters)
+    setCurrentPage(1)
+    const params = new URLSearchParams()
+    if (newFilters.category) params.set('category', newFilters.category)
+    if (newFilters.city) params.set('city', newFilters.city)
+    if (newFilters.search) params.set('search', newFilters.search)
+    if (newFilters.date) params.set('date', newFilters.date)
+    setSearchParams(params)
+  }
 
-    const price = event.price ?? 0
-    const matchPrice = price >= filters.minPrice && price <= filters.maxPrice
-
-    const matchDate = matchesDate(event.startDateTime, filters.date || '')
-
-    // Format filter: 'Online' events have 'online' in their venue
-    const matchFormat = !filters.format || 
-      (filters.format === 'Online' 
-        ? event.location?.toLowerCase().includes('online')
-        : !event.location?.toLowerCase().includes('online'))
-
-    return matchSearch && matchCategory && matchCity && matchPrice && matchDate && matchFormat
+  const clearFilters = () => handleFiltersChange({
+    search: '', category: '', city: '', date: ''
   })
 
-  // Apply sorting
-  const sorted = [...filtered].sort((a: any, b: any) => {
-    if (sortKey === 'price-asc') return (a.price ?? 0) - (b.price ?? 0)
-    if (sortKey === 'price-desc') return (b.price ?? 0) - (a.price ?? 0)
+  // Apply sorting client-side since API doesn't support complex sorting yet
+  const sorted = [...(allEvents || [])].sort((a: any, b: any) => {
     if (sortKey === 'title-asc') return (a.title ?? '').localeCompare(b.title ?? '')
     // newest first
     return new Date(b.startDateTime).getTime() - new Date(a.startDateTime).getTime()
@@ -105,22 +88,7 @@ const EventsListPage = () => {
   const totalPages = Math.max(1, Math.ceil(sorted.length / ITEMS_PER_PAGE))
   const paginated = sorted.slice((currentPage - 1) * ITEMS_PER_PAGE, currentPage * ITEMS_PER_PAGE)
 
-  const handleFiltersChange = (newFilters: EventFiltersType) => {
-    setFilters(newFilters)
-    setCurrentPage(1)
-    const params = new URLSearchParams()
-    if (newFilters.category) params.set('category', newFilters.category)
-    if (newFilters.city) params.set('city', newFilters.city)
-    if (newFilters.search) params.set('search', newFilters.search)
-    setSearchParams(params)
-  }
-
-  const clearFilters = () => handleFiltersChange({
-    search: '', category: '', city: '', minPrice: 0, maxPrice: 100000, tags: [], date: '', format: ''
-  })
-
-  const hasActive = !!(filters.search || filters.category || filters.city || filters.date || filters.format ||
-    filters.minPrice > 0 || filters.maxPrice < 100000)
+  const hasActive = !!(filters.search || filters.category || filters.city || filters.date)
 
   return (
     <div className="min-h-screen bg-[#FDFBF7]">
@@ -146,7 +114,7 @@ const EventsListPage = () => {
               {filters.category && (
                 <button
                   onClick={() => handleFiltersChange({ ...filters, category: '' })}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-primary/10 text-primary border border-primary/20 rounded-2xl text-xs font-bold uppercase tracking-wider hover:bg-primary/20 transition-all"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-primary/10 text-primary border border-primary/20 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-primary/20 transition-all"
                 >
                   {filters.category} <X className="w-3.5 h-3.5" />
                 </button>
@@ -154,7 +122,7 @@ const EventsListPage = () => {
               {filters.city && (
                 <button
                   onClick={() => handleFiltersChange({ ...filters, city: '' })}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-accent/10 text-accent border border-accent/20 rounded-2xl text-xs font-bold uppercase tracking-wider hover:bg-accent/20 transition-all"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-accent/10 text-accent border border-accent/20 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-accent/20 transition-all"
                 >
                   📍 {filters.city} <X className="w-3.5 h-3.5" />
                 </button>
@@ -162,7 +130,7 @@ const EventsListPage = () => {
               {filters.search && (
                 <button
                   onClick={() => handleFiltersChange({ ...filters, search: '' })}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-green-50 text-green-700 border border-green-200 rounded-2xl text-xs font-bold uppercase tracking-wider hover:bg-green-100 transition-all"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-green-50 text-green-700 border border-green-200 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-green-100 transition-all"
                 >
                   🔍 "{filters.search}" <X className="w-3.5 h-3.5" />
                 </button>
@@ -170,7 +138,7 @@ const EventsListPage = () => {
               {filters.date && (
                 <button
                   onClick={() => handleFiltersChange({ ...filters, date: '' })}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-purple-50 text-purple-700 border border-purple-200 rounded-2xl text-xs font-bold uppercase tracking-wider hover:bg-purple-100 transition-all"
+                  className="flex items-center gap-2 px-5 py-2.5 bg-purple-50 text-purple-700 border border-purple-200 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-purple-100 transition-all"
                 >
                   📅 {filters.date} <X className="w-3.5 h-3.5" />
                 </button>
@@ -212,15 +180,13 @@ const EventsListPage = () => {
                   className="bg-white border border-border rounded-lg px-3 py-2 text-sm font-semibold text-text-primary focus:ring-2 focus:ring-primary/20 focus:outline-none cursor-pointer"
                 >
                   <option value="newest">Newest First</option>
-                  <option value="price-asc">Price: Low to High</option>
-                  <option value="price-desc">Price: High to Low</option>
                   <option value="title-asc">A – Z</option>
                 </select>
               </div>
             </div>
 
             {sorted.length === 0 && !loading ? (
-              <div className="flex flex-col items-center justify-center py-32 text-center bg-white border border-border rounded-xl shadow-card px-8">
+              <div className="flex flex-col items-center justify-center py-32 text-center bg-white border border-border rounded-md shadow-card px-8">
                 <div className="w-24 h-24 bg-gray-50 rounded-full flex items-center justify-center mb-8">
                   <Search className="w-10 h-10 text-text-muted" />
                 </div>
@@ -228,7 +194,7 @@ const EventsListPage = () => {
                 <p className="text-text-muted max-w-md mx-auto mb-10 text-lg">
                   We couldn't find any events matching your filters. Try broadening your search.
                 </p>
-                <Button variant="primary" size="lg" className="rounded-2xl px-10 shadow-xl shadow-primary/20" onClick={clearFilters}>
+                <Button variant="primary" size="lg" className="rounded-lg px-10 shadow-xl shadow-primary/20" onClick={clearFilters}>
                   Clear all filters
                 </Button>
               </div>
@@ -236,8 +202,6 @@ const EventsListPage = () => {
               <EventGrid
                 events={paginated}
                 loading={loading}
-                filters={filters}
-                onFiltersChange={handleFiltersChange}
               />
             )}
 

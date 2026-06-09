@@ -56,6 +56,16 @@ public class BookingController {
                 bookingService.getMyBookings(currentUser));
     }
 
+    // GET /api/bookings/my-bookings-detailed
+    // get all bookings with detailed tickets for current user
+    @GetMapping("/my-bookings-detailed")
+    @PreAuthorize("hasRole('CLIENT')")
+    public ResponseEntity<List<BookingResponseDto.Detail>> getMyBookingsDetailed() {
+        User currentUser = SecurityUtils.getCurrentUser();
+        return ResponseEntity.ok(
+                bookingService.getMyBookingsDetailed(currentUser));
+    }
+
     // GET /api/bookings/{bookingId}
     // get booking details by id
     @GetMapping("/{bookingId}")
@@ -89,6 +99,16 @@ public class BookingController {
         User currentUser = SecurityUtils.getCurrentUser();
         return ResponseEntity.ok(
                 bookingService.getBookingsByEvent(eventId, currentUser));
+    }
+
+    // GET /api/bookings/organizer
+    // get all bookings across all events for the organizer
+    @GetMapping("/organizer")
+    @PreAuthorize("hasRole('ORGANIZER')")
+    public ResponseEntity<List<BookingResponseDto.Summary>> getOrganizerBookings() {
+        User currentUser = SecurityUtils.getCurrentUser();
+        return ResponseEntity.ok(
+                bookingService.getOrganizerBookings(currentUser));
     }
 
     // ─── ADMIN ───────────────────────────────────────────────────

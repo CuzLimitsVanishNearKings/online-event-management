@@ -10,7 +10,8 @@ import {
   CalendarDays,
   ChevronLeft,
   ChevronRight,
-  X
+  X,
+  Wallet
 } from 'lucide-react'
 import { useAuthStore } from '@/store/authStore'
 import { cn } from '@/utils/cn'
@@ -31,7 +32,8 @@ export default function AttendeeSidebar({ onMobileClose }: AttendeeSidebarProps 
     {
       title: "Overview",
       items: [
-        { path: '/attendee/dashboard', label: 'Dashboard', icon: LayoutDashboard }
+        { path: '/attendee/dashboard', label: 'Dashboard', icon: LayoutDashboard },
+        { path: '/attendee/wallet', label: 'My Wallet', icon: Wallet }
       ]
     },
     {
@@ -39,14 +41,12 @@ export default function AttendeeSidebar({ onMobileClose }: AttendeeSidebarProps 
       items: [
         { path: '/attendee/tickets', label: 'My Tickets', icon: Ticket },
         { path: '/attendee/calendar', label: 'Calendar', icon: CalendarDays },
-        { path: '/attendee/favorites', label: 'Favorites', icon: Heart },
       ]
     },
     {
       title: "Configuration",
       items: [
         { path: '/attendee/profile', label: 'My Profile', icon: User },
-        { path: '/attendee/settings', label: 'Settings', icon: Settings },
       ]
     }
   ]
@@ -75,9 +75,9 @@ export default function AttendeeSidebar({ onMobileClose }: AttendeeSidebarProps 
       </button>
 
       <div className={cn("p-6 border-b border-border flex items-center", isCollapsed ? "justify-center px-0" : "justify-center")}>
-        <Link to="/" className="flex items-center gap-2 transition-transform hover:scale-105">
+        <Link to="/" className="flex items-center gap-2 transition-transform ">
           {isCollapsed ? (
-            <div className="w-8 h-8 bg-primary rounded-xl flex items-center justify-center p-1.5">
+            <div className="w-8 h-8 bg-primary rounded-md flex items-center justify-center p-1.5">
               <img src="/04_evento-icon-white.svg" alt="Evento Icon" className="w-full h-full object-contain" />
             </div>
           ) : (
@@ -108,7 +108,7 @@ export default function AttendeeSidebar({ onMobileClose }: AttendeeSidebarProps 
                   onClick={() => onMobileClose?.()}
                   title={isCollapsed ? item.label : undefined}
                   className={cn(
-                    "w-full flex items-center rounded-xl font-bold text-sm transition-all duration-200",
+                    "w-full flex items-center rounded-md font-bold text-sm transition-all duration-200",
                     isCollapsed ? "justify-center py-3 px-0" : "gap-3 px-4 py-2.5",
                     isActive
                       ? "bg-primary/10 text-primary shadow-sm"
@@ -135,7 +135,7 @@ export default function AttendeeSidebar({ onMobileClose }: AttendeeSidebarProps 
           }}
           title={isCollapsed ? "Sign Out" : undefined}
           className={cn(
-            "w-full flex items-center rounded-xl text-text-muted hover:text-error hover:bg-error/10 transition-colors font-bold text-sm group",
+            "w-full flex items-center rounded-md text-text-muted hover:text-error hover:bg-error/10 transition-colors font-bold text-sm group",
             isCollapsed ? "justify-center py-3 px-0" : "gap-3 px-4 py-3"
           )}
         >

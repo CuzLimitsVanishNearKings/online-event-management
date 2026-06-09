@@ -2,28 +2,21 @@ import { useState } from 'react'
 import { Button } from '../ui'
 import { 
   Search, 
-  Calendar, 
   MapPin, 
-  DollarSign, 
   Star, 
   X,
   ChevronDown,
   Filter,
-  Clock,
-  Video
+  Clock
 } from '../icons'
 import { useCategories } from '../../hooks/useCategories'
 import { Loader2 } from 'lucide-react'
 
 export interface EventFilters {
   search: string
-  category: string      // category NAME (to match categoryName on events)
+  category: string      
   city: string
-  minPrice: number
-  maxPrice: number
-  tags: string[]
   date?: string
-  format?: string
 }
 
 interface EventFiltersProps {
@@ -33,13 +26,13 @@ interface EventFiltersProps {
   onToggle?: () => void
 }
 
-const EventFilters = ({ 
+const EventFiltersComponent = ({ 
   filters, 
   onFiltersChange, 
   onToggle 
 }: EventFiltersProps) => {
   const { categories, loading: categoriesLoading } = useCategories()
-  const [activeSection, setActiveSection] = useState<'search' | 'category' | 'location' | 'price' | 'date' | 'format' | null>(null)
+  const [activeSection, setActiveSection] = useState<'search' | 'category' | 'location' | 'date' | null>(null)
 
   const handleFilterChange = (key: keyof EventFilters, value: any) => {
     onFiltersChange({ ...filters, [key]: value })
@@ -50,27 +43,17 @@ const EventFilters = ({
       search: '',
       category: '',
       city: '',
-      minPrice: 0,
-      maxPrice: 100000,
-      tags: [],
-      date: '',
-      format: ''
+      date: ''
     })
   }
 
-  const hasActiveFilters = !!(filters.search || filters.category || filters.city || 
-    filters.minPrice > 0 || filters.maxPrice < 100000 || filters.tags.length > 0 ||
-    filters.date || filters.format)
+  const hasActiveFilters = !!(filters.search || filters.category || filters.city || filters.date)
 
   const activeFiltersCount = [
     filters.search,
     filters.category,
     filters.city,
-    filters.minPrice > 0 ? 'price' : null,
-    filters.maxPrice < 100000 ? 'price-max' : null,
-    filters.date || null,
-    filters.format || null,
-    ...filters.tags
+    filters.date || null
   ].filter(Boolean).length
 
   const toggle = (section: typeof activeSection) =>
@@ -84,7 +67,7 @@ const EventFilters = ({
     }`
 
   return (
-    <div className="bg-white border border-border/50 rounded-xl shadow-sm w-full">
+    <div className="bg-white border border-border/50 rounded-md shadow-sm w-full">
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b border-border/50">
         <div className="flex items-center space-x-2">
@@ -169,7 +152,6 @@ const EventFilters = ({
                 categories.map((category) => (
                   <button
                     key={category.id}
-                    // Store the category NAME so it matches categoryName on events
                     onClick={() => handleFilterChange('category', 
                       filters.category === category.name ? '' : category.name
                     )}
@@ -218,62 +200,8 @@ const EventFilters = ({
           )}
         </div>
 
-        {/* ── Price ── */}
-        <div className="p-4 border-b border-border/50">
-          <button onClick={() => toggle('price')} className={sectionClass('price')}>
-            <div className="flex items-center space-x-3">
-              <DollarSign className="w-4 h-4 text-text-secondary" />
-              <span className="text-sm font-medium text-text-primary">Price Range</span>
-            </div>
-            <ChevronDown className={`w-4 h-4 text-text-muted transition-transform duration-200 ${activeSection === 'price' ? 'rotate-180' : ''}`} />
-          </button>
-          {activeSection === 'price' && (
-            <div className="mt-4 space-y-3">
-              <div className="flex items-center space-x-3">
-                <input
-                  type="number"
-                  value={filters.minPrice}
-                  onChange={e => handleFilterChange('minPrice', Number(e.target.value))}
-                  placeholder="Min"
-                  min={0}
-                  className="flex-1 px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm"
-                />
-                <span className="text-text-muted">–</span>
-                <input
-                  type="number"
-                  value={filters.maxPrice}
-                  onChange={e => handleFilterChange('maxPrice', Number(e.target.value))}
-                  placeholder="Max"
-                  min={0}
-                  className="flex-1 px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 text-sm"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-2">
-                {[
-                  { label: 'Free – 5k', min: 0, max: 5000 },
-                  { label: '5k – 15k', min: 5000, max: 15000 },
-                  { label: '15k – 50k', min: 15000, max: 50000 },
-                  { label: '50k+', min: 50000, max: 1000000 },
-                ].map(({ label, min, max }) => (
-                  <button
-                    key={label}
-                    onClick={() => onFiltersChange({ ...filters, minPrice: min, maxPrice: max })}
-                    className={`p-2 text-xs rounded-lg border transition-colors duration-200 ${
-                      filters.minPrice === min && filters.maxPrice === max
-                        ? 'border-primary bg-primary text-white'
-                        : 'border-border/50 bg-surface/50 hover:border-primary'
-                    }`}
-                  >
-                    {label} FCFA
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
-        </div>
-
         {/* ── Date ── */}
-        <div className="p-4 border-b border-border/50">
+        <div className="p-4 border-border/50">
           <button onClick={() => toggle('date')} className={sectionClass('date')}>
             <div className="flex items-center space-x-3">
               <Clock className="w-4 h-4 text-text-secondary" />
@@ -306,42 +234,9 @@ const EventFilters = ({
           )}
         </div>
 
-        {/* ── Format ── */}
-        <div className="p-4">
-          <button onClick={() => toggle('format')} className={sectionClass('format')}>
-            <div className="flex items-center space-x-3">
-              <Video className="w-4 h-4 text-text-secondary" />
-              <span className="text-sm font-medium text-text-primary">
-                {filters.format ? `Format: ${filters.format}` : 'Format'}
-              </span>
-            </div>
-            <ChevronDown className={`w-4 h-4 text-text-muted transition-transform duration-200 ${activeSection === 'format' ? 'rotate-180' : ''}`} />
-          </button>
-          {activeSection === 'format' && (
-            <div className="mt-3 space-y-1.5">
-              {['Any Format', 'In Person', 'Online'].map(formatOption => {
-                const value = formatOption === 'Any Format' ? '' : formatOption
-                return (
-                  <button
-                    key={formatOption}
-                    onClick={() => handleFilterChange('format', value)}
-                    className={`w-full flex items-center justify-between p-3 rounded-lg border transition-colors duration-200 text-left ${
-                      (filters.format === value || (!filters.format && value === ''))
-                        ? 'border-primary bg-primary/10 text-primary font-bold'
-                        : 'border-border/50 bg-surface/50 hover:border-primary'
-                    }`}
-                  >
-                    <span className="text-sm">{formatOption}</span>
-                    {filters.format === value && value !== '' && <X className="w-3 h-3" />}
-                  </button>
-                )
-              })}
-            </div>
-          )}
-        </div>
       </div>
     </div>
   )
 }
 
-export default EventFilters
+export default EventFiltersComponent

@@ -31,9 +31,17 @@ const HeroSection = () => {
           isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-6"
         )}>
           {/* Headline */}
-          <h1 className="text-4xl md:text-5xl lg:text-[3.5rem] font-display font-bold text-text-primary leading-tight">
-            Find your next experience
-          </h1>
+          <div className="relative inline-block">
+            <h1 className="text-4xl md:text-5xl lg:text-[3.5rem] font-display font-bold text-text-primary leading-tight relative z-10">
+              Find your next experience
+            </h1>
+            <svg className="absolute -bottom-4 -right-8 w-16 h-16 text-primary opacity-60 -z-10" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M10 80 C 40 50, 60 90, 90 20" stroke="currentColor" strokeWidth="4" strokeLinecap="round" fill="none"/>
+              <circle cx="90" cy="20" r="4" fill="currentColor"/>
+              <circle cx="10" cy="30" r="2" fill="currentColor"/>
+              <circle cx="80" cy="80" r="3" fill="currentColor"/>
+            </svg>
+          </div>
           <p className="text-base md:text-lg text-text-secondary max-w-xl mx-auto">
             Discover the best events, conferences, workshops, and festivals happening near you.
           </p>
@@ -41,7 +49,7 @@ const HeroSection = () => {
           {/* Search Bar — Eventbrite Style */}
           <form 
             onSubmit={handleSearch}
-            className="bg-white border border-border rounded-xl shadow-card flex flex-col sm:flex-row items-stretch mt-8"
+            className="bg-white border border-border rounded-md shadow-card flex flex-col sm:flex-row items-stretch mt-8"
           >
             <div className="flex-1 flex items-center px-4 py-3 border-b sm:border-b-0 sm:border-r border-border">
               <Search className="w-5 h-5 text-text-muted mr-3 flex-shrink-0" />
@@ -73,16 +81,7 @@ const HeroSection = () => {
 
           {/* Quick Category Links */}
           <div className="flex flex-wrap justify-center gap-2 pt-4">
-            {(categories.length > 0 ? categories.slice(0, 6).map(c => ({ id: c.id, name: c.name })) : 
-              [
-                { id: 'music', name: 'Music' },
-                { id: 'food', name: 'Food & Drink' },
-                { id: 'business', name: 'Business' },
-                { id: 'arts', name: 'Arts' },
-                { id: 'sports', name: 'Sports' },
-                { id: 'wellness', name: 'Health' }
-              ]
-            ).map((cat) => (
+            {categories.length > 0 && categories.slice(0, 6).map((cat) => (
               <Link 
                 key={cat.id} 
                 to={`/events?category=${cat.id}`}

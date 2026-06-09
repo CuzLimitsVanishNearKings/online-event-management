@@ -35,9 +35,10 @@ public class OrganizerProfile
     @Column(name = "website")
     private String website;
 
-    @Column(name = "logo_url")
+    @Column(name = "logo_url", columnDefinition = "LONGTEXT")
     private String logoUrl;
 
+    @Builder.Default
     @Column(name = "verified", nullable = false)
     private Boolean verified = false;
 

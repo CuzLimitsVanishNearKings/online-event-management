@@ -49,7 +49,7 @@ export default function SettingsView() {
         <p className="text-text-muted mt-1 font-medium">Manage your organization profile, payouts, and notifications.</p>
       </div>
 
-      <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
+      <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
         <div className="p-6 border-b border-border bg-gray-50/50 flex items-center gap-3">
           <Building2 className="w-5 h-5 text-primary" />
           <h2 className="text-lg font-bold text-text-primary">Organization Details</h2>
@@ -63,7 +63,7 @@ export default function SettingsView() {
             </div>
           </div>
           <div className="flex justify-end pt-4 border-t border-border">
-            <Button variant="primary" onClick={handleSave} className="rounded-xl font-bold gap-2">
+            <Button variant="primary" onClick={handleSave} className="rounded-md font-bold gap-2">
               {isSaved ? <Check className="w-4 h-4" /> : <Save className="w-4 h-4" />}
               {isSaved ? 'Saved!' : 'Save Changes'}
             </Button>
@@ -73,7 +73,7 @@ export default function SettingsView() {
 
 
 
-      <div className="bg-white rounded-2xl border border-border shadow-sm overflow-hidden">
+      <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
         <div className="p-6 border-b border-border bg-gray-50/50 flex items-center gap-3">
           <Bell className="w-5 h-5 text-primary" />
           <h2 className="text-lg font-bold text-text-primary">Notifications</h2>
@@ -84,7 +84,7 @@ export default function SettingsView() {
             { title: 'Event Reminders', desc: 'Receive a summary 24h before your event starts.' },
             { title: 'Payout Updates', desc: 'Get alerted when a payout is processed to your bank.' }
           ].map((item, i) => (
-            <div key={i} className="flex items-center justify-between p-4 border border-border rounded-xl">
+            <div key={i} className="flex items-center justify-between p-4 border border-border rounded-md">
               <div>
                 <p className="font-bold text-text-primary text-sm">{item.title}</p>
                 <p className="text-xs text-text-muted mt-0.5">{item.desc}</p>

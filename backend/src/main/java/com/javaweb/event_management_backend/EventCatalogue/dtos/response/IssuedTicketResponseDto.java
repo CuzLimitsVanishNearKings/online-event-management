@@ -23,6 +23,9 @@ public class IssuedTicketResponseDto {
         private LocalDateTime issuedAt;
         private String ticketTypeName;
         private BigDecimal ticketTypePrice;
+        private String attendeeName;
+        private String attendeeEmail;
+        private String eventTitle;
     }
 
     // Used when an organizer verifies a ticket at the door

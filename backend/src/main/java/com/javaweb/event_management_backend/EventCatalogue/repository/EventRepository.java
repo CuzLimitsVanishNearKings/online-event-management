@@ -9,34 +9,49 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDateTime;
 import java.util.List;
 
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.EntityGraph;
+
 @Repository
-public interface EventRepository extends JpaRepository<Event, Long> {
+public interface EventRepository extends JpaRepository<Event, Long>, JpaSpecificationExecutor<Event> {
+
+    // Override findAll to eagerly fetch relations
+    @EntityGraph(attributePaths = {"category", "organizer", "ticketTypes"})
+    List<Event> findAll();
 
     // Find events by organizer
+    @EntityGraph(attributePaths = {"category", "organizer", "ticketTypes"})
     List<Event> findByOrganizer(OrganizerProfile organizer);
 
     // Find events by status
+    @EntityGraph(attributePaths = {"category", "organizer", "ticketTypes"})
     List<Event> findByStatus(EventStatus status);
 
     // Find events by category
+    @EntityGraph(attributePaths = {"category", "organizer", "ticketTypes"})
     List<Event> findByCategoryName(String categoryName);
 
     // Search events by title keyword
+    @EntityGraph(attributePaths = {"category", "organizer", "ticketTypes"})
     List<Event> findByTitleContainingIgnoreCase(String keyword);
 
     // Find events starting after a given date
+    @EntityGraph(attributePaths = {"category", "organizer", "ticketTypes"})
     List<Event> findByStartDateTimeAfter(LocalDateTime date);
 
     // Find events starting between two dates
+    @EntityGraph(attributePaths = {"category", "organizer", "ticketTypes"})
     List<Event> findByStartDateTimeBetween(LocalDateTime start, LocalDateTime end);
 
     // Find events by organizer and status
+    @EntityGraph(attributePaths = {"category", "organizer", "ticketTypes"})
     List<Event> findByOrganizerAndStatus(OrganizerProfile organizer, EventStatus status);
 
     // Find events by venue keyword
+    @EntityGraph(attributePaths = {"category", "organizer", "ticketTypes"})
     List<Event> findByVenueContainingIgnoreCase(String venue);
 
     // Find published events by category and status combined
-// useful for filtered browsing
+    @EntityGraph(attributePaths = {"category", "organizer", "ticketTypes"})
     List<Event> findByCategoryNameAndStatus(String categoryName, EventStatus status);
 }

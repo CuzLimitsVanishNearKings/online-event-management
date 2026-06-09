@@ -40,6 +40,16 @@ public class UserController {
         return ResponseEntity.ok(userService.updateProfile(dto, currentUser));
     }
 
+    // PUT /api/users/password
+    // update current user password
+    @PutMapping("/password")
+    public ResponseEntity<Void> changePassword(
+            @RequestBody UserAuthRequestDto.ChangePassword dto) {
+        User currentUser = SecurityUtils.getCurrentUser();
+        userService.changePassword(dto, currentUser);
+        return ResponseEntity.noContent().build();
+    }
+
     // ─── ADMIN ───────────────────────────────────────────────────
 
     // GET /api/users

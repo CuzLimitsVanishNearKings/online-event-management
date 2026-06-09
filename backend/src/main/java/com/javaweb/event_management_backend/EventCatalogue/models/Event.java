@@ -10,50 +10,52 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "event")
+@Table(name = "event", indexes = {
+    @Index(name = "idx_event_status", columnList = "status"),
+    @Index(name = "idx_event_category", columnList = "category_id"),
+    @Index(name = "idx_event_organizer", columnList = "organizer_id")
+})
 @Getter
 @Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Event
-{
+public class Event {
     @Id
     @Column(name = "event_id")
-    @GeneratedValue (strategy =  GenerationType.IDENTITY)
-    private Long eventId ;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long eventId;
 
-    @Column(name = "title" , nullable = false)
-    private String title ;
+    @Column(name = "title", nullable = false)
+    private String title;
 
-    @Column(name = "description" )
-    private String description ;
+    @Column(name = "description", columnDefinition = "LONGTEXT")
+    private String description;
 
     @Column(name = "venue", nullable = false)
-    private String venue ;
+    private String venue;
 
     @Column(name = "start_date_time", nullable = false)
-    private LocalDateTime startDateTime ;
+    private LocalDateTime startDateTime;
 
-    @Column(name = "end_date_time" , nullable = false)
+    @Column(name = "end_date_time", nullable = false)
     private LocalDateTime endDateTime;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status" , nullable = false)
-    private EventStatus status ;
+    @Column(name = "status", nullable = false)
+    private EventStatus status;
 
     @Column(name = "capacity", nullable = false)
-    private int capacity ;
+    private int capacity;
 
-    @Column(name = "cover_image")
-    private  String coverImage;
+    @Column(name = "cover_image", columnDefinition = "LONGTEXT")
+    private String coverImage;
 
-    @Column(name = "created_at" , nullable = false)
-    private LocalDateTime createdAt ;
-
+    @Column(name = "created_at", nullable = false)
+    private LocalDateTime createdAt;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "category_id" , nullable = false)
+    @JoinColumn(name = "category_id", nullable = false)
     private Category category;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -66,11 +68,8 @@ public class Event
     private List<TicketType> ticketTypes = new ArrayList<>();
 
     @PrePersist
-    protected void FillCreatedTimeOnCreate()
-    {
+    protected void FillCreatedTimeOnCreate() {
         this.createdAt = LocalDateTime.now();
     }
-
-
 
 }

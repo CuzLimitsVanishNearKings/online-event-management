@@ -39,4 +39,7 @@ public interface UserService {
 
     // Update currently logged in user profile
     UserResponseDto.UserDetail updateProfile(UserAuthRequestDto.UpdateProfile dto, User currentUser);
+
+    // Change currently logged in user password
+    void changePassword(UserAuthRequestDto.ChangePassword dto, User currentUser);
 }

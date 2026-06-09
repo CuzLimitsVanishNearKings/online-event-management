@@ -20,6 +20,7 @@ public class TopUpRequestResponseDto {
         private TopUpRequestStatus status;
         private LocalDateTime createdAt;
         private LocalDateTime reviewedAt;
+        private String adminNote;
     }
 
     // Used in admin dashboard

@@ -13,7 +13,10 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Table(name = "users")
+@Table(name = "users", indexes = {
+    @Index(name = "idx_user_role", columnList = "role"),
+    @Index(name = "idx_user_status", columnList = "status")
+})
 @Getter
 @Setter
 @Builder
@@ -49,7 +52,7 @@ public class User implements UserDetails
     @Column(name = "status", nullable = false)
     private UserStatus status;
 
-    @Column(name = "profile_pic")
+    @Column(name = "profile_pic", columnDefinition = "LONGTEXT")
     private String profilePic;
 
     @Column(name = "created_at", nullable = false, updatable = false)

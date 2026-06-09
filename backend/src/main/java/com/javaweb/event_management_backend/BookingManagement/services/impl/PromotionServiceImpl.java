@@ -56,7 +56,7 @@ public class PromotionServiceImpl implements PromotionService {
     public List<PromotionResponseDto.Summary> getActivePromotions() {
         LocalDate today = LocalDate.now();
         return promotionRepository
-                .findByStartDateBeforeAndEndDateAfter(today, today)
+                .findByStartDateLessThanEqualAndEndDateGreaterThanEqual(today, today)
                 .stream()
                 .filter(p -> p.getTimesUsed() < p.getUsageLimit())
                 .map(promotionMapper::toSummary)
@@ -183,9 +183,8 @@ public class PromotionServiceImpl implements PromotionService {
     private boolean isPromotionValid(Promotion promotion)
     {
         LocalDate today = LocalDate.now();
-        return (promotion.getStartDate().isEqual(today)
-                || promotion.getStartDate().isBefore(today))
-                && promotion.getEndDate().isAfter(today)
+        return !promotion.getStartDate().isAfter(today)
+                && !promotion.getEndDate().isBefore(today)
                 && promotion.getTimesUsed() < promotion.getUsageLimit();
     }
 }

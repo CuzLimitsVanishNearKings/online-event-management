@@ -1,4 +1,4 @@
-import { createBrowserRouter, RouterProvider } from 'react-router-dom'
+import { createBrowserRouter, Navigate } from 'react-router-dom'
 import Layout from '../Layout'
 import PublicLayout from '@/components/layout/PublicLayout'
 import HomePage from '../pages/HomePage'
@@ -7,24 +7,23 @@ import EventDetailPage from '../pages/EventDetailPage'
 import LoginPage from '../pages/LoginPage'
 import RegisterPage from '../pages/RegisterPage'
 import CheckoutPage from '../pages/CheckoutPage'
+import NotFoundView from '../pages/NotFoundView'
 
 import OrganizerDashboardLayout from '../components/layout/OrganizerDashboardLayout'
 import DashboardHome from '../pages/organizer/DashboardHome'
 import ProfileView from '../pages/organizer/ProfileView'
 import EventsManageView from '../pages/organizer/EventsManageView'
 import CreateEventView from '../pages/organizer/CreateEventView'
+import EditEventView from '../pages/organizer/EditEventView'
 import OrdersView from '../pages/organizer/OrdersView'
 import AttendeesView from '../pages/organizer/AttendeesView'
-import AnalyticsView from '../pages/organizer/AnalyticsView'
-import SettingsView from '../pages/organizer/SettingsView'
 
 import AttendeeDashboardLayout from '../components/layout/AttendeeDashboardLayout'
 import AttendeeDashboardHome from '../pages/attendee/DashboardHome'
 import AttendeeTicketsView from '../pages/attendee/TicketsView'
-import AttendeeFavoritesView from '../pages/attendee/FavoritesView'
-import AttendeeProfileView from '../pages/attendee/ProfileView'
-import AttendeeSettingsView from '../pages/attendee/SettingsView'
 import AttendeeCalendarView from '../pages/attendee/CalendarView'
+import AttendeeProfileView from '../pages/attendee/ProfileView'
+import AttendeeWalletView from '../pages/attendee/WalletView'
 
 import AdminDashboardLayout from '../components/layout/AdminDashboardLayout'
 import AdminDashboardHome from '../pages/admin/DashboardHome'
@@ -33,18 +32,18 @@ import AdminOrganizerRequests from '../pages/admin/OrganizerRequests'
 import AdminEventManagement from '../pages/admin/EventManagement'
 import { 
   Bookings as AdminBookings, 
-  Tickets as AdminTickets, 
   Payments as AdminPayments, 
+  TopUpRequests as AdminTopUpRequests,
   Reporting as AdminReporting, 
-  Notifications as AdminNotifications, 
   Categories as AdminCategories, 
-  Settings as AdminSettings, 
   Profile as AdminProfile 
 } from '../pages/admin/AdminPages'
+import PromotionsView from '../pages/admin/PromotionsView'
 
 const router = createBrowserRouter([
   {
     element: <PublicLayout />,
+    errorElement: <NotFoundView />,
     children: [
       {
         path: '/',
@@ -75,6 +74,7 @@ const router = createBrowserRouter([
   },
   {
     element: <Layout />,
+    errorElement: <NotFoundView />,
     children: [
       {
         path: '/event/:id',
@@ -90,7 +90,12 @@ const router = createBrowserRouter([
   {
     path: '/organizer',
     element: <OrganizerDashboardLayout />,
+    errorElement: <NotFoundView />,
     children: [
+      {
+        index: true,
+        element: <Navigate to="dashboard" replace />,
+      },
       {
         path: 'dashboard',
         element: <DashboardHome />,
@@ -108,6 +113,10 @@ const router = createBrowserRouter([
         element: <CreateEventView />,
       },
       {
+        path: 'events/:eventId/edit',
+        element: <EditEventView />,
+      },
+      {
         path: 'orders',
         element: <OrdersView />,
       },
@@ -115,20 +124,17 @@ const router = createBrowserRouter([
         path: 'attendees',
         element: <AttendeesView />,
       },
-      {
-        path: 'analytics',
-        element: <AnalyticsView />,
-      },
-      {
-        path: 'settings',
-        element: <SettingsView />,
-      },
     ],
   },
   {
     path: '/attendee',
     element: <AttendeeDashboardLayout />,
+    errorElement: <NotFoundView />,
     children: [
+      {
+        index: true,
+        element: <Navigate to="dashboard" replace />,
+      },
       {
         path: 'dashboard',
         element: <AttendeeDashboardHome />,
@@ -142,23 +148,24 @@ const router = createBrowserRouter([
         element: <AttendeeCalendarView />,
       },
       {
-        path: 'favorites',
-        element: <AttendeeFavoritesView />,
-      },
-      {
         path: 'profile',
         element: <AttendeeProfileView />,
       },
       {
-        path: 'settings',
-        element: <AttendeeSettingsView />,
+        path: 'wallet',
+        element: <AttendeeWalletView />,
       },
     ],
   },
   {
     path: '/admin',
     element: <AdminDashboardLayout />,
+    errorElement: <NotFoundView />,
     children: [
+      {
+        index: true,
+        element: <Navigate to="dashboard" replace />,
+      },
       {
         path: 'dashboard',
         element: <AdminDashboardHome />,
@@ -184,24 +191,20 @@ const router = createBrowserRouter([
         element: <AdminBookings />,
       },
       {
-        path: 'tickets',
-        element: <AdminTickets />,
+        path: 'promotions',
+        element: <PromotionsView />,
       },
       {
         path: 'payments',
         element: <AdminPayments />,
       },
       {
+        path: 'top-up-requests',
+        element: <AdminTopUpRequests />,
+      },
+      {
         path: 'reports',
         element: <AdminReporting />,
-      },
-      {
-        path: 'notifications',
-        element: <AdminNotifications />,
-      },
-      {
-        path: 'settings',
-        element: <AdminSettings />,
       },
       {
         path: 'profile',

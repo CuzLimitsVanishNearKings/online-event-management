@@ -13,9 +13,9 @@ public class PromotionMapper {
     // Entity → DTO
     public PromotionResponseDto.Summary toSummary(Promotion promotion) {
 
-        // compute isActive — valid date range AND usage limit not exceeded
-        boolean isActive = promotion.getEndDate().isAfter(LocalDate.now())
-                && promotion.getStartDate().isBefore(LocalDate.now())
+        LocalDate today = LocalDate.now();
+        boolean isActive = !promotion.getStartDate().isAfter(today)
+                && !promotion.getEndDate().isBefore(today)
                 && promotion.getTimesUsed() < promotion.getUsageLimit();
 
         return PromotionResponseDto.Summary.builder()

@@ -30,7 +30,7 @@ const InputRedesigned = React.forwardRef<HTMLInputElement, InputProps>(
     const [showPassword, setShowPassword] = React.useState(false)
     const [isFocused, setIsFocused] = React.useState(false)
 
-    const baseClasses = 'w-full rounded-xl border transition-all duration-200 placeholder:text-text-muted focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed'
+    const baseClasses = 'w-full rounded-md border transition-all duration-200 placeholder:text-text-muted focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed'
     
     const variantClasses = {
       default: 'bg-white border-border/50 focus:border-primary focus:ring-2 focus:ring-primary/20',

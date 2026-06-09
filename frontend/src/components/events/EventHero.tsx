@@ -2,12 +2,13 @@ import { format, parseISO } from 'date-fns'
 import { Calendar, MapPin, User, CheckCircle, Share2, Heart, Clock, Users } from '../icons'
 import { cn } from '../../utils/cn'
 import { getImageUrl } from '../../utils/image'
-
 interface EventHeroProps {
   event: any
 }
 
 const EventHero = ({ event }: EventHeroProps) => {
+  const eventIdNum = Number(event?.id)
+
   let formattedDate = ''
   try {
     if (event.date && event.date !== 'Invalid Date' && (event.date.includes(',') || isNaN(Date.parse(event.date)) && !event.date.includes('-') && !event.date.includes('T'))) {
@@ -37,12 +38,12 @@ const EventHero = ({ event }: EventHeroProps) => {
   return (
     <div className="space-y-10">
       {/* Hero Image Container */}
-      <div className="relative aspect-[21/9] overflow-hidden rounded-xl shadow-card">
+      <div className="relative aspect-[21/9] overflow-hidden rounded-md shadow-card">
         {imageUrl ? (
           <img
             src={imageUrl}
             alt={event.title}
-            className="w-full h-full object-cover transition-transform duration-700 hover:scale-105"
+            className="w-full h-full object-cover transition-transform duration-700 "
           />
         ) : (
           <div className="w-full h-full bg-gradient-to-tr from-[#1E1B18] via-[#3A3530] to-[#5C534C] flex flex-col items-center justify-center p-8 text-center select-none relative">
@@ -66,12 +67,8 @@ const EventHero = ({ event }: EventHeroProps) => {
           </span>
         </div>
 
-        {/* Floating Actions */}
         <div className="absolute top-6 right-6 flex gap-3">
-           <button className="p-3 bg-white/90 backdrop-blur-md rounded-2xl shadow-lg hover:bg-white transition-all group">
-              <Heart className="w-5 h-5 text-text-secondary group-hover:text-red-500 transition-colors" />
-           </button>
-           <button className="p-3 bg-white/90 backdrop-blur-md rounded-2xl shadow-lg hover:bg-white transition-all group">
+           <button className="p-3 bg-white/90 backdrop-blur-md rounded-lg shadow-lg hover:bg-white transition-all group">
               <Share2 className="w-5 h-5 text-text-secondary group-hover:text-primary transition-colors" />
            </button>
         </div>
@@ -91,7 +88,7 @@ const EventHero = ({ event }: EventHeroProps) => {
 
           <div className="flex flex-wrap gap-x-10 gap-y-4 pt-4 border-t border-border/50">
              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-primary/5 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-lg bg-primary/5 flex items-center justify-center">
                    <Calendar className="w-5 h-5 text-primary" />
                 </div>
                 <div>
@@ -100,7 +97,7 @@ const EventHero = ({ event }: EventHeroProps) => {
                 </div>
              </div>
              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-accent/5 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-lg bg-accent/5 flex items-center justify-center">
                    <Clock className="w-5 h-5 text-accent" />
                 </div>
                 <div>
@@ -109,7 +106,7 @@ const EventHero = ({ event }: EventHeroProps) => {
                 </div>
              </div>
              <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-gray-50 flex items-center justify-center">
+                <div className="w-10 h-10 rounded-lg bg-gray-50 flex items-center justify-center">
                    <MapPin className="w-5 h-5 text-text-secondary" />
                 </div>
                 <div>
@@ -121,8 +118,8 @@ const EventHero = ({ event }: EventHeroProps) => {
         </div>
 
         <div className="flex flex-col justify-end space-y-6">
-           <div className="flex items-center gap-4 p-6 bg-gray-50 rounded-xl border border-border/50">
-              <div className="w-14 h-14 rounded-2xl bg-white shadow-sm flex items-center justify-center overflow-hidden border border-border">
+           <div className="flex items-center gap-4 p-6 bg-gray-50 rounded-md border border-border/50">
+              <div className="w-14 h-14 rounded-lg bg-white shadow-sm flex items-center justify-center overflow-hidden border border-border">
                  {organizerLogo ? (
                    <img src={organizerLogo} alt={organizerName} className="w-full h-full object-cover" />
                  ) : (

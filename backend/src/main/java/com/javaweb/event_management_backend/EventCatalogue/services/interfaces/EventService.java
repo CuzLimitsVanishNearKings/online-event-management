@@ -22,6 +22,9 @@ public interface EventService {
     // Filter events by category
     List<EventResponseDto.Summary> getEventsByCategory(String categoryName);
 
+    // Advanced dynamic filter for events
+    List<EventResponseDto.Summary> filterEvents(String keyword, String category, String venue, java.time.LocalDateTime startDate, java.time.LocalDateTime endDate, java.math.BigDecimal minPrice, java.math.BigDecimal maxPrice);
+
     // ─── ORGANIZER ───────────────────────────────────────────────
 
     // Create a new event
@@ -54,4 +57,7 @@ public interface EventService {
 
     // Get all events regardless of status — admin dashboard
     List<EventResponseDto.Summary> getAllEvents();
+
+    // Delete/Cancel an event as admin
+    void adminDeleteEvent(Long eventId);
 }

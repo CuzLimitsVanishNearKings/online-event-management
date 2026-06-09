@@ -18,7 +18,7 @@ export default function FavoritesView() {
           <h1 className="text-3xl font-display font-bold text-text-primary tracking-tight">Saved Events</h1>
           <p className="text-text-muted mt-1 font-medium">Events you've bookmarked for later.</p>
         </div>
-        <Button onClick={() => window.location.href = '/events'} variant="primary" className="rounded-xl font-bold">
+        <Button onClick={() => window.location.href = '/events'} variant="primary" className="rounded-md font-bold">
           Explore More
         </Button>
       </div>
@@ -26,10 +26,10 @@ export default function FavoritesView() {
       {favorites.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {favorites.map((event) => (
-            <div key={event.id} className="bg-white border border-border rounded-2xl overflow-hidden shadow-sm hover:shadow-card-hover transition-all duration-300 group flex flex-col">
+            <div key={event.id} className="bg-white border border-border rounded-lg overflow-hidden shadow-sm hover:shadow-card-hover transition-all duration-300 group flex flex-col">
               <div className="h-48 bg-gray-200 relative overflow-hidden">
                 {event.imageUrl ? (
-                  <img src={event.imageUrl} alt={event.eventName} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+                  <img src={event.imageUrl} alt={event.eventName} className="w-full h-full object-cover group- transition-transform duration-500" />
                 ) : (
                   <div className="w-full h-full bg-primary/10 flex items-center justify-center">
                     <span className="text-primary/40 font-bold text-xl uppercase tracking-widest">{typeof event.category === 'object' ? ((event as any).categoryName || (event.category as any)?.name || 'General') : (event.category || 'General')}</span>
@@ -73,7 +73,7 @@ export default function FavoritesView() {
           ))}
         </div>
       ) : (
-        <div className="bg-white rounded-2xl border border-border shadow-sm flex flex-col items-center justify-center text-center py-20 px-4">
+        <div className="bg-white rounded-lg border border-border shadow-sm flex flex-col items-center justify-center text-center py-20 px-4">
           <div className="w-20 h-20 bg-surface rounded-full flex items-center justify-center mb-6">
             <Heart className="w-10 h-10 text-border" />
           </div>
@@ -81,7 +81,7 @@ export default function FavoritesView() {
           <p className="text-text-muted max-w-md mx-auto mb-8 font-medium">
             Keep track of events you're interested in. Click the heart icon on any event to save it here.
           </p>
-          <Button onClick={() => window.location.href = '/events'} variant="primary" className="rounded-xl px-8 font-bold shadow-md shadow-primary/20">
+          <Button onClick={() => window.location.href = '/events'} variant="primary" className="rounded-md px-8 font-bold shadow-md shadow-primary/20">
             Discover Events
           </Button>
         </div>

@@ -45,4 +45,20 @@ public class AuthController
                 "message", "Login successful"
         ));
     }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@Valid @RequestBody UserAuthRequestDto.ForgotPassword dto) {
+        authService.forgotPassword(dto);
+        return ResponseEntity.ok(Map.of(
+                "message", "If an account with that email exists, a password reset link has been sent."
+        ));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(@Valid @RequestBody UserAuthRequestDto.ResetPassword dto) {
+        authService.resetPassword(dto);
+        return ResponseEntity.ok(Map.of(
+                "message", "Password has been successfully reset."
+        ));
+    }
 }

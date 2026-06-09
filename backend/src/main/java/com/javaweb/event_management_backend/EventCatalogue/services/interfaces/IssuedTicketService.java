@@ -36,6 +36,9 @@ public interface IssuedTicketService {
     List<IssuedTicketResponseDto.Response> getTicketsByEvent(Long eventId,
                                                              User currentUser);
 
+    // Get all issued tickets across all events for an organizer
+    List<IssuedTicketResponseDto.Response> getOrganizerTickets(User currentUser);
+
     List<IssuedTicketResponseDto.Response> getMyTickets(User currentUser);
 
     // ─── INTERNAL ────────────────────────────────────────────────
