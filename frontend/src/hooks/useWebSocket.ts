@@ -2,7 +2,7 @@ import { useEffect, useRef, useCallback } from 'react'
 import { Client } from '@stomp/stompjs'
 import SockJS from 'sockjs-client'
 
-const WS_URL = 'http://localhost:8082/ws-event-management'
+const WS_URL = import.meta.env.VITE_WS_URL || 'http://localhost:8082/ws-event-management'
 
 type MessageHandler = (payload: any) => void
 
