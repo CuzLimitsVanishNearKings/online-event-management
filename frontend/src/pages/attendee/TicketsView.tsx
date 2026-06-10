@@ -2,25 +2,24 @@ import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Search, Filter, Ticket, Download, Calendar, MapPin, Loader2 } from 'lucide-react'
 import { Button, Pagination } from '@/components/ui'
-import axiosClient from '@/api/axiosClient'
+import { useAttendeeBookings } from '@/hooks/useAttendeeBookings'
 import { formatCurrency } from '@/utils/format'
 import QRCode from 'qrcode'
 import { usePagination } from '@/hooks/usePagination'
 import { TicketReceipt } from '@/components/tickets/TicketReceipt'
 import { generatePDFFromElement } from '@/utils/pdfGenerator'
 
-const TicketCard = ({ ticket }: { ticket: any }) => {
+const TicketCard = ({ ticket, visible = true }: { ticket: any; visible?: boolean }) => {
   const [qrCodeUrl, setQrCodeUrl] = useState<string>('')
   const [isDownloading, setIsDownloading] = useState(false)
 
   useEffect(() => {
-    if (ticket.qrCodeData) {
-      QRCode.toDataURL(ticket.qrCodeData, {
-        margin: 1,
-        color: { dark: '#000000', light: '#ffffff' }
-      }).then(setQrCodeUrl)
-    }
-  }, [ticket.qrCodeData])
+    if (!ticket.qrCodeData || !visible) return
+    QRCode.toDataURL(ticket.qrCodeData, {
+      margin: 1,
+      color: { dark: '#000000', light: '#ffffff' }
+    }).then(setQrCodeUrl)
+  }, [ticket.qrCodeData, visible])
 
   const handleDownloadPDF = async () => {
     setIsDownloading(true)
@@ -92,84 +91,11 @@ const TicketCard = ({ ticket }: { ticket: any }) => {
 }
 
 export default function TicketsView() {
-  const [tickets, setTickets] = useState<any[]>([])
-  const [loading, setLoading] = useState(true)
+  const { data: allTickets = [], isLoading: loading } = useAttendeeBookings()
   const [activeTab, setActiveTab] = useState<'upcoming' | 'past'>('upcoming')
   const [searchQuery, setSearchQuery] = useState('')
 
-  const fetchTickets = async () => {
-    try {
-      setLoading(true)
-      // Single request replaces the previous N+1 pattern
-      const res = await axiosClient.get('/bookings/my-bookings-detailed')
-      const detailedBookings: any[] = res.data
-
-      const mappedTickets: any[] = []
-      detailedBookings.forEach((b: any) => {
-        const startDate = new Date(b.eventStartDateTime)
-        const isUpcoming = startDate.getTime() > Date.now() && b.status === 'CONFIRMED'
-        
-        if (b.issuedTickets && b.issuedTickets.length > 0) {
-          b.issuedTickets.forEach((t: any) => {
-            mappedTickets.push({
-              id: `${b.bookingId}-${t.issuedTicketId}`,
-              bookingId: b.bookingId,
-              eventName: b.eventTitle,
-              location: b.eventVenue,
-              date: startDate.toLocaleDateString('en-US', {
-                weekday: 'short',
-                month: 'short',
-                day: 'numeric',
-                year: 'numeric'
-              }),
-              time: startDate.toLocaleTimeString('en-US', {
-                hour: '2-digit',
-                minute: '2-digit'
-              }),
-              ticketType: t.ticketTypeName,
-              price: t.ticketTypePrice,
-              qrCodeData: t.qrCode || `TICKET-${t.issuedTicketId}`,
-              status: isUpcoming ? 'upcoming' : 'past'
-            })
-          })
-        } else {
-          // Fallback if no specific issued tickets returned yet
-          mappedTickets.push({
-            id: b.bookingId.toString(),
-            bookingId: b.bookingId,
-            eventName: b.eventTitle,
-            location: b.eventVenue,
-            date: startDate.toLocaleDateString('en-US', {
-              weekday: 'short',
-              month: 'short',
-              day: 'numeric',
-              year: 'numeric'
-            }),
-            time: startDate.toLocaleTimeString('en-US', {
-              hour: '2-digit',
-              minute: '2-digit'
-            }),
-            ticketType: 'General Admission',
-            price: b.totalAmount,
-            qrCodeData: `BOOKING-${b.bookingId}`,
-            status: isUpcoming ? 'upcoming' : 'past'
-          })
-        }
-      })
-
-      setTickets(mappedTickets)
-    } catch (err) {
-      console.error('Failed to load attendee tickets:', err)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  useEffect(() => {
-    fetchTickets()
-  }, [])
-
-  const filteredTickets = tickets.filter(t => 
+  const filteredTickets = allTickets.filter(t => 
     t.status === activeTab &&
     t.eventName.toLowerCase().includes(searchQuery.toLowerCase())
   )
@@ -248,7 +174,7 @@ export default function TicketsView() {
             <div>
               <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
                 {paginatedData.map(ticket => (
-                  <TicketCard key={ticket.id} ticket={ticket} />
+                  <TicketCard key={ticket.id} ticket={ticket} visible={true} />
                 ))}
               </div>
               <Pagination

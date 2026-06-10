@@ -1,11 +1,10 @@
-import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Ticket, CalendarDays, Compass, Activity, ArrowUpRight } from 'lucide-react'
 import { Link } from 'react-router-dom'
 import { useAuthStore } from '@/store/authStore'
 import { Button } from '@/components/ui'
 import { cn } from '@/utils/cn'
-import axiosClient from '@/api/axiosClient'
+import { useAttendeeBookings } from '@/hooks/useAttendeeBookings'
 
 const containerVariants = {
   hidden: { opacity: 0 },
@@ -36,63 +35,7 @@ interface MappedTicket {
 
 export default function DashboardHome() {
   const { user } = useAuthStore()
-  const [tickets, setTickets] = useState<MappedTicket[]>([])
-  const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    const fetchTickets = async () => {
-      try {
-        setLoading(true)
-        // Single request — returns full detail including issuedTickets for every booking.
-        // Replaces the previous N+1 pattern (summary list → individual detail per booking).
-        const res = await axiosClient.get('/bookings/my-bookings-detailed')
-        const detailedBookings: any[] = res.data
-
-        const mappedTickets: MappedTicket[] = []
-        detailedBookings.forEach((b) => {
-          const startDate = new Date(b.eventStartDateTime)
-          const isUpcoming = startDate.getTime() > Date.now() && b.status === 'CONFIRMED'
-
-          if (b.issuedTickets && b.issuedTickets.length > 0) {
-            b.issuedTickets.forEach((t: any) => {
-              mappedTickets.push({
-                id: `${b.bookingId}-${t.issuedTicketId}`,
-                eventName: b.eventTitle,
-                date: startDate.toLocaleDateString('en-US', {
-                  weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
-                }),
-                ticketType: t.ticketTypeName,
-                price: t.ticketTypePrice,
-                qrCodeData: t.qrCode || `TICKET-${t.issuedTicketId}`,
-                status: isUpcoming ? 'upcoming' : 'past'
-              })
-            })
-          } else {
-            // Fallback: booking with no issued tickets (e.g. free or pending)
-            mappedTickets.push({
-              id: b.bookingId.toString(),
-              eventName: b.eventTitle,
-              date: startDate.toLocaleDateString('en-US', {
-                weekday: 'short', month: 'short', day: 'numeric', year: 'numeric'
-              }),
-              ticketType: 'General Admission',
-              price: Number(b.totalAmount) || 0,
-              qrCodeData: `BOOKING-${b.bookingId}`,
-              status: isUpcoming ? 'upcoming' : 'past'
-            })
-          }
-        })
-
-        setTickets(mappedTickets)
-      } catch (err) {
-        console.error('Failed to load tickets', err)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchTickets()
-  }, [])
+  const { data: tickets = [], isLoading: loading } = useAttendeeBookings()
 
   const upcomingEvents = tickets.filter(t => t.status === 'upcoming')
   const pastEventsCount = tickets.filter(t => t.status === 'past').length
