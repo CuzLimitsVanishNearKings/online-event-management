@@ -21,6 +21,7 @@ public class UserMappers
                 .status(user.getStatus())
                 .profilePic(user.getProfilePic())
                 .createdAt(user.getCreatedAt())
+                .userId(user.getUserId())
                 .build();
     }
 

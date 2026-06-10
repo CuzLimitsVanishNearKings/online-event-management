@@ -39,6 +39,7 @@ public class UserResponseDto
         private UserStatus status;
         private String profilePic;
         private LocalDateTime createdAt;
+        private Long userId;
     }
 
     @Getter

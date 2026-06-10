@@ -22,7 +22,7 @@ export default function OrganizerDashboardLayout() {
     return <Navigate to="/login" replace />
   }
 
-  if (isAuthenticated && user?.role !== 'organizer') {
+ if (isAuthenticated && user?.role && user.role !== 'organizer') {
     return <Navigate to="/login" replace />
   }
 

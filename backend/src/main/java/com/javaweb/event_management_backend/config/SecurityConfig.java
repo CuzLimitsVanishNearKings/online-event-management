@@ -57,6 +57,8 @@ public class SecurityConfig {
                                 "/api-docs/**",
                                 "/v3/api-docs/**"
                         ).permitAll()
+                        // WebSocket endpoint
+                        .requestMatchers("/ws-event-management/**").permitAll()
 
                         // ─── ADMIN ONLY ──────────────────────────────────
                         .requestMatchers("/api/admin/**").hasRole("ADMIN")
@@ -118,7 +120,7 @@ public class SecurityConfig {
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setExposedHeaders(List.of("Authorization"));
-        configuration.setAllowCredentials(false);
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

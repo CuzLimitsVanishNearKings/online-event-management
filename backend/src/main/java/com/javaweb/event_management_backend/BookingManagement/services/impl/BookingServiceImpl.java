@@ -139,7 +139,7 @@ public class BookingServiceImpl implements BookingService {
 
         // Broadcast live stat updates
         try {
-            Long organizerId = ticketType.getEvent().getOrganizer().getId();
+            Long organizerId = ticketType.getEvent().getOrganizer().getUser().getUserId();
             liveStatsService.broadcastOrganizerStats(organizerId, java.util.Map.of("message", "New Booking"));
             liveStatsService.broadcastEventUpdate(ticketType.getEvent().getEventId(), java.util.Map.of("message", "Ticket Sold"));
         } catch(Exception e) {

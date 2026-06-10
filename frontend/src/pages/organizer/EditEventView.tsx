@@ -57,7 +57,7 @@ export default function EditEventView() {
         setDescription(eventData.description || '')
         setLocation(eventData.venue || '')
         setCapacity(eventData.capacity?.toString() || '')
-        setSelectedCategoryId(eventData.category?.id?.toString() || '')
+        setSelectedCategoryId(eventData.category?.categoryId?.toString() || '')
         
         if (eventData.startDateTime) {
           const dt = new Date(eventData.startDateTime)
@@ -76,7 +76,7 @@ export default function EditEventView() {
         const ticketsData = ticketRes.data || []
         
         const mappedTiers: TicketTier[] = ticketsData.map((t: any) => ({
-          id: t.id,
+          id: t.ticketTypeId,
           name: t.name,
           price: t.price?.toString() || '0',
           capacity: t.quantity?.toString() || '0',
@@ -279,9 +279,9 @@ export default function EditEventView() {
 
   if (isLoadingInitial) {
     return (
-      <div className="flex-1 flex flex-col items-center justify-center py-40">
-        <Loader2 className="w-10 h-10 animate-spin text-primary mb-4" />
-        <p className="text-text-muted font-bold animate-pulse">Loading Event Data...</p>
+      <div className="flex flex-col items-center justify-center flex-1 py-40">
+        <Loader2 className="w-10 h-10 mb-4 animate-spin text-primary" />
+        <p className="font-bold text-text-muted animate-pulse">Loading Event Data...</p>
       </div>
     )
   }
@@ -290,31 +290,31 @@ export default function EditEventView() {
     <motion.div 
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      className="max-w-4xl space-y-8 pb-20"
+      className="max-w-4xl pb-20 space-y-8"
     >
       <div>
         <button 
           onClick={() => navigate('/organizer/events')}
-          className="flex items-center gap-2 text-text-muted hover:text-text-primary transition-colors font-bold text-sm mb-6"
+          className="flex items-center gap-2 mb-6 text-sm font-bold transition-colors text-text-muted hover:text-text-primary"
         >
           <ArrowLeft className="w-4 h-4" />
           Back to Events
         </button>
         
-        <h1 className="text-3xl font-display font-bold text-text-primary tracking-tight mb-2">Edit Event</h1>
-        <p className="text-text-muted font-medium">Modify your event details and ticket tiers.</p>
+        <h1 className="mb-2 text-3xl font-bold tracking-tight font-display text-text-primary">Edit Event</h1>
+        <p className="font-medium text-text-muted">Modify your event details and ticket tiers.</p>
       </div>
 
       {error && (
-        <div className="p-4 bg-red-50 border border-red-200 rounded-md text-red-700 flex items-center gap-3 text-sm font-semibold animate-in fade-in duration-300">
-          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0" />
+        <div className="flex items-center gap-3 p-4 text-sm font-semibold text-red-700 duration-300 border border-red-200 rounded-md bg-red-50 animate-in fade-in">
+          <AlertCircle className="flex-shrink-0 w-5 h-5 text-red-500" />
           <span>{error}</span>
         </div>
       )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
-          <div className="bg-surface/30 px-8 py-6 border-b border-border">
+        <div className="overflow-hidden bg-white border rounded-lg shadow-sm border-border">
+          <div className="px-8 py-6 border-b bg-surface/30 border-border">
             <h2 className="text-xl font-bold text-text-primary">Basic Information</h2>
           </div>
           <div className="p-8 space-y-6">
@@ -328,9 +328,9 @@ export default function EditEventView() {
               />
               
               <div className="space-y-1">
-                <label className="text-sm font-bold text-text-primary block mb-2">Category</label>
+                <label className="block mb-2 text-sm font-bold text-text-primary">Category</label>
                 <select 
-                  className="w-full px-4 py-3 border border-border rounded-md focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20 text-sm bg-white font-bold"
+                  className="w-full px-4 py-3 text-sm font-bold bg-white border rounded-md border-border focus:outline-none focus:border-primary focus:ring-1 focus:ring-primary/20"
                   value={selectedCategoryId}
                   onChange={(e) => setSelectedCategoryId(e.target.value)}
                   required
@@ -360,7 +360,7 @@ export default function EditEventView() {
               </div>
 
               <div className="space-y-1">
-                <label className="text-sm font-bold text-text-primary mb-2 block">Event Banner</label>
+                <label className="block mb-2 text-sm font-bold text-text-primary">Event Banner</label>
                 
                 <input 
                   type="file"
@@ -373,13 +373,13 @@ export default function EditEventView() {
                 {imagePreview ? (
                   <div className="border border-border rounded-lg overflow-hidden relative group max-h-[300px]">
                     <img src={imagePreview} alt="Banner Preview" className="w-full h-full object-cover max-h-[298px]" />
-                    <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-4">
-                      <Button type="button" onClick={handleUploadContainerClick} variant="outline" className="bg-white text-text-primary hover:bg-gray-100 border-none font-bold rounded-md">
+                    <div className="absolute inset-0 flex items-center justify-center gap-4 transition-opacity opacity-0 bg-black/40 group-hover:opacity-100">
+                      <Button type="button" onClick={handleUploadContainerClick} variant="outline" className="font-bold bg-white border-none rounded-md text-text-primary hover:bg-gray-100">
                         Change Image
                       </Button>
                     </div>
                     {imageFileName && (
-                      <div className="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm px-3 py-1 rounded-lg text-xs font-bold shadow-sm">
+                      <div className="absolute px-3 py-1 text-xs font-bold rounded-lg shadow-sm bottom-4 left-4 bg-white/95 backdrop-blur-sm">
                         {imageFileName}
                       </div>
                     )}
@@ -387,13 +387,13 @@ export default function EditEventView() {
                 ) : (
                   <div 
                     onClick={handleUploadContainerClick}
-                    className="border-2 border-dashed border-border rounded-lg p-8 flex flex-col items-center justify-center text-center bg-gray-50/50 hover:bg-gray-50 transition-colors cursor-pointer"
+                    className="flex flex-col items-center justify-center p-8 text-center transition-colors border-2 border-dashed rounded-lg cursor-pointer border-border bg-gray-50/50 hover:bg-gray-50"
                   >
-                    <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mb-4 border border-border">
+                    <div className="flex items-center justify-center w-12 h-12 mb-4 bg-white border rounded-full shadow-sm border-border">
                       <Upload className="w-5 h-5 text-text-muted" />
                     </div>
-                    <p className="font-bold text-text-primary text-sm">Click to upload banner image</p>
-                    <p className="text-xs text-text-muted mt-1">PNG, JPG or WEBP (Max 5MB)</p>
+                    <p className="text-sm font-bold text-text-primary">Click to upload banner image</p>
+                    <p className="mt-1 text-xs text-text-muted">PNG, JPG or WEBP (Max 5MB)</p>
                   </div>
                 )}
               </div>
@@ -401,13 +401,13 @@ export default function EditEventView() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
-          <div className="bg-surface/30 px-8 py-6 border-b border-border">
+        <div className="overflow-hidden bg-white border rounded-lg shadow-sm border-border">
+          <div className="px-8 py-6 border-b bg-surface/30 border-border">
             <h2 className="text-xl font-bold text-text-primary">Date & Location</h2>
           </div>
           <div className="p-8">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-1 relative">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+              <div className="relative space-y-1">
                 <Input 
                   type="date" 
                   label="Date" 
@@ -416,7 +416,7 @@ export default function EditEventView() {
                   required
                 />
               </div>
-              <div className="space-y-1 relative">
+              <div className="relative space-y-1">
                 <Input 
                   type="time" 
                   label="Time" 
@@ -425,7 +425,7 @@ export default function EditEventView() {
                   required
                 />
               </div>
-              <div className="md:col-span-2 relative">
+              <div className="relative md:col-span-2">
                 <Input 
                   label="Location" 
                   placeholder="Full address or meeting link" 
@@ -438,23 +438,23 @@ export default function EditEventView() {
           </div>
         </div>
 
-        <div className="bg-white rounded-lg border border-border shadow-sm overflow-hidden">
-          <div className="bg-surface/30 px-8 py-6 border-b border-border flex items-center justify-between">
+        <div className="overflow-hidden bg-white border rounded-lg shadow-sm border-border">
+          <div className="flex items-center justify-between px-8 py-6 border-b bg-surface/30 border-border">
             <div>
               <h2 className="text-xl font-bold text-text-primary">Tickets & Capacity</h2>
-              <p className="text-xs text-text-muted mt-1">Set a global capacity or add specific ticket tiers.</p>
+              <p className="mt-1 text-xs text-text-muted">Set a global capacity or add specific ticket tiers.</p>
             </div>
             <Button 
               type="button" 
               onClick={handleAddTier} 
               variant="outline" 
-              className="bg-white text-primary border-border hover:bg-surface rounded-md font-bold gap-2 text-sm px-4 py-2"
+              className="gap-2 px-4 py-2 text-sm font-bold bg-white rounded-md text-primary border-border hover:bg-surface"
             >
               <Plus className="w-4 h-4" /> Add Ticket Tier
             </Button>
           </div>
           <div className="p-8">
-            <div className="mb-6 max-w-xs">
+            <div className="max-w-xs mb-6">
               <Input 
                 type="number" 
                 label="Total Event Capacity" 
@@ -465,17 +465,17 @@ export default function EditEventView() {
                 required
               />
               {ticketTiers.length > 0 && (
-                <p className="text-xs text-text-muted mt-2 font-medium">
+                <p className="mt-2 text-xs font-medium text-text-muted">
                   Sum of ticket tier capacities must not exceed the total capacity.
                 </p>
               )}
             </div>
 
             {ticketTiers.length > 0 && (
-              <div className="space-y-4 border-t border-border pt-6">
-                <h3 className="font-bold text-text-primary text-sm uppercase tracking-wider mb-4">Ticket Tiers</h3>
+              <div className="pt-6 space-y-4 border-t border-border">
+                <h3 className="mb-4 text-sm font-bold tracking-wider uppercase text-text-primary">Ticket Tiers</h3>
                 {ticketTiers.map((tier) => (
-                  <div key={tier.id} className="grid grid-cols-1 md:grid-cols-12 gap-4 p-4 border border-border rounded-md bg-gray-50/50 relative group">
+                  <div key={tier.id} className="relative grid grid-cols-1 gap-4 p-4 border rounded-md md:grid-cols-12 border-border bg-gray-50/50 group">
                   <div className="md:col-span-5">
                     <Input 
                       label="Ticket Name" 
@@ -508,11 +508,11 @@ export default function EditEventView() {
                       required
                     />
                   </div>
-                  <div className="md:col-span-1 flex items-end justify-center pb-2">
+                  <div className="flex items-end justify-center pb-2 md:col-span-1">
                     <button 
                       type="button" 
                       onClick={() => handleRemoveTier(tier.id)}
-                      className="p-2 text-text-muted hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                      className="p-2 transition-colors rounded-lg text-text-muted hover:text-red-500 hover:bg-red-50"
                       title="Remove Tier"
                     >
                       <Trash2 className="w-5 h-5" />
@@ -526,7 +526,7 @@ export default function EditEventView() {
         </div>
 
         <div className="flex justify-end gap-4 pt-4">
-          <Button type="button" onClick={() => navigate('/organizer/events')} variant="outline" className="rounded-md font-bold px-8">
+          <Button type="button" onClick={() => navigate('/organizer/events')} variant="outline" className="px-8 font-bold rounded-md">
             Cancel
           </Button>
           <Button 
@@ -536,7 +536,7 @@ export default function EditEventView() {
             disabled={isSubmitting || isSuccess}
           >
             {isSubmitting ? (
-              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <div className="w-5 h-5 border-2 border-white rounded-full border-t-transparent animate-spin" />
             ) : isSuccess ? (
               <>
                 <Check className="w-5 h-5" /> Saved Successfully

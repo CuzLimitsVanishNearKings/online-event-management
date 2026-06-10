@@ -65,8 +65,8 @@ export const useEvents = (initialFilters?: Record<string, any>): UseEventsReturn
 
       const response = await axiosClient.get(endpoint)
       const data = response.data
-
-      const transformedEvents: Event[] = data.map((event: any) => {
+const eventList: any[] = Array.isArray(data) ? data : (data.content ?? [])
+const transformedEvents: Event[] = eventList.map((event: any)  => {
         const startDate = new Date(event.startDateTime)
 
         return {

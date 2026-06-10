@@ -12,6 +12,7 @@ export interface User {
     profilePic?: string
     createdAt?: string
     updatedAt?: string
+    numericId?: number
 }
 
 export interface LoginCredentials {
@@ -138,6 +139,7 @@ export const useAuthStore = create<AuthState>()(
 
           set({ user, token, isAuthenticated: true, isLoading: false, error: null })
           localStorage.setItem('token', token)
+          get().fetchCurrentUser()
         } catch (error: any) {
           const message = error.response?.data?.message || error.message || 'Login failed'
           set({ error: message, isLoading: false })
@@ -163,6 +165,7 @@ export const useAuthStore = create<AuthState>()(
 
           set({ user, token, isAuthenticated: true, isLoading: false, error: null })
           localStorage.setItem('token', token)
+          get().fetchCurrentUser()
         } catch (error: any) {
           const message = error.response?.data?.message || error.message || 'Registration failed'
           set({ error: message, isLoading: false })
@@ -188,6 +191,7 @@ export const useAuthStore = create<AuthState>()(
 
           set({ user, token, isAuthenticated: true, isLoading: false, error: null })
           localStorage.setItem('token', token)
+          get().fetchCurrentUser()
         } catch (error: any) {
           const message = error.response?.data?.message || error.message || 'Registration failed'
           set({ error: message, isLoading: false })
@@ -216,7 +220,8 @@ export const useAuthStore = create<AuthState>()(
             email: data.email,
             name: `${data.firstName} ${data.lastName}`,
             role: data.role.replace('ROLE_', '').toLowerCase(),
-            profilePic: data.profilePic
+            profilePic: data.profilePic,
+            numericId: data.userId
           }
           set({ user, isAuthenticated: true })
         } catch (e) {

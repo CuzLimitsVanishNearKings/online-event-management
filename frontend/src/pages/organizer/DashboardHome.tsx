@@ -41,7 +41,7 @@ export default function DashboardHome() {
   const { user } = useAuthStore()
   // useMetrics now fetches both /events/organizer/my-events and /bookings/organizer
   // in parallel — no second fetch needed in this component.
-  const { data: metrics, isLoading } = useMetrics()
+  const { data: metrics, isLoading, isFetching } = useMetrics()
 
   const safeMetrics = metrics ?? {
     totalRevenue: 0,
@@ -90,8 +90,14 @@ export default function DashboardHome() {
           <h1 className="text-3xl font-display font-bold text-text-primary tracking-tight">
             Welcome back, {user?.name?.split(' ')[0] || 'Organizer'}
           </h1>
-          <p className="text-text-muted mt-2 font-medium">
+          <p className="text-text-muted mt-2 font-medium flex items-center gap-2">
             Here's what's happening with your events today.
+            {isFetching && !isLoading && (
+              <span className="inline-flex items-center gap-1 text-xs font-bold text-primary animate-pulse">
+                <span className="w-1.5 h-1.5 rounded-full bg-primary inline-block" />
+                Updating...
+              </span>
+            )}
           </p>
         </div>
         <Button
